@@ -70,3 +70,5 @@ router.get('/:user_id/posts/:post_id', function(req, res) {
 router.patch('/:user_id/posts/:post_id', function(req, res) {
 
 });
+
+module.exports = router;

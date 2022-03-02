@@ -98,3 +98,5 @@ router.get('/:recipe_id/comments', function(req, res) {
  router.patch('/:recipe_id/ratings/:rating_id', function(req, res) {
 
 });
+
+module.exports = router;

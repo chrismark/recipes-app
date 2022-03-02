@@ -54,3 +54,5 @@ router.get('/:post_id/comments/:comment_id', function(req, res) {
 router.patch('/:post_id/comments/:comment_id', function(req, res) {
 
 });
+
+module.exports = router;
