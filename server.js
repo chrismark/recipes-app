@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');
@@ -40,15 +41,77 @@ app.post('/register', async function(req, res) {
         let encryptedPassword = await bcrypt.hash(password, 10);
 
         // Create user 
-        const user = await db('users').insert({
+        let user = await db('users').insert({
             firstname,
             lastname,
             email: email.toLowerCase(),
             password: encryptedPassword,
-        }).returning(['id', 'firstname', 'lastname', 'username']);
-        console.log(`user: ${user}`);
+        }).returning(['id', 'email']);
+        console.log(JSON.stringify(user));
 
-        res.status(201).json(user);
+        // Create token
+        const token = jwt.sign(
+            {
+                user_id: user[0].id,
+                email
+            },
+            TOKEN_KEY,
+            {
+                expiresIn: '2h'
+            }
+        );
+        console.log('token: ', token);
+
+        // Save
+        user = await db.from('users').update({ 
+            token: token
+        }).where({
+            id: user[0].id
+        }).returning(
+            ['id', 'email', 'token', 'username', 'firstname', 'lastname']
+        );
+
+        res.status(201).json(user[0]);
+    }
+    catch (err) {
+        console.error(err);
+    }
+});
+
+// Login
+app.post('/login', async function(req, res) {
+    try {
+        const { email, password } = req.body;
+
+        if (!(email && password)) {
+            return res.status(400).send('All input is required.');
+        }
+
+        let user = await db('users').where({ email });
+
+        if (user.length > 0 && (await bcrypt.compare(password, user[0].password))) {
+            const token = jwt.sign(
+                {
+                    user_id: user[0].id,
+                    email
+                },
+                TOKEN_KEY,
+                {
+                    expiresIn: '2h',
+                }
+            );
+
+            user = await db('users').update({ 
+                token 
+            }).where({
+                id: user[0].id
+            }).returning(
+                ['id', 'email', 'token', 'username', 'firstname', 'lastname']
+            );
+            console.log(user);
+
+            res.status(200).json(user[0]);
+        }
     }
     catch (err) {
         console.error(err);
