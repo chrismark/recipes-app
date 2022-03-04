@@ -6,11 +6,11 @@ const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');
 const postsRouter = require('./routes/posts');
 
-const db = require('./models/connection');
+const db = require('./models/db');
+const User = require('./models/user');
 
 const app = express();
 const port = 5000;
-const TOKEN_KEY = 'F13maYhjhA4m61oQxMJQh2Ufan';
 
 app.use(express.json());
 
@@ -29,49 +29,17 @@ app.post('/register', async function(req, res) {
             return res.status(400).send('All input is required.');
         }
 
-        // Check if user already exists
-        const oldUser = await db.select('*').from('users').where({ email: email });
-        console.log(oldUser.length);
-
-        if (oldUser.length > 0) {
+        if (await User.isEmailExists(email)) {
             return res.status(409).send('User Already Exist. Please Login.');
         }
-
-        // Encrypt user password
-        let encryptedPassword = await bcrypt.hash(password, 10);
-
-        // Create user 
-        let user = await db('users').insert({
+        
+        let user = await User.createWithGeneratedToken({ 
             firstname,
             lastname,
-            email: email.toLowerCase(),
-            password: encryptedPassword,
-        }).returning(['id', 'email']);
-        console.log(JSON.stringify(user));
-
-        // Create token
-        const token = jwt.sign(
-            {
-                user_id: user[0].id,
-                email
-            },
-            TOKEN_KEY,
-            {
-                expiresIn: '2h'
-            }
-        );
-        console.log('token: ', token);
-
-        // Save
-        user = await db.from('users').update({ 
-            token: token
-        }).where({
-            id: user[0].id
-        }).returning(
-            ['id', 'email', 'token', 'username', 'firstname', 'lastname']
-        );
-
-        res.status(201).json(user[0]);
+            email,
+            password
+        });
+        res.status(201).json(user);
     }
     catch (err) {
         console.error(err);
@@ -87,30 +55,14 @@ app.post('/login', async function(req, res) {
             return res.status(400).send('All input is required.');
         }
 
-        let user = await db('users').where({ email });
-
-        if (user.length > 0 && (await bcrypt.compare(password, user[0].password))) {
-            const token = jwt.sign(
-                {
-                    user_id: user[0].id,
-                    email
-                },
-                TOKEN_KEY,
-                {
-                    expiresIn: '2h',
-                }
-            );
-
-            user = await db('users').update({ 
-                token 
-            }).where({
-                id: user[0].id
-            }).returning(
-                ['id', 'email', 'token', 'username', 'firstname', 'lastname']
-            );
-            console.log(user);
-
-            res.status(200).json(user[0]);
+        let user = await User.authenticate(email, password);
+        if (user) {
+            user = await User.updateWithGeneratedToken(user.id, user.email);
+            res.status(200).json(user);
+        } 
+        else {
+            // Invalid username and/or password.
+            res.status(200).send('Invalid username or password.');
         }
     }
     catch (err) {
