@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('morgan'); 
 
 const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');
@@ -12,6 +13,7 @@ const User = require('./models/user');
 const app = express();
 const port = 5000;
 
+app.use(logger('dev'));
 app.use(express.json());
 
 app.use('/api/users', usersRouter);

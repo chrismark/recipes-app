@@ -6,8 +6,8 @@ const User = require('../models/user');
  * GET /users
  */
 router.get('/', function(req, res) {
-    console.log('req: ', req);
-    console.log('res: ', res);
+  console.log('req: ', req);
+  console.log('res: ', res);
 });
 
 /**

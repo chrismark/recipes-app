@@ -1,15 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
 import { useState, useEffect } from 'react';
+import { Link, BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { Row, Container } from 'react-bootstrap';
+import Header from './components/Header';
+import Login from './components/Login';
+import Register from './components/Register';
+import './App.css';
 
 function App() {
   const [fetchedValue, setFetchedValue] = useState('');
 
   useEffect(() => {
     (async function() {
-      const val = await fetchApiHello();
-      console.log('fetched value: ', val);
-      setFetchedValue(JSON.stringify(val));
+      //const val = await fetchApiHello();
+      //console.log('fetched value: ', val);
+      //setFetchedValue(JSON.stringify(val));
     })();
   }, [/** dependencies */])
 
@@ -20,23 +24,37 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>Fetched on load: {fetchedValue}.</p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path='/'
+          element={
+            <Container>
+              <Header />
+              
+            </Container>
+          }
+        />
+        <Route 
+          path='/login'
+          element={
+            <Container>
+              <Header />
+              <Login />
+            </Container>
+          }
+        />
+        <Route 
+          path='/register'
+          element={
+            <Container>
+              <Header />
+              <Register />
+            </Container>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
 
