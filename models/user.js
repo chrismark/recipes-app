@@ -50,7 +50,6 @@ module.exports = {
   create: async function({firstname, lastname, email, password}, returnFields = null) {
     // Encrypt user password
     let encryptedPassword = await bcrypt.hash(password, 10);
-
     // Create user 
     let user = await db('users').insert({
       firstname,
@@ -60,7 +59,6 @@ module.exports = {
     }).returning(
       returnFields || RETURN_FIELDS
     );
-    console.log('create: ', user);
     return user[0];
   },
   /**

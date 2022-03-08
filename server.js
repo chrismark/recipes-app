@@ -20,6 +20,12 @@ app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/recipes', recipesRouter);
 
+async function delay(ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
+  });
+}
+
 // Register
 app.post('/register', async function(req, res) {
     try {
@@ -52,12 +58,15 @@ app.post('/register', async function(req, res) {
 app.post('/login', async function(req, res) {
     try {
         const { email, password } = req.body;
+        console.log('req.body: ', req.body);
 
         if (!(email && password)) {
             return res.status(400).send('All input is required.');
         }
 
         let user = await User.authenticate(email, password);
+        await delay(5000);
+        console.log('user: ', JSON.stringify(user));
         if (user) {
             user = await User.updateWithGeneratedToken(user.id, user.email);
             res.status(200).json(user);

@@ -1,13 +1,13 @@
-import { Nav, Navbar, Container } from 'react-bootstrap'
-import { Link, useLocation } from 'react-router-dom'
+import { Nav, Navbar, Container } from 'react-bootstrap';
+import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <Navbar expand='lg'>
       <Container fluid>
-        <Navbar.Brand href='#'>Recipes</Navbar.Brand>
+        <Navbar.Brand as={Link} to='/'>Recipes</Navbar.Brand>
         <Navbar.Toggle aria-controls='responsive-navbar-nav' />
         <Navbar.Collapse id='responsive-navbar-nav'>
           <Nav className='me-auto'>
@@ -20,7 +20,7 @@ const Header = () => {
         </Navbar.Collapse>
       </Container>
     </Navbar>
-  )
+  );
 }
 
-export default Header
+export default Header;

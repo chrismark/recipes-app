@@ -1,37 +1,53 @@
 import { useState, useEffect } from 'react';
-import { Link, BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import { Row, Container } from 'react-bootstrap';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Login from './components/Login';
 import Register from './components/Register';
 import './App.css';
 
-function App() {
+const App = () => {
   const [fetchedValue, setFetchedValue] = useState('');
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async function() {
-      //const val = await fetchApiHello();
-      //console.log('fetched value: ', val);
-      //setFetchedValue(JSON.stringify(val));
+      // Fetch posts
     })();
   }, [/** dependencies */])
 
-  // Fetch value from /api/hello
-  const fetchApiHello = async () => {
-    const res = await fetch('/api/hello');
-    return await res.json();
-  }
+  const onLogin = async (payload) => {
+    console.log('payload: ', payload);
+    const result = await fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await result.json();
+    console.log('data: ', data);
+    return data;
+  };
+
+  const onPostLogin = (data) => {
+    setUserData(data);
+    navigate('/');
+  };
+
+  const onPostRegister = (data) => {
+    setUserData(data);
+    navigate('/');
+  };
 
   return (
-    <Router>
       <Routes>
         <Route
           path='/'
           element={
             <Container>
               <Header />
-              
             </Container>
           }
         />
@@ -40,7 +56,7 @@ function App() {
           element={
             <Container>
               <Header />
-              <Login />
+              <Login onLogin={onLogin} onPostLogin={onPostLogin} />
             </Container>
           }
         />
@@ -49,13 +65,12 @@ function App() {
           element={
             <Container>
               <Header />
-              <Register />
+              <Register onPostRegister={onPostRegister} />
             </Container>
           }
         />
       </Routes>
-    </Router>
   );
-}
+};
 
 export default App;

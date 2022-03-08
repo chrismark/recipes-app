@@ -1,6 +1,7 @@
-import { Form, Row, Col, Button } from 'react-bootstrap'
+import { react } from 'react';
+import { Form, Row, Col, Button } from 'react-bootstrap';
 
-const Register = () => {
+const Register = ({ onPostRegister }) => {
   return (
     <Form>
       <h2>Register</h2>
@@ -30,7 +31,7 @@ const Register = () => {
 
       <Button variant='primary' type='submit'>Submit</Button>
     </Form>
-  )
+  );
 }
 
-export default Register
+export default Register;
