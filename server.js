@@ -34,11 +34,11 @@ app.post('/register', async function(req, res) {
 
         // Validate user input
         if (!(email && password && firstname && lastname)) {
-            return res.status(400).send('All input is required.');
+            return res.status(200).send({errorMessage: 'All input is required.'});
         }
 
         if (await User.isEmailExists(email)) {
-            return res.status(409).send('User Already Exist. Please Login.');
+            return res.status(200).send({errorMessage: 'User Already Exist. Please Login.'});
         }
         
         let user = await User.createWithGeneratedToken({ 
@@ -61,10 +61,11 @@ app.post('/login', async function(req, res) {
         console.log('req.body: ', req.body);
 
         if (!(email && password)) {
-            return res.status(400).send('All input is required.');
+            return res.status(200).send({errorMessage: 'All input is required.'});
         }
 
         let user = await User.authenticate(email, password);
+        // TODO: remove delay after test
         await delay(5000);
         console.log('user: ', JSON.stringify(user));
         if (user) {
@@ -73,7 +74,7 @@ app.post('/login', async function(req, res) {
         } 
         else {
             // Invalid username and/or password.
-            res.status(200).send('Invalid username or password.');
+            res.status(200).send({errorMessage: 'Invalid username or password.'});
         }
     }
     catch (err) {

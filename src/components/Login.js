@@ -1,58 +1,106 @@
 import { useState } from 'react';
-import { Form, Button, Spinner } from 'react-bootstrap';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { Form, Button, Spinner, Alert } from 'react-bootstrap';
+
+const schema = Yup.object().shape({
+  email: Yup.string().email().required(),
+  password: Yup.string().required(),
+});
 
 const Login = ({ onLogin, onPostLogin }) => {
-  const [validated, setValidated] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showSubmitError, setShowSubmitError] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = async (e) => {
-    const form = e.currentTarget || e.target;
-    console.log(form);
-    console.log(form.checkValidity && form.checkValidity());
-    e.preventDefault();
-    e.stopPropagation();
-    setValidated(form.checkValidity());
-    console.log('validated: ', validated);
-
-    //if (form.checkValidity()) {
-      setSubmitting(true);
-      const payload = { email, password };
-      const data = await onLogin(payload);
+  const doSubmit = async (values) => {
+    console.log('values: ', values);
+    setShowSubmitError(false);
+    setSubmitError('');
+    setSubmitting(true);
+    const payload = { email: values.email, password: values.password };
+    const [data, error] = await onLogin(payload);
+    console.log('doSubmit: data=', data, ', error=', error);
+    if (data) {
       onPostLogin(data);
-    //}
+    }
+    else {
+      setSubmitting(false);
+      setSubmitError(error);
+      setShowSubmitError(true);
+    }
+    
   };
 
   return (
-    <Form noValidate validated={validated} onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      <Form.Group className='mb-3' controlId='validationCustom01'>
-        <Form.Label>Email</Form.Label>
-        <Form.Control disabled={submitting} required type='email' placeholder='Enter email' onChange={(e) => setEmail(e.target.value)} />
-      </Form.Group>
-      <Form.Group className='mb-3' controlId='validationCustom02'>
-        <Form.Label>Password</Form.Label>
-        <Form.Control disabled={submitting} required type='password' placeholder='Password' onChange={(e) => setPassword(e.target.value)} />
-      </Form.Group>
-      {!submitting ? 
-        (<Button variant='primary' type='submit'>Submit</Button>)
-        :
-        (
-          <Button variant='primary' type='submit' disabled>
-            <Spinner
-              as="span"
-              animation="border"
-              size="sm"
-              role="status"
-              aria-hidden="true"
-              />
-            {' '}Processing...
-          </Button>
-        )
-      }
-      
-    </Form>
+    <Formik
+      validationSchema={schema}
+      onSubmit={doSubmit}
+      initialValues={{
+        email: '',
+        password: '',
+      }}
+      >
+      {({
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        values,
+        touched,
+        isValid,
+        errors,
+      }) => (
+        <Form noValidate onSubmit={handleSubmit}>
+          <h2>Login</h2>
+          <Alert show={showSubmitError} variant='danger'>
+            {(submitError ? submitError : '')}
+          </Alert>
+          <Form.Group className='mb-3' controlId='validationFormik1'>
+            <Form.Label>Email</Form.Label>
+            <Form.Control 
+              disabled={submitting} 
+              type='text' 
+              name='email'
+              value={values.email}
+              placeholder='Enter email' 
+              onChange={handleChange} 
+              isValid={touched.email && !errors.email}
+              isInvalid={!!errors.email}
+            />
+            <Form.Control.Feedback type='invalid'>{errors.email}</Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group className='mb-3' controlId='validationFormik02'>
+            <Form.Label>Password</Form.Label>
+            <Form.Control 
+              disabled={submitting} 
+              required 
+              type='text'
+              name='password' 
+              placeholder='Password' 
+              onChange={handleChange} 
+              isValid={touched.password && !errors.password}
+              isInvalid={!!errors.password}
+            />
+          </Form.Group>
+          {!submitting ? 
+            (<Button variant='primary' type='submit'>Submit</Button>)
+            :
+            (
+              <Button variant='primary' type='submit' disabled>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  />
+                {' '}Processing...
+              </Button>
+            )
+          }
+        </Form>
+      )}
+    </Formik>
   );
 };
 

@@ -18,17 +18,26 @@ const App = () => {
   }, [/** dependencies */])
 
   const onLogin = async (payload) => {
-    console.log('payload: ', payload);
-    const result = await fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-    const data = await result.json();
-    console.log('data: ', data);
-    return data;
+    try {
+      console.log('payload: ', payload);
+      const result = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await result.json();
+      console.log('data: ', data);
+      if (data.errorMessage) {
+        return [null, data.errorMessage];
+      }
+      return [data, null];
+    }
+    catch (e) {
+      console.error(e);
+      return [null, null];
+    }
   };
 
   const onPostLogin = (data) => {
