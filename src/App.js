@@ -8,7 +8,7 @@ import './App.css';
 
 const App = () => {
   const [fetchedValue, setFetchedValue] = useState('');
-  const [userData, setUserData] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,13 +40,36 @@ const App = () => {
     }
   };
 
+  const onRegister = async (payload) => {
+    try {
+      console.log('payload: ', payload);
+      const result = await fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await result.json();
+      console.log('data: ', data);
+      if (data.errorMessage) {
+        return [null, data.errorMessage];
+      }
+      return [data, null];
+    }
+    catch (e) {
+      console.error(e);
+      return [null, null];
+    }
+  };
+
   const onPostLogin = (data) => {
-    setUserData(data);
+    setUser(data);
     navigate('/');
   };
 
   const onPostRegister = (data) => {
-    setUserData(data);
+    setUser(data);
     navigate('/');
   };
 
@@ -56,7 +79,7 @@ const App = () => {
           path='/'
           element={
             <Container>
-              <Header />
+              <Header user={user} />
             </Container>
           }
         />
@@ -74,7 +97,7 @@ const App = () => {
           element={
             <Container>
               <Header />
-              <Register onPostRegister={onPostRegister} />
+              <Register onRegister={onRegister} onPostRegister={onPostRegister} />
             </Container>
           }
         />

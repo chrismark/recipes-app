@@ -35,6 +35,8 @@ const Login = ({ onLogin, onPostLogin }) => {
   return (
     <Formik
       validationSchema={schema}
+      validateOnChange={false}
+      validateOnBlur={false}
       onSubmit={doSubmit}
       initialValues={{
         email: '',
@@ -49,6 +51,7 @@ const Login = ({ onLogin, onPostLogin }) => {
         touched,
         isValid,
         errors,
+        isSubmitting
       }) => (
         <Form noValidate onSubmit={handleSubmit}>
           <h2>Login</h2>
@@ -58,7 +61,7 @@ const Login = ({ onLogin, onPostLogin }) => {
           <Form.Group className='mb-3' controlId='validationFormik1'>
             <Form.Label>Email</Form.Label>
             <Form.Control 
-              disabled={submitting} 
+              disabled={isSubmitting} 
               type='text' 
               name='email'
               value={values.email}
@@ -72,9 +75,8 @@ const Login = ({ onLogin, onPostLogin }) => {
           <Form.Group className='mb-3' controlId='validationFormik02'>
             <Form.Label>Password</Form.Label>
             <Form.Control 
-              disabled={submitting} 
-              required 
-              type='text'
+              disabled={isSubmitting} 
+              type='password'
               name='password' 
               placeholder='Password' 
               onChange={handleChange} 
@@ -82,18 +84,18 @@ const Login = ({ onLogin, onPostLogin }) => {
               isInvalid={!!errors.password}
             />
           </Form.Group>
-          {!submitting ? 
+          {!isSubmitting ? 
             (<Button variant='primary' type='submit'>Submit</Button>)
             :
             (
               <Button variant='primary' type='submit' disabled>
                 <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                  />
+                  as='span'
+                  animation='border'
+                  size='sm'
+                  role='status'
+                  aria-hidden='true'
+                />
                 {' '}Processing...
               </Button>
             )

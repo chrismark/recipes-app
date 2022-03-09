@@ -47,7 +47,14 @@ app.post('/register', async function(req, res) {
             email,
             password
         });
-        res.status(201).json(user);
+        // TODO: remove after test
+        await delay(3000);
+        if (user) {
+          res.status(201).json(user);
+        }
+        else {
+          return res.status(200).send({errorMessage: 'There was a problem with registraion. Please try again later.'});
+        }
     }
     catch (err) {
         console.error(err);
@@ -66,12 +73,14 @@ app.post('/login', async function(req, res) {
 
         let user = await User.authenticate(email, password);
         // TODO: remove delay after test
-        await delay(5000);
+        await delay(3000);
         console.log('user: ', JSON.stringify(user));
         if (user) {
             user = await User.updateWithGeneratedToken(user.id, user.email);
-            res.status(200).json(user);
-        } 
+        }
+        if (user) {
+          res.status(200).json(user);
+        }
         else {
             // Invalid username and/or password.
             res.status(200).send({errorMessage: 'Invalid username or password.'});
@@ -82,21 +91,10 @@ app.post('/login', async function(req, res) {
     }
 });
 
-// app.get('/api/hello', (req, res) => {
-//     res.send({ express: 'Hello from express.' });
-// });
+// logout
+app.post('/logout', function(req, res) {
 
-// app.get('/api/test', (req, res) => {
-//     res.send({
-//         message: 'This is a test.'
-//     });
-// });
+});
 
-// // Recipes
-
-// app.post('/api/data', (req, res) => {
-//     console.log(req.body);
-//     res.send(`I received your POST request. This is what you sent me: ${req.body.post}`);
-// });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

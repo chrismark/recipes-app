@@ -33,9 +33,11 @@ module.exports = {
   },
   authenticate: async function(email, password) {
     const user = await this.findOne({ email });
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (user && isPasswordMatch) {
-      return user;
+    if (user) {
+      const isPasswordMatch = await bcrypt.compare(password, user.password);
+      if (isPasswordMatch) {
+        return user;
+      }
     }
     return null;
   },
@@ -71,8 +73,14 @@ module.exports = {
   * @returns 
   */
   createWithGeneratedToken: async function(fields) {
-    let user = await this.create(fields, ['id', 'email']);
-    return await this.updateWithGeneratedToken(user.id, user.email);
+    try {
+      let user = await this.create(fields, ['id', 'email']);
+      return await this.updateWithGeneratedToken(user.id, user.email);
+    }
+    catch (e) {
+      console.error(e);
+      return null;
+    }
   },
   update: async function(id, fields, returnFields = null) {
     let user = await db.from('users').update(fields).where({id: id}).returning(
@@ -87,8 +95,14 @@ module.exports = {
   * @returns JSON with fields id, email, firstname, lastname, username, token
   */
   updateWithGeneratedToken: async function(id, email) {
-    const token = this.generateToken({id, email});
-    return await this.update(id, {token: token});
+    try {
+      const token = this.generateToken({id, email});
+      return await this.update(id, {token: token});
+    } 
+    catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 };
 
