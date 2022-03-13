@@ -4,18 +4,21 @@ import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Login from './components/Login';
 import Register from './components/Register';
+import Posts from './components/Posts';
 import './App.css';
 
 const App = () => {
   const [fetchedValue, setFetchedValue] = useState('');
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     (async function() {
       // Fetch posts
+      
     })();
-  }, [/** dependencies */])
+  }, [/** dependencies */]);
 
   const onLogin = async (payload) => {
     try {
@@ -73,6 +76,8 @@ const App = () => {
     navigate('/');
   };
 
+  
+
   return (
       <Routes>
         <Route
@@ -80,6 +85,7 @@ const App = () => {
           element={
             <Container>
               <Header user={user} />
+              <Posts user={user} />
             </Container>
           }
         />

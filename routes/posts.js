@@ -7,7 +7,7 @@ const router = express.Router();
  * Retrieve all posts.
  */
 router.get('/', function(req, res) {
-
+  res.send([]);
 });
 
 /**

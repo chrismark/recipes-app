@@ -10,15 +10,22 @@ const postsRouter = require('./routes/posts');
 const db = require('./models/db');
 const User = require('./models/user');
 
+const authToken = require('./middleware/authToken');
+
 const app = express();
 const port = 5000;
 
 app.use(logger('dev'));
 app.use(express.json());
 
+app.use('/api', authToken);
+app.use('/logout', authToken);
+
 app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/recipes', recipesRouter);
+
+
 
 async function delay(ms) {
   return new Promise((resolve, reject) => {
@@ -41,7 +48,7 @@ app.post('/register', async function(req, res) {
             return res.status(200).send({errorMessage: 'User Already Exist. Please Login.'});
         }
         
-        let user = await User.createWithGeneratedToken({ 
+        let user = await User.create({ 
             firstname,
             lastname,
             email,
@@ -50,14 +57,16 @@ app.post('/register', async function(req, res) {
         // TODO: remove after test
         await delay(3000);
         if (user) {
+          let token = User.generateToken(user);
+          user.token = token;
           res.status(201).json(user);
         }
         else {
           return res.status(200).send({errorMessage: 'There was a problem with registraion. Please try again later.'});
         }
     }
-    catch (err) {
-        console.error(err);
+    catch (e) {
+        console.error(e);
     }
 });
 
@@ -76,9 +85,8 @@ app.post('/login', async function(req, res) {
         await delay(3000);
         console.log('user: ', JSON.stringify(user));
         if (user) {
-            user = await User.updateWithGeneratedToken(user.id, user.email);
-        }
-        if (user) {
+          let token = User.generateToken(user);
+          user.token = token;
           res.status(200).json(user);
         }
         else {
@@ -86,14 +94,18 @@ app.post('/login', async function(req, res) {
             res.status(200).send({errorMessage: 'Invalid username or password.'});
         }
     }
-    catch (err) {
-        console.error(err);
+    catch (e) {
+        console.error(e);
     }
 });
 
 // logout
-app.post('/logout', function(req, res) {
+app.get('/logout', function(req, res) {
+  console.log(req.headers);
+  if (req.headers.authorization) {
+    const token = req.headers.authorization.split(' ')[1];
 
+  }
 });
 
 
