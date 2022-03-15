@@ -3,6 +3,7 @@ const db = require('./db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const PermsConfig = require('../middleware/permissions').PermissionsConfig;
 const RETURN_FIELDS = ['id', 'uuid', 'email', 'username', 'firstname', 'lastname'];
 
 module.exports = {
@@ -22,15 +23,23 @@ module.exports = {
   generateToken: function(user) {
     return jwt.sign(
       {
-        sub: user.uuid, 
-        iss: 'recipe-app-backend',
-        aud: 'recipe-app-frontend',
         email: user.email,
-        scope: 'posts recipes'
+        scope: [
+          PermsConfig.FetchAllPosts,
+          PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.FetchAllUserPosts, 
+          PermsConfig.CreateComment, PermsConfig.FetchAllComments, PermsConfig.UpdateComment,
+          PermsConfig.FetchUser, PermsConfig.UpdateUser, 
+          PermsConfig.CreateRecipe, PermsConfig.UpdateRecipe, PermsConfig.FetchAllRecipes,
+          PermsConfig.CreateRecipeComment, PermsConfig.UpdateRecipeComment, PermsConfig.FetchAllRecipeComments,
+          PermsConfig.CreateRating, PermsConfig.UpdateRating, PermsConfig.FetchAllRatings,
+        ].join(' '),
       },
       process.env.TOKEN_KEY,
       {
-        expiresIn: '2h'
+        expiresIn: '2h',
+        subject: user.uuid,
+        audience: 'recipe-app-frontend',
+        issuer: 'recipe-app-backend',
       }
     );
   },

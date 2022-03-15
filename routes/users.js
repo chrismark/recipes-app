@@ -1,20 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 
 /**
  * GET /users
  */
-router.get('/', function(req, res) {
+router.get('/', checkPerms(PermsConfig.FetchAllUsers), function(req, res) {
   console.log('req: ', req);
   console.log('res: ', res);
-});
-
-/**
- * POST /users
- */
-router.post('/', function(req, res) {
-    
 });
 
 /**
@@ -22,7 +16,7 @@ router.post('/', function(req, res) {
  * 
  * Retrieve user information
  */
-router.get('/:user_id', function(req, res) {
+router.get('/:user_id', checkPerms(PermsConfig.FetchUser), function(req, res) {
 
 })
 
@@ -31,7 +25,7 @@ router.get('/:user_id', function(req, res) {
  * 
  * Update user information.
  */
-router.patch('/:user_id', function(req, res) {
+router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res) {
 
 });
 
@@ -40,7 +34,7 @@ router.patch('/:user_id', function(req, res) {
  * 
  * Retrieve all posts belonging to user.
  */
-router.get('/:user_id/posts', function(req, res) {
+router.get('/:user_id/posts', checkPerms(PermsConfig.FetchAllUserPosts), function(req, res) {
 
 });
 
@@ -49,7 +43,7 @@ router.get('/:user_id/posts', function(req, res) {
  * 
  * Create post under user.
  */
-router.post('/:user_id/posts', function(req, res) {
+router.post('/:user_id/posts', checkPerms(PermsConfig.CreatePost), function(req, res) {
 
 });
 
@@ -58,7 +52,7 @@ router.post('/:user_id/posts', function(req, res) {
  * 
  * Retrieve post under user.
  */
-router.get('/:user_id/posts/:post_id', function(req, res) {
+router.get('/:user_id/posts/:post_id', checkPerms(PermsConfig.FetchPost), function(req, res) {
 
 });
 
@@ -67,7 +61,7 @@ router.get('/:user_id/posts/:post_id', function(req, res) {
  * 
  * Update post under user.
  */
-router.patch('/:user_id/posts/:post_id', function(req, res) {
+router.patch('/:user_id/posts/:post_id', checkPerms(PermsConfig.UpdatePost), function(req, res) {
 
 });
 

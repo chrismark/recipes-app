@@ -2,6 +2,11 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const logger = require('morgan'); 
+const https = require('https');
+const fs = require('fs');
+
+const key = fs.readFileSync('./key.pem');
+const cert = fs.readFileSync('./cert.pem');
 
 const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');
@@ -10,7 +15,7 @@ const postsRouter = require('./routes/posts');
 const db = require('./models/db');
 const User = require('./models/user');
 
-const authToken = require('./middleware/authToken');
+const authToken = require('./middleware/auth');
 
 const app = express();
 const port = 5000;
@@ -108,5 +113,13 @@ app.get('/logout', function(req, res) {
   }
 });
 
+app.use(function(err, req, res, next) {
+  console.error(err);
+  if (err && err.statusCode == 403) {
+    return res.status(403).send({errorMessage: 'Permission denied.'})
+  }
+  next();
+});
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+const server = https.createServer({ key, cert }, app);
+server.listen(port, () => console.log(`Listening on port ${port}`));

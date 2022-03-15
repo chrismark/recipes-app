@@ -1,47 +1,41 @@
 const express = require('express');
 const router = express.Router();
+const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 
 /**
  * GET /recipes - List saved recipes
  */
-router.get('/', function(req, res) {
+router.get('/', checkPerms(PermsConfig.FetchAllRecipes), function(req, res) {
 
 });
 
 /**
  * POST /recipes - Save fetched recipe
  */
-router.post('/', function(req, res) {
+router.post('/', checkPerms(PermsConfig.CreateRecipe), function(req, res) {
     
 });
 
 /**
  * GET /recipes/recipe_id
  */
-router.get('/:recipe_id', function(req, res) {
+router.get('/:recipe_id', checkPerms(PermsConfig.FetchRecipe), function(req, res) {
 
 })
 
 /**
  * PATCH /recipes/recipe_id
  */
-router.patch('/:recipe_id', function(req, res) {
+router.patch('/:recipe_id', checkPerms(PermsConfig.UpdateRecipe), function(req, res) {
 
 });
-
-/**
- * GET /recipes/recipe_id
- */
- router.get('/:recipe_id', function(req, res) {
-
-})
 
 /**
  * GET /recipes/recipe_id/comments 
  * 
  * Retrieve comments for recipe.
  */
-router.get('/:recipe_id/comments', function(req, res) {
+router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments), function(req, res) {
 
 });
 
@@ -50,7 +44,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Post a comment under recipe.
  */
- router.post('/:recipe_id/comments', function(req, res) {
+ router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment), function(req, res) {
 
 });
 
@@ -59,7 +53,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Update a comment for recipe.
  */
- router.patch('/:recipe_id/comments/:comment_id', function(req, res) {
+ router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), function(req, res) {
 
 });
 
@@ -68,7 +62,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Retrieve ratings for recipe.
  */
- router.get('/:recipe_id/ratings', function(req, res) {
+ router.get('/:recipe_id/ratings', checkPerms(PermsConfig.FetchAllRatings), function(req, res) {
 
 });
 
@@ -77,7 +71,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Submit a rating for recipe.
  */
- router.post('/:recipe_id/ratings', function(req, res) {
+ router.post('/:recipe_id/ratings', checkPerms(PermsConfig.CreateRating), function(req, res) {
 
 });
 
@@ -86,7 +80,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Retrieve rating  for recipe.
  */
- router.get('/:recipe_id/ratings/:rating_id', function(req, res) {
+ router.get('/:recipe_id/ratings/:rating_id', checkPerms(PermsConfig.FetchRating), function(req, res) {
 
 });
 
@@ -95,7 +89,7 @@ router.get('/:recipe_id/comments', function(req, res) {
  * 
  * Update a rating for recipe.
  */
- router.patch('/:recipe_id/ratings/:rating_id', function(req, res) {
+ router.patch('/:recipe_id/ratings/:rating_id', checkPerms(PermsConfig.UpdateRating), function(req, res) {
 
 });
 

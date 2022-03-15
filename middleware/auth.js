@@ -2,16 +2,19 @@ const jwt = require('jsonwebtoken');
 const config = process.env;
 
 module.exports = (req, res, next) => {
-  const token = req.headers.authorization &&
-                req.headers.authorization.split(' ')[1];
+  let token = null;
+  const authorization = req.headers.authorization && req.headers.authorization.split(' ');
+
+  if (authorization && authorization.length && authorization[0] == 'Bearer') {
+    token = authorization[1];
+  }
   console.log('verifyToken: ', token);
 
   if (!token) {
     return res.status(403).send({errorMessage: 'Authentication Token required.'});
   }
   try {
-    const decoded = jwt.verify(token, config.TOKEN_KEY);
-    req.decoded_token = decoded;
+    req.user = jwt.verify(token, config.TOKEN_KEY);
   }
   catch (e) {
     console.error(e);

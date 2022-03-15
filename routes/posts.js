@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 
 /**
  * GET /posts
  * 
  * Retrieve all posts.
  */
-router.get('/', function(req, res) {
+router.get('/', checkPerms(PermsConfig.FetchAllPosts), function(req, res) {
   res.send([]);
 });
 
@@ -15,7 +16,7 @@ router.get('/', function(req, res) {
  * 
  * Retrieve post.
  */
-router.get('/:post_id', function(req, res) {
+router.get('/:post_id', checkPerms(PermsConfig.FetchPost), function(req, res) {
 
 });
 
@@ -24,7 +25,7 @@ router.get('/:post_id', function(req, res) {
  * 
  * Retrieve all comments under post.
  */
-router.get('/:post_id/comments', function(req, res) {
+router.get('/:post_id/comments', checkPerms(PermsConfig.FetchAllComments), function(req, res) {
 
 });
 
@@ -33,7 +34,7 @@ router.get('/:post_id/comments', function(req, res) {
  * 
  * Create new comment under post.
  */
-router.post('/:post_id/comments', function(req, res) {
+router.post('/:post_id/comments', checkPerms(PermsConfig.CreateComment), function(req, res) {
 
 });
 
@@ -42,7 +43,7 @@ router.post('/:post_id/comments', function(req, res) {
  * 
  * Retrieve comment under post.
  */
-router.get('/:post_id/comments/:comment_id', function(req, res) {
+router.get('/:post_id/comments/:comment_id', checkPerms(PermsConfig.FetchComment), function(req, res) {
 
 });
 
@@ -51,7 +52,7 @@ router.get('/:post_id/comments/:comment_id', function(req, res) {
  * 
  * Update comment under post.
  */
-router.patch('/:post_id/comments/:comment_id', function(req, res) {
+router.patch('/:post_id/comments/:comment_id', checkPerms(PermsConfig.UpdateComment), function(req, res) {
 
 });
 
