@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 
-const Posts = ({ user }) => {
+const Posts = ({ user, byUser = false }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     (async function() {
       if (user) {
         // Fetch posts
-        await fetchPosts();
+        await fetchPosts(user);
       }
       
     })();
   }, [/** dependencies */]);
 
-  const fetchPosts = async (token) => {
+  const fetchPosts = async ({id, token}) => {
     try {
-      const result = await fetch('/api/posts', {
+      const result = await fetch(
+        '/api' + (byUser ? `/users/${id}/posts` : '/posts'), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
       const posts = await result.json();

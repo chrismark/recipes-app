@@ -35,7 +35,7 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
  * Retrieve all posts belonging to user.
  */
 router.get('/:user_id/posts', checkPerms(PermsConfig.FetchAllUserPosts), function(req, res) {
-
+  res.send([]);
 });
 
 /**

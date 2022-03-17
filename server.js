@@ -5,8 +5,8 @@ const logger = require('morgan');
 const https = require('https');
 const fs = require('fs');
 
-const key = fs.readFileSync('./key.pem');
-const cert = fs.readFileSync('./cert.pem');
+const key = fs.readFileSync(process.env.SSL_KEY_FILE);
+const cert = fs.readFileSync(process.env.SSL_CRT_FILE);
 
 const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');

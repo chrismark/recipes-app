@@ -4,7 +4,10 @@ import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Login from './components/Login';
 import Register from './components/Register';
-import Posts from './components/Posts';
+import AllPosts from './components/AllPosts';
+import YourPosts from './components/YourPosts';
+import TastyRecipes from './components/TastyRecipes';
+import SavedRecipes from './components/SavedRecipes';
 import './App.css';
 
 const App = () => {
@@ -83,16 +86,43 @@ const App = () => {
         <Route
           path='/'
           element={
-            <Container>
+            <Container fluid='sd'>
               <Header user={user} />
-              <Posts user={user} />
+              <AllPosts user={user} />
+            </Container>
+          }
+        />
+        <Route
+          path='/your-posts'
+          element={
+            <Container fluid='sd'>
+              <Header user={user} />
+              <YourPosts user={user} />
+            </Container>
+          }
+        />
+        <Route 
+          path='/tasty-recipes'
+          element={
+            <Container fluid='sd'>
+              <Header user={user} />
+              <TastyRecipes user={user} />
+            </Container>
+          }
+        />
+        <Route 
+          path='/saved-recipes'
+          element={
+            <Container fluid='sd'>
+              <Header user={user} />
+              <SavedRecipes user={user} />
             </Container>
           }
         />
         <Route 
           path='/login'
           element={
-            <Container>
+            <Container fluid='sd'>
               <Header />
               <Login onLogin={onLogin} onPostLogin={onPostLogin} />
             </Container>
@@ -101,7 +131,7 @@ const App = () => {
         <Route 
           path='/register'
           element={
-            <Container>
+            <Container fluid='sd'>
               <Header />
               <Register onRegister={onRegister} onPostRegister={onPostRegister} />
             </Container>
