@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import Login from './components/Login';
@@ -84,6 +84,10 @@ const App = () => {
   return (
       <Routes>
         <Route
+          path='*'
+          element={<Navigate to='/' />}
+        />
+        <Route
           path='/'
           element={
             <Container fluid='sd'>
@@ -92,6 +96,7 @@ const App = () => {
             </Container>
           }
         />
+        {user ? (<>
         <Route
           path='/your-posts'
           element={
@@ -119,6 +124,7 @@ const App = () => {
             </Container>
           }
         />
+        </>) : <></>}
         <Route 
           path='/login'
           element={

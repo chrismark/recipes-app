@@ -19,7 +19,7 @@ const Header = ({ user }) => {
             {user ?
               (<>
               <Nav.Link as={Link} to='/'>All Posts</Nav.Link>
-              <Nav.Link as={Link} to='/tasty-recipes'>Tasty Recipes</Nav.Link>
+              <Nav.Link as={Link} to='/tasty-recipes'>Tasty.co Recipes</Nav.Link>
               <Nav.Link as={Link} to='/saved-recipes'>Saved Recipes</Nav.Link>
               </>) 
               :
