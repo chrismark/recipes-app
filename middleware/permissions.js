@@ -32,4 +32,5 @@ module.exports.PermissionsConfig = {
   CreatePost: 'create:post',
   FetchPost: 'fetch:post',
   UpdatePost: 'update:post',
+  FetchTastyRecipes: 'fetch:tasty',
 }

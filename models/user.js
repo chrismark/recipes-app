@@ -25,7 +25,7 @@ module.exports = {
       {
         email: user.email,
         scope: [
-          PermsConfig.FetchAllPosts,
+          PermsConfig.FetchAllPosts, PermsConfig.FetchTastyRecipes,
           PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.FetchAllUserPosts, 
           PermsConfig.CreateComment, PermsConfig.FetchAllComments, PermsConfig.UpdateComment,
           PermsConfig.FetchUser, PermsConfig.UpdateUser, 

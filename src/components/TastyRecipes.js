@@ -11,24 +11,24 @@ const TastyRecipes = ({ user }) => {
   const [isRecipeSidebarShown, setIsRecipeSidebarShown] = useState(false);
   let offset = 0;
   const size = 20;
-  const regexLink = /<a\shref=\"([^"]+)\">([^<]+)<\/a>/g;
+  const regexLink = /(<a\shref\s*=\s*"([^"]+)">([^<]+)<\/a>)/g;
 
   useEffect(async () => {
-    const data = await fetchRecipes();
+    const data = await fetchRecipes(user);
     setRecipeCount(data.count);
     setRecipes(data.results);
     console.log('count: ', recipeCount);
     console.log('recipes: ', recipes);
   }, []);
 
-  const fetchRecipes = async () => {
+  const fetchRecipes = async ({ token }) => {
     setIsFetchingRecipes(true);
-    const url = 'https://tasty.p.rapidapi.com/recipes/list?from=' + offset +'&size=' + size;
+    const url = '/api/tasty?offset=' + offset +'&size=' + size;
     const result = await fetch(url, {
       method: 'GET',
       headers: {
-        'x-rapidapi-host': 'tasty.p.rapidapi.com',
-        'x-rapidapi-key': 'dc9c65b520mshd27ff92d8fde84ap10a9abjsn208140aaf911'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       }
     });
     const data = await result.json();
@@ -53,7 +53,7 @@ const TastyRecipes = ({ user }) => {
   const replaceTastyLinksWithText = (text) => {
     let result;
     while ((result = regexLink.exec(text)) !== null) {
-      console.log(result[0]);
+      console.log(result);
       text = text.replace(result[0], result[2]);
     }
     return text;
@@ -73,7 +73,7 @@ const TastyRecipes = ({ user }) => {
       <Row xs={1} sm={1} md={2} lg={3} xl={4} className='g-4'>
       {recipes.map((recipe, recipeIndex) => (
         <Col>
-          <Card style={{ width: '18rem'}}>
+          <Card style={{ width: '18rem'}} key={recipe.id}>
             <Card.Img variant='top' src={recipe.thumbnail_url} />
             <Card.Body>
               <Card.Title>{recipe.name}</Card.Title>

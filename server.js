@@ -11,6 +11,7 @@ const cert = fs.readFileSync(process.env.SSL_CRT_FILE);
 const usersRouter = require('./routes/users');
 const recipesRouter = require('./routes/recipes');
 const postsRouter = require('./routes/posts');
+const tastyRouter = require('./routes/tasty');
 
 const db = require('./models/db');
 const User = require('./models/user');
@@ -29,6 +30,7 @@ app.use('/logout', authToken);
 app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);
 app.use('/api/recipes', recipesRouter);
+app.use('/api/tasty', tastyRouter);
 
 
 
