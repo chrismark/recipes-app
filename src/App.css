@@ -40,3 +40,21 @@
 .app-header {
   margin-bottom: 20px;
 }
+
+div.recipe-compilation.carousel a.carousel-control-next,
+div.recipe-compilation.carousel a.carousel-control-prev {
+  top: 1em;
+  align-items: start;
+}
+
+.recipe-compilation .carousel-caption {
+  color: inherit;
+  top: 0;
+  z-index: 1;
+  font-weight: bolder;
+}
+
+.recipe-compilation .card-body {
+  position: absolute;
+  top: -0.5em;
+}

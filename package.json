@@ -32,7 +32,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "devserver": "set HTTPS=true&&set SSL_CRT_FILE=./cert.pem&&set SSL_KEY_FILE=key.pem&&nodemon server.js"
+    "devserver": "set HTTPS=true&&set SSL_CRT_FILE=./cert.pem&&set SSL_KEY_FILE=key.pem&&nodemon --ignore src/* server.js"
   },
   "proxy": "https://localhost:5000",
   "eslintConfig": {
