@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Login from './components/Login';
 import Register from './components/Register';
 import AllPosts from './components/AllPosts';
@@ -82,68 +83,74 @@ const App = () => {
   
 
   return (
-      <Routes>
-        <Route
-          path='*'
-          element={<Navigate to='/' />}
-        />
-        <Route
-          path='/'
-          element={
-            <Container fluid='sd'>
-              <Header user={user} />
-              <AllPosts user={user} />
-            </Container>
-          }
-        />
-        {user ? (<>
-        <Route
-          path='/your-posts'
-          element={
-            <Container fluid='sd'>
-              <Header user={user} />
-              <YourPosts user={user} />
-            </Container>
-          }
-        />
-        <Route 
-          path='/tasty-recipes'
-          element={
-            <Container fluid='sd'>
-              <Header user={user} />
-              <TastyRecipes user={user} />
-            </Container>
-          }
-        />
-        <Route 
-          path='/saved-recipes'
-          element={
-            <Container fluid='sd'>
-              <Header user={user} />
-              <SavedRecipes user={user} />
-            </Container>
-          }
-        />
-        </>) : <></>}
-        <Route 
-          path='/login'
-          element={
-            <Container fluid='sd'>
-              <Header />
-              <Login onLogin={onLogin} onPostLogin={onPostLogin} />
-            </Container>
-          }
-        />
-        <Route 
-          path='/register'
-          element={
-            <Container fluid='sd'>
-              <Header />
-              <Register onRegister={onRegister} onPostRegister={onPostRegister} />
-            </Container>
-          }
-        />
-      </Routes>
+    <Routes>
+      <Route
+        path='*'
+        element={<Navigate to='/' />}
+      />
+      <Route
+        path='/'
+        element={
+          <Container fluid='sd'>
+            <Header user={user} />
+            <AllPosts user={user} />
+            <Footer />
+          </Container>
+        }
+      />
+      {user ? (<>
+      <Route
+        path='/your-posts'
+        element={
+          <Container fluid='sd'>
+            <Header user={user} />
+            <YourPosts user={user} />
+            <Footer />
+          </Container>
+        }
+      />
+      <Route 
+        path='/tasty-recipes'
+        element={
+          <Container fluid='sd'>
+            <Header user={user} />
+            <TastyRecipes user={user} />
+            <Footer />
+          </Container>
+        }
+      />
+      <Route 
+        path='/saved-recipes'
+        element={
+          <Container fluid='sd'>
+            <Header user={user} />
+            <SavedRecipes user={user} />
+            <Footer />
+          </Container>
+        }
+      />
+      </>) : <></>}
+      <Route 
+        path='/login'
+        element={
+          <Container fluid='sd'>
+            <Header />
+            <Login onLogin={onLogin} onPostLogin={onPostLogin} />
+            <Footer />
+          </Container>
+        }
+      />
+      <Route 
+        path='/register'
+        element={
+          <Container fluid='sd'>
+            <Header />
+            <Register onRegister={onRegister} onPostRegister={onPostRegister} />
+            <Footer />
+          </Container>
+        }
+      />
+    </Routes>
   );
 };
 

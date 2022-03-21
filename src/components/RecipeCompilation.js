@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button, Card, Carousel, Accordion, useAccordionButton } from 'react-bootstrap';
+import { Button, Card, Carousel, Accordion, useAccordionButton, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import RecipeShort from './RecipeShort';
 import CustomAccordionToggle from './CustomAccordionToggle';
 
@@ -17,27 +18,21 @@ const RecipeCompilation = ({ compilation, compilationIndex, onQuickViewSidebar }
   };
 
   return (
-    <Carousel variant='dark' interval={null} indicators={false} className='recipe-compilaton'>
-      <Carousel.Item key={compilation.id}>
-        <Card as={Accordion} flush style={{ width: '18rem'}}>
-          <Card.Img variant='top' src={compilation.thumbnail_url} />
-          <Card.Body>
-            <Card.Title>
-              <h6 style={{marginTop: '-.4em'}}><small>compilation</small></h6>
-              {compilation.name} <CustomAccordionToggle eventKey="0" />
-            </Card.Title>
-            <Accordion.Collapse eventKey='0'>
-              <>{replaceLinksWithText(compilation.description)}</>
-            </Accordion.Collapse>
-          </Card.Body>
-        </Card>
-      </Carousel.Item>
-      {compilation.recipes.map((recipe, recipeIndex) => (
-        <Carousel.Item key={recipe.id}>
-          <RecipeShort recipe={recipe} compilationIndex={compilationIndex} recipeIndex={recipeIndex} onQuickViewSidebar={onQuickViewSidebar} />
-        </Carousel.Item>
-      ))}
-    </Carousel>
+    <Card as={Accordion} flush key={compilation.id}>
+      <Card.Img variant='top' src={compilation.thumbnail_url} />
+      <Card.Body>
+        <Card.Title>
+          <h6 style={{marginTop: '-.4em'}}><small>compilation</small></h6>
+          <CustomAccordionToggle eventKey="0">{compilation.name}</CustomAccordionToggle>
+        </Card.Title>
+        <Accordion.Collapse eventKey='0'>
+          <>{replaceLinksWithText(compilation.description)}</>
+        </Accordion.Collapse>
+      </Card.Body>
+      <ListGroup className='list-group-flush'>
+        <ListGroupItem as={Link} to='#' onClick={() => onQuickViewSidebar(compilationIndex)} style={{textAlign: 'center'}}>View Compilation</ListGroupItem>
+      </ListGroup>
+    </Card>
   );
 }; 
 

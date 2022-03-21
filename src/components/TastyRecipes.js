@@ -1,35 +1,72 @@
 import { useState, useEffect } from 'react';
-import { Badge, Figure, Offcanvas, Container, Card, Row, Col, ListGroup, ListGroupItem, Spinner, Button } from 'react-bootstrap';
+import { Pagination, Modal, Badge, Figure, Offcanvas, Container, Card, Row, Col, ListGroup, ListGroupItem, Spinner, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaClock } from 'react-icons/fa';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 
 const TastyRecipes = ({ user }) => {
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState({data:[], date:Date.now()});
   const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
   const [quickViewRecipe, setQuickViewRecipe] = useState({});
   const [isRecipeSidebarShown, setIsRecipeSidebarShown] = useState(false);
-  let offset = 0;
+  const [pageOffset, setPageOffset] = useState(0);
+  const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
+  const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
+  const [enableNextPageLink, setEnableNextPageLink] = useState(false);
+  const [enableLastPageLink, setEnableLastPageLink] = useState(false);
   const size = 20;
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
 
   useEffect(() => {
-    const getRecipes = async () => {
-      const data = await fetchRecipes(user);
-      setRecipeCount(data.count);
-      setRecipes(data.results);
-      console.log('count: ', recipeCount);
-      console.log('recipes: ', recipes);
-    }
-
     getRecipes();
-  }, []);
+  }, [pageOffset]);
 
-  const fetchRecipes = async ({ token }) => {
+  const determinePageLinkAbleness = () => {
+    const isFirstPageLinkEnabled = !(pageOffset > 0);
+    const isOtherPageLinkEnabled = !( recipeCount - (size * (pageOffset + 1)) );
+    setEnableFirstPageLink(isFirstPageLinkEnabled);
+    setEnablePrevPageLink(isFirstPageLinkEnabled);
+    setEnableNextPageLink(isOtherPageLinkEnabled);
+    setEnableLastPageLink(isOtherPageLinkEnabled);
+  };
+  
+  const getFirstPage = async () => {
+    setPageOffset(0);
+    //await getRecipes();
+  };
+
+  const getPrevPage = async () => {
+    setPageOffset(Math.max(0, pageOffset - size));
+    //await getRecipes();
+  };
+
+  const getNextPage = async () => {
+    console.log('pageOffset before: ', pageOffset);
+    setPageOffset(Math.min(recipeCount, pageOffset + size));
+    console.log('pageOffset after: ', pageOffset);
+    //await getRecipes();
+  };
+
+  const getLastPage = async () => {
+    setPageOffset(Math.floor(recipeCount / size));
+    await getRecipes();
+  };
+
+  const getRecipes = async () => {
+    const data = await fetchRecipes(user.token);
+    setRecipeCount(data.count);
+    setRecipes({data: data.results, date: Date.now()});
+    determinePageLinkAbleness();
+    console.log('count: ', recipeCount);
+    console.log('recipes: ', recipes);
+  }
+
+  const fetchRecipes = async (token) => {
     setIsFetchingRecipes(true);
-    const url = '/api/tasty?offset=' + offset +'&size=' + size;
+    const url = '/api/tasty?offset=' + pageOffset +'&size=' + size;
+    console.log('fetchRecipes url: ', url);
     const result = await fetch(url, {
       method: 'GET',
       headers: {
@@ -45,11 +82,11 @@ const TastyRecipes = ({ user }) => {
   const doQuickViewSidebar = (index, compilationIndex = -1) => {
     let recipe;
     if (compilationIndex > -1) {
-      recipe = recipes[compilationIndex];
+      recipe = recipes.data[compilationIndex];
       recipe = recipe.recipes[index];
     }
     else {
-      recipe = recipes[index];
+      recipe = recipes.data[index];
     }
     if (recipe.description) {
       recipe.description = replaceLinksWithText(recipe.description);
@@ -73,37 +110,42 @@ const TastyRecipes = ({ user }) => {
   };
 
   return (
+    <>
+    {isFetchingRecipes && (
+    <Container fluid='sd' className='centered-loading-animation-container'>
+      <Row lg={1} className='centered-loading-animation-row justify-content-md-center'>
+        <Col className='centered-loading-animation-col'><Spinner animation="grow " /></Col>
+      </Row>
+    </Container>
+    )}
     <Container className='justify-content-sm-center justify-content-md-center'>
       <h2>Latest from Tasty.co</h2>
       <br/>
-      {isFetchingRecipes && (
-        <Row className='justify-content-md-center'>
-          <br /><br />
-          <Spinner animation="grow" />
-          <br /><br /><br />
-        </Row>
-      )}
-      <Row xs={1} sm={1} md={2} lg={3} xl={3} xxl={4} className='g-4'>
-      {recipes.map((recipe, recipeIndex) => (
-        <Col key={recipe.id}>
+      
+      <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
+      {recipes.data.map((recipe, recipeIndex) => (
+        <Col md={5}>
           {recipe.recipes && recipe.recipes.length ?
             (<RecipeCompilation compilation={recipe} compilationIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
             :
-            (<RecipeShort recipe={recipe} recipeIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
+            (<RecipeShort isCompilation={recipe.recipes && recipe.recipes.length} recipe={recipe} recipeIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
           }
-          {/* <Card style={{ width: '18rem'}}>
-            <Card.Img variant='top' src={recipe.thumbnail_url} />
-            <Card.Body>
-              <Card.Title>{recipe.name}</Card.Title>
-              <Card.Text style={{fontSize: '0.8em'}}>{recipe.tags.length > 0 ? 'Tags: ' + recipe.tags.map(tag => tag.display_name).join(', ') : ''}</Card.Text>
-            </Card.Body>
-            <ListGroup className='list-group-flush'>
-              <ListGroupItem as={Link} to='#' onClick={() => doQuickViewSidebar(recipeIndex)} style={{textAlign: 'center'}}>Quick view of the recipe</ListGroupItem>
-              <ListGroupItem as={Link} to='#' onClick={() => console.log('Saving recipe ' + recipe.name)} style={{textAlign: 'center'}}>Or, save it then rate and comment</ListGroupItem>
-            </ListGroup>
-          </Card>   */}
         </Col>
       ))}
+      </Row>
+      <Row className='justify-content-md-center'>
+        <Col md='auto'>Offset: {pageOffset}, RecipeCount: {recipeCount}</Col>
+      </Row>
+      <Row className='justify-content-md-center'>
+        <Col md='auto'>
+          <br/><br/>
+          <Pagination>
+            <Pagination.First disabled={enableFirstPageLink} onClick={() => getFirstPage()}>First</Pagination.First>
+            <Pagination.Prev disabled={enablePrevPageLink} onClick={() => getPrevPage()}>Prev</Pagination.Prev>
+            <Pagination.Next disabled={enableNextPageLink} onClick={() => getNextPage()}>Next</Pagination.Next>
+            <Pagination.Last disabled={enableLastPageLink} onClick={() => getLastPage()}>Last</Pagination.Last>
+          </Pagination>
+        </Col>
       </Row>
       { /** TODO: Transfer later to own component -- QuickViewSidebar(recipe) */}
       <Offcanvas show={isRecipeSidebarShown} onHide={closeQuickViewSidebar}>
@@ -118,6 +160,7 @@ const TastyRecipes = ({ user }) => {
         </Offcanvas.Body>
       </Offcanvas>
     </Container>
+    </>
   );
 };
 
