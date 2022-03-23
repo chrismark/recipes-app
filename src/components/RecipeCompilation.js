@@ -6,7 +6,7 @@ import CustomBadge from './CustomBadge';
 import CardImgBadge from './CardImgBadge';
 
 
-const RecipeCompilation = ({ isNew, compilation, compilationIndex, onQuickViewSidebar }) => {
+const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onQuickViewSidebar }) => {
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
   
   const replaceLinksWithText = (text) => {
@@ -19,7 +19,7 @@ const RecipeCompilation = ({ isNew, compilation, compilationIndex, onQuickViewSi
   };
 
   return (
-    <Card as={Accordion} flush key={compilation.id}>
+    <Card as={Accordion} flush key={compilation.id} border={activeCardId == compilation.id ? 'warning' : ''}>
       <Card.Img variant='top' src={compilation.thumbnail_url} />
       {isNew && (<CardImgBadge type='danger' overCardImg>new</CardImgBadge>)}
       <Card.Body>

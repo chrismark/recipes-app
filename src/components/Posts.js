@@ -12,7 +12,9 @@ const Posts = ({ user, byUser = false }) => {
   const postCount = 300;
 
   useEffect(() => {
-    getPosts();
+    if (user) {
+      getPosts();
+    }
   }, [pageOffset]);
 
   const determinePageLinkAbleness = () => {

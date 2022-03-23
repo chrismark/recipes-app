@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
 
-const RecipeShort = ({ isNew, isCompilation, recipe, compilationIndex, recipeIndex, onQuickViewSidebar }) => {
+const RecipeShort = ({ activeCardId, isNew, isCompilation, recipe, compilationIndex, recipeIndex, onQuickViewSidebar }) => {
   const style = {
     // Make the images same size
     width: (recipe.aspect_ratio == '16:9' ? '177.5%' : '')
   };
   return (
-    <Card style={{overflow: 'hidden'}}>
+    <Card style={{overflow: 'hidden'}} border={activeCardId == recipe.id ? 'warning' : ''}>
       <Card.Img variant='top' src={recipe.thumbnail_url} style={style} />
       {isNew && (<CardImgBadge type='danger'>new</CardImgBadge>)}
       <Card.Body>

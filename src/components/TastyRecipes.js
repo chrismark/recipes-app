@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Pagination, Modal, Badge, Figure, Offcanvas, Container, Card, Row, Col, ListGroup, ListGroupItem, Spinner, Button } from 'react-bootstrap';
+import { Pagination, Modal, Offcanvas, Container, Card, Row, Col, Spinner, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaClock } from 'react-icons/fa';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
+import QuickViewSidebar from './QuickViewSidebar';
 
 const TastyRecipes = ({ user }) => {
   const [recipes, setRecipes] = useState([]);
@@ -16,18 +17,19 @@ const TastyRecipes = ({ user }) => {
   const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
   const [enableNextPageLink, setEnableNextPageLink] = useState(false);
   const [enableLastPageLink, setEnableLastPageLink] = useState(false);
+  const [activeCardId, setActiveCardId] = useState(-1);
   const size = 20;
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
-  const OneDayMs = 24 * 60 * 60 * 1000;
+  const NewDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
-    getRecipes();
+    // getRecipes();
   }, [pageOffset]);
 
   const isRecipeNew = ({ approved_at }) => {
     let recipeApprovedDate = new Date(approved_at * 1000);
     let diff = Date.now() - recipeApprovedDate;
-    return diff < OneDayMs;
+    return diff < NewDaysMs;
   };
 
   const determinePageLinkAbleness = () => {
@@ -58,6 +60,7 @@ const TastyRecipes = ({ user }) => {
   };
 
   const getRecipes = async () => {
+    if (isFetchingRecipes) { return; }
     setIsFetchingRecipes(true);
     const data = await fetchRecipes(user.token);
     setIsFetchingRecipes(false);
@@ -82,20 +85,22 @@ const TastyRecipes = ({ user }) => {
   const doQuickViewSidebar = (index, compilationIndex = -1) => {
     let recipe;
     if (compilationIndex > -1) {
-      recipe = recipes.data[compilationIndex];
+      recipe = recipes[compilationIndex];
       recipe = recipe.recipes[index];
     }
     else {
-      recipe = recipes.data[index];
+      recipe = recipes[index];
     }
     if (recipe.description) {
       recipe.description = replaceLinksWithText(recipe.description);
     }
     setQuickViewRecipe(recipe);
     setIsRecipeSidebarShown(index >= 0);
+    setActiveCardId(recipe.id);
   };
 
   const closeQuickViewSidebar = () => {
+    setActiveCardId(-1);
     setIsRecipeSidebarShown(false);
     setQuickViewRecipe({});
   };
@@ -125,9 +130,9 @@ const TastyRecipes = ({ user }) => {
       {recipes.map((recipe, recipeIndex) => (
         <Col md={5} key={recipe.id}>
           {recipe.recipes && recipe.recipes.length ?
-            (<RecipeCompilation isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
+            (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
             :
-            (<RecipeShort isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
+            (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
           }
         </Col>
       ))}
@@ -145,18 +150,7 @@ const TastyRecipes = ({ user }) => {
           </Col>
         </Row>
       )}
-      { /** TODO: Transfer later to own component -- QuickViewSidebar(recipe) */}
-      <Offcanvas show={isRecipeSidebarShown} onHide={closeQuickViewSidebar}>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>{quickViewRecipe.name}</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <Figure>
-            <Figure.Image src={quickViewRecipe.thumbnail_url} />
-          </Figure>
-          {quickViewRecipe.description}
-        </Offcanvas.Body>
-      </Offcanvas>
+      <QuickViewSidebar show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
     </Container>
     </>
   );
