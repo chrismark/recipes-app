@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom';
 import CustomAccordionToggle from './CustomAccordionToggle';
 import CustomBadge from './CustomBadge';
 import CardImgBadge from './CardImgBadge';
+import { isStringNotNullOrEmpty } from '../lib';
 
 
 const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onQuickViewSidebar }) => {
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
-  
+  const isDescriptionNotEmpty = isStringNotNullOrEmpty(compilation.description);
+
   const replaceLinksWithText = (text) => {
     let result = null;
     let copyText = text;
@@ -25,7 +27,7 @@ const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex,
       <Card.Body>
         <Card.Title>
           <CustomBadge type='info'>compilation</CustomBadge>
-          <CustomAccordionToggle eventKey="0">{compilation.name}</CustomAccordionToggle>
+          <CustomAccordionToggle eventKey="0" showToggle={isDescriptionNotEmpty}>{compilation.name}</CustomAccordionToggle>
         </Card.Title>
         <Accordion.Collapse eventKey='0'>
           <>{replaceLinksWithText(compilation.description)}</>

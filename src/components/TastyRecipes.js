@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Pagination, Modal, Offcanvas, Container, Card, Row, Col, Spinner, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaClock } from 'react-icons/fa';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewSidebar from './QuickViewSidebar';
@@ -10,7 +9,7 @@ const TastyRecipes = ({ user }) => {
   const [recipes, setRecipes] = useState([]);
   const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
-  const [quickViewRecipe, setQuickViewRecipe] = useState({});
+  const [quickViewRecipe, setQuickViewRecipe] = useState(null);
   const [isRecipeSidebarShown, setIsRecipeSidebarShown] = useState(false);
   const [pageOffset, setPageOffset] = useState(0);
   const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
@@ -23,7 +22,7 @@ const TastyRecipes = ({ user }) => {
   const NewDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
-    // getRecipes();
+    getRecipes();
   }, [pageOffset]);
 
   const isRecipeNew = ({ approved_at }) => {
@@ -102,7 +101,7 @@ const TastyRecipes = ({ user }) => {
   const closeQuickViewSidebar = () => {
     setActiveCardId(-1);
     setIsRecipeSidebarShown(false);
-    setQuickViewRecipe({});
+    setQuickViewRecipe(null);
   };
 
   const replaceLinksWithText = (text) => {
@@ -150,7 +149,9 @@ const TastyRecipes = ({ user }) => {
           </Col>
         </Row>
       )}
-      <QuickViewSidebar show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
+      {quickViewRecipe && (
+        <QuickViewSidebar show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
+      )}
     </Container>
     </>
   );
