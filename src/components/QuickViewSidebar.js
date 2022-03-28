@@ -6,8 +6,6 @@ import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 const QuickViewSidebar = ({ show, onClose, recipe }) => {
   const isDescriptionNotEmpty = isStringNotNullOrEmpty(recipe.description);
 
-  
-
   return (
     <Offcanvas show={show} onHide={onClose} scroll={true}>
       <Offcanvas.Header closeButton>

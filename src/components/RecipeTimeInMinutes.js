@@ -25,7 +25,7 @@ const CompleteTime = ({ recipe }) => {
         <div className='fs-5'>{toHrMin(recipe.prep_time_minutes)}</div>
       </Col>
       <Col>
-        <div className='fw-bold'>Prep Time</div>
+        <div className='fw-bold'>Cook Time</div>
         <div className='fs-5'>{toHrMin(recipe.cook_time_minutes)}</div>
       </Col>
     </Row>

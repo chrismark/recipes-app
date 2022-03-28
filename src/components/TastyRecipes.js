@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewSidebar from './QuickViewSidebar';
+import QuickViewModal from './QuickViewModal';
 
 const TastyRecipes = ({ user }) => {
   const [recipes, setRecipes] = useState([]);
@@ -150,7 +151,7 @@ const TastyRecipes = ({ user }) => {
         </Row>
       )}
       {quickViewRecipe && (
-        <QuickViewSidebar show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
+        <QuickViewModal show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
       )}
     </Container>
     </>

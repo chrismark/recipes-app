@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
-import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { Card, ListGroup, ListGroupItem, Figure } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
 
 const RecipeShort = ({ activeCardId, isNew, isCompilation, recipe, compilationIndex, recipeIndex, onQuickViewSidebar }) => {
+  const navigate = useNavigate();
   const style = {
     // Make the images same size
     width: (recipe.aspect_ratio == '16:9' ? '177.5%' : '')

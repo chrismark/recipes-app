@@ -89,6 +89,7 @@ const App = () => {
         element={<Navigate to='/' />}
       />
       <Route
+        index
         path='/'
         element={
           <Container fluid='sd'>
