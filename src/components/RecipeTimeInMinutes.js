@@ -14,7 +14,7 @@ const toHrMin = (minutes) => {
 
 const CompleteTime = ({ recipe }) => {
   return (
-    <Row className='recipe-time mt-3'>
+    <Row className='recipe-time mt-2'>
       <Col>
         <div className='fw-bold'>Total Time</div>
         <div className='fs-5'>{toHrMin(recipe.total_time_minutes)}</div>
@@ -36,7 +36,7 @@ const CompleteTime = ({ recipe }) => {
 
 const TotalCookTime = ({ display }) => {
   return (
-    <div  className='mt-3'>
+    <div  className='mt-2'>
       <FaRegClock /> <span className='fw-bold' style={{verticalAlign: 'middle'}}>{display}</span>
     </div>
   );
