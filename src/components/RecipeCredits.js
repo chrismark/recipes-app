@@ -1,15 +1,19 @@
-
-import { Row, Col, Image } from 'react-bootstrap';
+import { Row, Col, Image, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 const RecipeBrandCredits = ({ credits }) => {
+  const lgStyle = {
+    border: 0,
+  };
   return (
-    <Row >
-      <Col xs={2} className='gx-2'><Image src={credits[0].image_url} fluid /></Col>
-      <Col className='gx-3'>
+    <ListGroup horizontal flush>
+      <ListGroupItem style={{border: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
+        <Image src={credits[0].image_url} style={{maxHeight: '7vh'}} fluid />
+      </ListGroupItem>
+      <ListGroupItem style={{border: 0, paddingLeft: '1vh', paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
         <div className='h5' style={{marginBottom: 0, alignItems: 'start'}}>Presented by</div>
         <div className='h3 fw-bolder'>{credits[0].name}</div>
-      </Col>
-    </Row>
+      </ListGroupItem>
+    </ListGroup>
   );
 };
 
@@ -44,9 +48,14 @@ const RecipeNonBrandCredits = ({ credits }) => {
 };
 
 const RecipeCredits = ({ recipe }) => {
-  return (recipe.credits[0].type === 'brand' 
+  return (recipe && recipe.credits.length > 0) && (
+    <Row className='recipe-credits'>
+      <Col>
+        {recipe.credits[0].type === 'brand' 
         ? <RecipeBrandCredits credits={recipe.credits} /> 
-        : <RecipeNonBrandCredits credits={recipe.credits} />
+        : <RecipeNonBrandCredits credits={recipe.credits} />}
+      </Col>
+    </Row>
   );
 };
 

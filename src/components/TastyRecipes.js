@@ -3,7 +3,6 @@ import { Pagination, Modal, Offcanvas, Container, Card, Row, Col, Spinner, Butto
 import { Link } from 'react-router-dom';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
-import QuickViewSidebar from './QuickViewSidebar';
 import QuickViewModal from './QuickViewModal';
 
 const TastyRecipes = ({ user }) => {
