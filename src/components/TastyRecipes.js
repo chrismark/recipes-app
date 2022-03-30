@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewModal from './QuickViewModal';
+import QuickViewCompilationModal from './QuickViewCompilationModal';
 
 const TastyRecipes = ({ user }) => {
   const [recipes, setRecipes] = useState([]);
   const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
   const [quickViewRecipe, setQuickViewRecipe] = useState(null);
-  const [isRecipeSidebarShown, setIsRecipeSidebarShown] = useState(false);
+  const [isRecipeModalShown, setIsRecipeModalShown] = useState(false);
   const [pageOffset, setPageOffset] = useState(0);
   const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
   const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
@@ -22,7 +23,7 @@ const TastyRecipes = ({ user }) => {
   const NewDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
-    getRecipes();
+    // getRecipes();
   }, [pageOffset]);
 
   const isRecipeNew = ({ approved_at }) => {
@@ -81,26 +82,19 @@ const TastyRecipes = ({ user }) => {
     return (await result.json());
   };
 
-  const doQuickViewSidebar = (index, compilationIndex = -1) => {
-    let recipe;
-    if (compilationIndex > -1) {
-      recipe = recipes[compilationIndex];
-      recipe = recipe.recipes[index];
-    }
-    else {
-      recipe = recipes[index];
-    }
+  const doQuickViewSidebar = (index) => {
+    let recipe = recipes[index];
     if (recipe.description) {
       recipe.description = replaceLinksWithText(recipe.description);
     }
     setQuickViewRecipe(recipe);
-    setIsRecipeSidebarShown(index >= 0);
+    setIsRecipeModalShown(index >= 0);
     setActiveCardId(recipe.id);
   };
 
-  const closeQuickViewSidebar = () => {
+  const closeQuickViewModal = () => {
     setActiveCardId(-1);
-    setIsRecipeSidebarShown(false);
+    setIsRecipeModalShown(false);
     setQuickViewRecipe(null);
   };
 
@@ -129,9 +123,9 @@ const TastyRecipes = ({ user }) => {
       {recipes.map((recipe, recipeIndex) => (
         <Col md={5} key={recipe.id}>
           {recipe.recipes && recipe.recipes.length ?
-            (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
+            (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
             :
-            (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onQuickViewSidebar={doQuickViewSidebar} />)
+            (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
           }
         </Col>
       ))}
@@ -150,7 +144,10 @@ const TastyRecipes = ({ user }) => {
         </Row>
       )}
       {quickViewRecipe && (
-        <QuickViewModal show={isRecipeSidebarShown} onClose={closeQuickViewSidebar} recipe={quickViewRecipe} />
+        (quickViewRecipe.recipes && quickViewRecipe.recipes.length) ? 
+          (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} />)
+          :
+          (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
       )}
     </Container>
     </>

@@ -2,8 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem, Figure } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
 
-const RecipeShort = ({ activeCardId, isNew, isCompilation, recipe, compilationIndex, recipeIndex, onQuickViewSidebar }) => {
-  const navigate = useNavigate();
+const RecipeShort = ({ activeCardId, isNew, recipe, recipeIndex, onClickView }) => {
   const style = {
     // Make the images same size
     width: (recipe.aspect_ratio == '16:9' ? '177.5%' : '')
@@ -17,14 +16,8 @@ const RecipeShort = ({ activeCardId, isNew, isCompilation, recipe, compilationIn
         {/* <Card.Text style={{fontSize: '0.8em'}}>{recipe.tags.length > 0 ? 'Tags: ' + recipe.tags.map(tag => tag.display_name).join(', ') : ''}</Card.Text> */}
       </Card.Body>
       <ListGroup className='list-group-flush'>
-        {isCompilation ? 
-          (<ListGroupItem as={Link} to='#' onClick={() => onQuickViewSidebar(recipeIndex, compilationIndex)} style={{textAlign: 'center'}}>View Compilation</ListGroupItem>)
-          :
-          (<>
-            <ListGroupItem as={Link} to='#' onClick={() => onQuickViewSidebar(recipeIndex, compilationIndex)} style={{textAlign: 'center'}}>Quick view of the recipe</ListGroupItem>
-            <ListGroupItem as={Link} to='#' onClick={() => console.log('Saving recipe ' + recipe.name)} style={{textAlign: 'center'}}>Or, save it then rate and comment</ListGroupItem>
-          </>)
-        } 
+        <ListGroupItem as={Link} to='#' onClick={() => onClickView(recipeIndex)} style={{textAlign: 'center'}}>Quick view of the recipe</ListGroupItem>
+        <ListGroupItem as={Link} to='#' onClick={() => console.log('Saving recipe ' + recipe.name)} style={{textAlign: 'center'}}>Or, save it then rate and comment</ListGroupItem>
       </ListGroup>
     </Card>
   );
