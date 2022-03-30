@@ -22,7 +22,7 @@ const Section = ({ recipeId, index, data: section }) => {
         <div className='mt-3'></div>
       )}
       <Row xs={1}>
-        {section.components.map(component => (
+        {section.components.filter(component => component.raw_text !== 'n/a').map(component => (
           <Component data={component} recipeId={recipeId} />
         ))}
       </Row>
