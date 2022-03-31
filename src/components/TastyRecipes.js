@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Pagination, Modal, Offcanvas, Container, Card, Row, Col, Spinner, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Pagination, Container, Row, Col, Spinner } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import Header from './Header';
+import Footer from './Footer';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewModal from './QuickViewModal';
 import QuickViewCompilationModal from './QuickViewCompilationModal';
+import RecipePaginate from './RecipePaginate';
+import MainContainer from './MainContainer';
 
 const TastyRecipes = ({ user }) => {
+  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
@@ -23,7 +28,9 @@ const TastyRecipes = ({ user }) => {
   const NewDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
-    // getRecipes();
+    if (user) {
+      getRecipes();
+    }
   }, [pageOffset]);
 
   const isRecipeNew = ({ approved_at }) => {
@@ -62,7 +69,14 @@ const TastyRecipes = ({ user }) => {
   const getRecipes = async () => {
     if (isFetchingRecipes) { return; }
     setIsFetchingRecipes(true);
-    const data = await fetchRecipes(user.token);
+    const [data, status] = await fetchRecipes(user.token);
+    if (status !== 200) {
+      setIsFetchingRecipes(false);
+      setRecipeCount(0);
+      setRecipes([]);
+      console.log('navigating to /login');
+      return setTimeout(() => navigate('/login'), 500);
+    }
     setIsFetchingRecipes(false);
     setRecipeCount(data.count);
     setRecipes(data.results);
@@ -79,7 +93,9 @@ const TastyRecipes = ({ user }) => {
         'Authorization': `Bearer ${token}`
       }
     });
-    return (await result.json());
+    console.log('result: ', result);
+    const data = await result.json();
+    return [data, result.status];
   };
 
   const doQuickViewSidebar = (index) => {
@@ -108,49 +124,50 @@ const TastyRecipes = ({ user }) => {
   };
 
   return (
-    <>
-    {isFetchingRecipes && (
-    <Container fluid='sd' className='centered-loading-animation-container'>
-      <Row lg={1} className='centered-loading-animation-row justify-content-md-center'>
-        <Col className='centered-loading-animation-col'><Spinner animation="grow " /></Col>
-      </Row>
-    </Container>
-    )}
-    <Container className='justify-content-sm-center justify-content-md-center'>
-      <h2>Latest from Tasty.co</h2>
-      <br/>
-      <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
-      {recipes.map((recipe, recipeIndex) => (
-        <Col md={5} key={recipe.id}>
-          {recipe.recipes && recipe.recipes.length ?
-            (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
-            :
-            (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
-          }
-        </Col>
-      ))}
-      </Row>
-      {recipes.length > 0 && (
-        <Row className='justify-content-md-center'>
-          <Col md='auto'>
-            <br/><br/>
-            <Pagination>
-              <Pagination.First disabled={enableFirstPageLink} onClick={() => getFirstPage()}>First</Pagination.First>
-              <Pagination.Prev disabled={enablePrevPageLink} onClick={() => getPrevPage()}>Prev</Pagination.Prev>
-              <Pagination.Next disabled={enableNextPageLink} onClick={() => getNextPage()}>Next</Pagination.Next>
-              <Pagination.Last disabled={enableLastPageLink} onClick={() => getLastPage()}>Last</Pagination.Last>
-            </Pagination>
-          </Col>
+    <MainContainer user={user}>
+      {isFetchingRecipes && (
+      <Container fluid='sd' className='centered-loading-animation-container'>
+        <Row lg={1} className='centered-loading-animation-row justify-content-md-center'>
+          <Col className='centered-loading-animation-col'><Spinner animation="grow " /></Col>
         </Row>
+      </Container>
       )}
-      {quickViewRecipe && (
-        (quickViewRecipe.recipes && quickViewRecipe.recipes.length) ? 
-          (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} />)
-          :
-          (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
-      )}
-    </Container>
-    </>
+      <Container className='justify-content-sm-center justify-content-md-center'>
+        <h2>Latest from Tasty.co</h2>
+        <br/>
+        <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
+        {recipes.map((recipe, recipeIndex) => (
+          <Col md={5} key={recipe.id}>
+            {recipe.recipes && recipe.recipes.length ?
+              (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
+              :
+              (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
+            }
+          </Col>
+        ))}
+        </Row>
+        {recipes.length > 0 && (<>
+          <Row className='justify-content-md-center'>
+            <Col md='auto'>
+              <br/><br/>
+              <Pagination>
+                <Pagination.First disabled={enableFirstPageLink} onClick={() => getFirstPage()}>First</Pagination.First>
+                <Pagination.Prev disabled={enablePrevPageLink} onClick={() => getPrevPage()}>Prev</Pagination.Prev>
+                <Pagination.Next disabled={enableNextPageLink} onClick={() => getNextPage()}>Next</Pagination.Next>
+                <Pagination.Last disabled={enableLastPageLink} onClick={() => getLastPage()}>Last</Pagination.Last>
+              </Pagination>
+            </Col>
+          </Row>
+          <RecipePaginate recipeCount={recipeCount} pageOffset={pageOffset} size={size} recipes={recipes} onFirstPage={getFirstPage} onPrevPage={getPrevPage} onNextPage={getNextPage} onLastPage={getLastPage} />
+        </>)}
+        {quickViewRecipe && (
+          (quickViewRecipe.recipes && quickViewRecipe.recipes.length) ? 
+            (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} />)
+            :
+            (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
+        )}
+      </Container>
+    </MainContainer>
   );
 };
 

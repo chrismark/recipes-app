@@ -1,10 +1,12 @@
+import Posts from './Posts';
 import MainContainer from './MainContainer';
 
-const SavedRecipes = ({ user }) => {
+const Home = ({ user }) => {
   return (
     <MainContainer user={user}>
+      <Posts user={user} />
     </MainContainer>
   );
 };
 
-export default SavedRecipes;
+export default Home;

@@ -1,8 +1,12 @@
+import MainContainer from './MainContainer';
 import Posts from './Posts';
+
 
 const YourPosts = ({ user }) => {
   return (
-    <Posts user={user} byUser={true} />
+    <MainContainer user={user}>
+      <Posts user={user} byUser={true} />
+    </MainContainer>
   );
 };
 

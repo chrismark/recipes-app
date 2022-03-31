@@ -1,14 +1,7 @@
 import { Nav, Navbar, Container, NavDropdown } from 'react-bootstrap';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Header = ({ user }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  if (user && (location.pathname === '/login' || location.pathname === '/register')) {
-    navigate('/');
-  }
-
   return (
     <Navbar expand='lg' bg='primary' variant='dark' className='app-header'>
       <Container fluid>

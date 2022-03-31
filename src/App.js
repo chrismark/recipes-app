@@ -1,21 +1,18 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import { Route, Routes, useNavigate, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
-import AllPosts from './components/AllPosts';
+import Home from './components/Home';
 import YourPosts from './components/YourPosts';
 import TastyRecipes from './components/TastyRecipes';
 import SavedRecipes from './components/SavedRecipes';
 import './App.css';
 
 const App = () => {
-  const [fetchedValue, setFetchedValue] = useState('');
-  const [user, setUser] = useState(null);
-  const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [fetchedValue, setFetchedValue] = useState('');
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     (async function() {
@@ -72,15 +69,15 @@ const App = () => {
 
   const onPostLogin = (data) => {
     setUser(data);
+    console.log('onPostLogin');
     navigate('/');
   };
 
   const onPostRegister = (data) => {
     setUser(data);
+    console.log('onPostRegister');
     navigate('/');
   };
-
-  
 
   return (
     <Routes>
@@ -91,65 +88,29 @@ const App = () => {
       <Route
         index
         path='/'
-        element={
-          <Container fluid='sd'>
-            <Header user={user} />
-            <AllPosts user={user} />
-            <Footer />
-          </Container>
-        }
+        element={<Home user={user} />}
       />
       {user ? (<>
       <Route
         path='/your-posts'
-        element={
-          <Container fluid='sd'>
-            <Header user={user} />
-            <YourPosts user={user} />
-            <Footer />
-          </Container>
-        }
+        element={<YourPosts user={user} />}
       />
       <Route 
         path='/tasty-recipes'
-        element={
-          <Container fluid='sd'>
-            <Header user={user} />
-            <TastyRecipes user={user} />
-            <Footer />
-          </Container>
-        }
+        element={<TastyRecipes user={user} />}
       />
       <Route 
         path='/saved-recipes'
-        element={
-          <Container fluid='sd'>
-            <Header user={user} />
-            <SavedRecipes user={user} />
-            <Footer />
-          </Container>
-        }
+        element={<SavedRecipes user={user} />}
       />
       </>) : <></>}
       <Route 
         path='/login'
-        element={
-          <Container fluid='sd'>
-            <Header />
-            <Login onLogin={onLogin} onPostLogin={onPostLogin} />
-            <Footer />
-          </Container>
-        }
+        element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />}
       />
       <Route 
         path='/register'
-        element={
-          <Container fluid='sd'>
-            <Header />
-            <Register onRegister={onRegister} onPostRegister={onPostRegister} />
-            <Footer />
-          </Container>
-        }
+        element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />}
       />
     </Routes>
   );
