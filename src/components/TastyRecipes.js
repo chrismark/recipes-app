@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Pagination, Container, Row, Col, Spinner } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
+import { Pagination, Container, Row, Col, Spinner, Placeholder, Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewModal from './QuickViewModal';
 import QuickViewCompilationModal from './QuickViewCompilationModal';
 import RecipePaginate from './RecipePaginate';
 import MainContainer from './MainContainer';
+import RecipePlaceholder from './RecipePlaceholder';
+
 
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -136,15 +136,25 @@ const TastyRecipes = ({ user }) => {
         <h2>Latest from Tasty.co</h2>
         <br/>
         <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
-        {recipes.map((recipe, recipeIndex) => (
-          <Col md={5} key={recipe.id}>
-            {recipe.recipes && recipe.recipes.length ?
-              (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
-              :
-              (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
-            }
-          </Col>
-        ))}
+          {isFetchingRecipes && (<>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+            <Col md={5}><RecipePlaceholder /></Col>
+          </>)}
+          {recipes.map((recipe, recipeIndex) => (
+            <Col md={5} key={recipe.id}>
+              {recipe.recipes && recipe.recipes.length ?
+                (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
+                :
+                (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
+              }
+            </Col>
+          ))}
         </Row>
         {recipes.length > 0 && (<>
           <Row className='justify-content-md-center'>
