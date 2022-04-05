@@ -34,7 +34,7 @@ const QuickViewCompilationModal = ({ compilation, show, onClose }) => {
               <RecipeImage src={compilation.thumbnail_url} />
             </Carousel.Item>
             {compilation.recipes.map(recipe => (
-              <Carousel.Item>
+              <Carousel.Item key={recipe.id}>
                 <RecipeImage src={recipe.thumbnail_url} />
                 <Carousel.Caption><h3 className='bg-dark pb-1'>{recipe.name}</h3></Carousel.Caption>
               </Carousel.Item>

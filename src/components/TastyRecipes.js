@@ -29,7 +29,7 @@ const TastyRecipes = ({ user }) => {
 
   useEffect(() => {
     if (user) {
-      getRecipes();
+      // getRecipes();
     }
   }, [pageOffset]);
 
@@ -157,17 +157,6 @@ const TastyRecipes = ({ user }) => {
           ))}
         </Row>
         {recipes.length > 0 && (<>
-          <Row className='justify-content-md-center'>
-            <Col md='auto'>
-              <br/><br/>
-              <Pagination>
-                <Pagination.First disabled={enableFirstPageLink} onClick={() => getFirstPage()}>First</Pagination.First>
-                <Pagination.Prev disabled={enablePrevPageLink} onClick={() => getPrevPage()}>Prev</Pagination.Prev>
-                <Pagination.Next disabled={enableNextPageLink} onClick={() => getNextPage()}>Next</Pagination.Next>
-                <Pagination.Last disabled={enableLastPageLink} onClick={() => getLastPage()}>Last</Pagination.Last>
-              </Pagination>
-            </Col>
-          </Row>
           <RecipePaginate recipeCount={recipeCount} pageOffset={pageOffset} size={size} recipes={recipes} onFirstPage={getFirstPage} onPrevPage={getPrevPage} onNextPage={getNextPage} onLastPage={getLastPage} />
         </>)}
         {quickViewRecipe && (
