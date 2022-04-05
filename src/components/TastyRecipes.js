@@ -12,6 +12,7 @@ import RecipePlaceholder from './RecipePlaceholder';
 
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [recipes, setRecipes] = useState([]);
   const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
@@ -29,7 +30,7 @@ const TastyRecipes = ({ user }) => {
 
   useEffect(() => {
     if (user) {
-      // getRecipes();
+      getRecipes();
     }
   }, [pageOffset]);
 
@@ -77,6 +78,7 @@ const TastyRecipes = ({ user }) => {
       console.log('navigating to /login');
       return setTimeout(() => navigate('/login'), 500);
     }
+    setIsInitialLoad(false);
     setIsFetchingRecipes(false);
     setRecipeCount(data.count);
     setRecipes(data.results);
@@ -136,7 +138,7 @@ const TastyRecipes = ({ user }) => {
         <h2>Latest from Tasty.co</h2>
         <br/>
         <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
-          {isFetchingRecipes && (<>
+          {isFetchingRecipes && isInitialLoad && (<>
             <Col md={5}><RecipePlaceholder /></Col>
             <Col md={5}><RecipePlaceholder /></Col>
             <Col md={5}><RecipePlaceholder /></Col>
