@@ -7,7 +7,7 @@ const RecipeBrandCredits = ({ credits }) => {
   return (
     <Row className='recipe-credits'>
       <Col>
-        <ListGroup horizontal flush>
+        <ListGroup horizontal flush='true'>
           <ListGroupItem style={{border: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
             <Image src={credits[0].image_url} style={{maxHeight: '7vh'}} fluid />
           </ListGroupItem>

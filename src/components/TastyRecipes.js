@@ -5,7 +5,7 @@ import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewModal from './QuickViewModal';
 import QuickViewCompilationModal from './QuickViewCompilationModal';
-import RecipePaginate from './RecipePaginate';
+import Paginate from './Paginate';
 import MainContainer from './MainContainer';
 import RecipePlaceholder from './RecipePlaceholder';
 
@@ -19,10 +19,6 @@ const TastyRecipes = ({ user }) => {
   const [quickViewRecipe, setQuickViewRecipe] = useState(null);
   const [isRecipeModalShown, setIsRecipeModalShown] = useState(false);
   const [pageOffset, setPageOffset] = useState(0);
-  const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
-  const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
-  const [enableNextPageLink, setEnableNextPageLink] = useState(false);
-  const [enableLastPageLink, setEnableLastPageLink] = useState(false);
   const [activeCardId, setActiveCardId] = useState(-1);
   const size = 20;
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
@@ -40,31 +36,12 @@ const TastyRecipes = ({ user }) => {
     return diff < NewDaysMs;
   };
 
-  const determinePageLinkAbleness = () => {
-    const isFirstPageLinkEnabled = !(pageOffset > 0);
-    const isOtherPageLinkEnabled = !( recipeCount - (size * (pageOffset + 1)) );
-    setEnableFirstPageLink(isFirstPageLinkEnabled);
-    setEnablePrevPageLink(isFirstPageLinkEnabled);
-    setEnableNextPageLink(isOtherPageLinkEnabled);
-    setEnableLastPageLink(isOtherPageLinkEnabled);
-  };
-
-  const getFirstPage = async () => {
-    setPageOffset(0);
-  };
-
-  const getPrevPage = async () => {
-    setPageOffset(Math.max(0, pageOffset - size));
-  };
-
-  const getNextPage = async () => {
-    console.log('pageOffset before: ', pageOffset);
-    setPageOffset(Math.min(recipeCount, pageOffset + size));
-    console.log('pageOffset after: ', pageOffset);
-  };
-
-  const getLastPage = async () => {
-    setPageOffset(Math.floor(recipeCount / size));
+  const getPage = (page) => {
+    page = parseInt(page);
+    if (isNaN(page) || page < 1) {
+      page = 1;
+    }
+    setPageOffset((page - 1) * size);
   };
 
   const getRecipes = async () => {
@@ -82,7 +59,6 @@ const TastyRecipes = ({ user }) => {
     setIsFetchingRecipes(false);
     setRecipeCount(data.count);
     setRecipes(data.results);
-    determinePageLinkAbleness();
   }
 
   const fetchRecipes = async (token) => {
@@ -137,6 +113,10 @@ const TastyRecipes = ({ user }) => {
       <Container className='justify-content-sm-center justify-content-md-center'>
         <h2>Latest from Tasty.co</h2>
         <br/>
+        {recipes.length > 0 && (<>
+          <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
+          <br />
+        </>)}
         <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
           {isFetchingRecipes && isInitialLoad && (<>
             <Col md={5}><RecipePlaceholder /></Col>
@@ -159,7 +139,8 @@ const TastyRecipes = ({ user }) => {
           ))}
         </Row>
         {recipes.length > 0 && (<>
-          <RecipePaginate recipeCount={recipeCount} pageOffset={pageOffset} size={size} recipes={recipes} onFirstPage={getFirstPage} onPrevPage={getPrevPage} onNextPage={getNextPage} onLastPage={getLastPage} />
+          <br /><br />
+          <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
         </>)}
         {quickViewRecipe && (
           (quickViewRecipe.recipes && quickViewRecipe.recipes.length) ? 

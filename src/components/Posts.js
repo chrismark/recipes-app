@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Pagination } from 'react-bootstrap';
+import Paginate from './Paginate';
 
 const Posts = ({ user, byUser = false }) => {
   const [posts, setPosts] = useState([]);
@@ -25,24 +26,13 @@ const Posts = ({ user, byUser = false }) => {
     setEnableNextPageLink(isOtherPageLinkEnabled);
     setEnableLastPageLink(isOtherPageLinkEnabled);
   };
-  
-  const getFirstPage = async () => {
-    setPageOffset(0);
-  };
 
-  const getPrevPage = async () => {
-    setPageOffset(Math.max(0, pageOffset - size));
-  };
-
-  const getNextPage = async () => {
-    console.log('pageOffset before: ', pageOffset);
-    setPageOffset(Math.min(postCount, pageOffset + size));
-    console.log('pageOffset after: ', pageOffset);
-  };
-
-  const getLastPage = async () => {
-    setPageOffset(Math.floor(postCount / size));
-    await getPosts();
+  const getPage = (page) => {
+    page = parseInt(page);
+    if (isNaN(page) || page < 1) {
+      page = 1;
+    }
+    setPageOffset((page - 1) * size);
   };
 
   const getPosts = async() => {
@@ -128,19 +118,10 @@ const Posts = ({ user, byUser = false }) => {
           </Col>
         ))}
       </Row>
-      {posts.length > 0 && (
-        <Row className='justify-content-md-center'>
-          <Col md='auto'>
-            <br/><br/>
-            <Pagination>
-              <Pagination.First disabled={enableFirstPageLink} onClick={() => getFirstPage()}>First</Pagination.First>
-              <Pagination.Prev disabled={enablePrevPageLink} onClick={() => getPrevPage()}>Prev</Pagination.Prev>
-              <Pagination.Next disabled={enableNextPageLink} onClick={() => getNextPage()}>Next</Pagination.Next>
-              <Pagination.Last disabled={enableLastPageLink} onClick={() => getLastPage()}>Last</Pagination.Last>
-            </Pagination>
-          </Col>
-        </Row>
-      )}
+      {posts.length > 0 && (<>
+        <br/><br/>
+        <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
+      </>)}
     </Container>
   );
 };

@@ -13,7 +13,7 @@ const RecipePlaceholder = () => {
           </span>
         </Placeholder>
       </Card.Body>
-      <ListGroup flush>
+      <ListGroup flush='true'>
         <ListGroupItem to='#' style={{textAlign: 'center'}}>
           <Placeholder animation='glow'>
           <span className='h5'>
