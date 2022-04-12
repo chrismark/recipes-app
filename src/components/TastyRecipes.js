@@ -9,7 +9,6 @@ import Paginate from './Paginate';
 import MainContainer from './MainContainer';
 import RecipePlaceholder from './RecipePlaceholder';
 
-
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -26,7 +25,7 @@ const TastyRecipes = ({ user }) => {
 
   useEffect(() => {
     if (user) {
-      getRecipes();
+      // getRecipes();
     }
   }, [pageOffset]);
 
@@ -92,6 +91,32 @@ const TastyRecipes = ({ user }) => {
     setQuickViewRecipe(null);
   };
 
+  const saveRecipe = async (token, recipes) => {
+    if (!Array.isArray(recipes)) {
+      recipes = [recipes];
+    }
+    const url = '/api/recipes';
+    const result = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(recipes)
+    });
+    console.log('result: ', result);
+    const data = await result.json();
+    return [data, result.status];
+  };
+
+  const doSave = async (curRecipe) => {
+    const [data, status] = await saveRecipe(user.token, curRecipe);
+    if (data.errorMessage) {
+      return console.log('Error saving recipe: ', data.errorMessage);
+    }
+    console.log('data: ', data);
+  };
+
   const replaceLinksWithText = (text) => {
     let result = null;
     let copyText = text;
@@ -130,10 +155,9 @@ const TastyRecipes = ({ user }) => {
           </>)}
           {recipes.map((recipe, recipeIndex) => (
             <Col md={5} key={recipe.id}>
-              {recipe.recipes && recipe.recipes.length ?
-                (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
-                :
-                (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onClickView={doQuickViewSidebar} />)
+              {recipe.recipes && recipe.recipes.length 
+                ? (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onView={doQuickViewSidebar} />)
+                : (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onView={doQuickViewSidebar} onSave={doSave} />)
               }
             </Col>
           ))}
@@ -143,10 +167,9 @@ const TastyRecipes = ({ user }) => {
           <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
         </>)}
         {quickViewRecipe && (
-          (quickViewRecipe.recipes && quickViewRecipe.recipes.length) ? 
-            (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} />)
-            :
-            (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
+          (quickViewRecipe.recipes && quickViewRecipe.recipes.length)  
+            ? (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} onSave={doSave} />)
+            : (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
         )}
       </Container>
     </MainContainer>

@@ -7,7 +7,7 @@ import CardImgBadge from './CardImgBadge';
 import { isStringNotNullOrEmpty } from '../lib';
 
 
-const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onClickView }) => {
+const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onView }) => {
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
   const isDescriptionNotEmpty = isStringNotNullOrEmpty(compilation.description);
 
@@ -34,10 +34,14 @@ const RecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex,
         </Accordion.Collapse>
       </Card.Body>
       <ListGroup className='list-group-flush'>
-        <ListGroupItem as={Link} to='#' onClick={() => onClickView(compilationIndex)} style={{textAlign: 'center'}}>View Compilation</ListGroupItem>
+        <ListGroupItem as={Link} to='#' onClick={() => onView(compilationIndex)} style={{textAlign: 'center'}}>View Compilation</ListGroupItem>
       </ListGroup>
     </Card>
   );
 }; 
+
+RecipeCompilation.defaultProps = {
+  onSave: (recipe) => console.log('Saving recipe ' + recipe.name),
+};
 
 export default RecipeCompilation;

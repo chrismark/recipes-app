@@ -1,19 +1,47 @@
 const express = require('express');
 const router = express.Router();
+const Recipe = require('../models/recipe');
 const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 
 /**
  * GET /recipes - List saved recipes
  */
-router.get('/', checkPerms(PermsConfig.FetchAllRecipes), function(req, res) {
-
+router.get('/', checkPerms(PermsConfig.FetchAllRecipes), async function(req, res) {
+  try {
+    const recipe = await Recipe.fetchAll();
+    res.status(200).json(recipe);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching saved recipes. Please try again later.'
+    });
+  }
 });
 
 /**
  * POST /recipes - Save fetched recipe
  */
-router.post('/', checkPerms(PermsConfig.CreateRecipe), function(req, res) {
-    
+router.post('/', checkPerms(PermsConfig.CreateRecipe), async function(req, res) {
+  try {
+    console.log('req.body: ', req.body);
+    let recipe = await Recipe.create(req.user.sub, req.body);
+
+    if (recipe) {
+      res.status(201).json(recipe);
+    }
+    else {
+      res.status(200).send({
+        errorMessage: 'There was a problem saving the recipe. Please try again later.'
+      });
+    }
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem saving the recipe. Please try again later.'
+    });
+  }
 });
 
 /**

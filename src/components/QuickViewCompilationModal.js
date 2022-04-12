@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Figure, Modal, Row, Col, Carousel } from 'react-bootstrap';
+import { Button, Modal, Row, Col, Carousel } from 'react-bootstrap';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 import RecipeCredits from './RecipeCredits';
 import RecipeDescription from './RecipeDescription';
@@ -8,7 +8,7 @@ import RecipeNutrition from './RecipeNutrition';
 import RecipePreparation from './RecipePreparation';
 import RecipeImage from './RecipeImage';
 
-const QuickViewCompilationModal = ({ compilation, show, onClose }) => {
+const QuickViewCompilationModal = ({ compilation, show, onClose, onSave }) => {
   const [recipe, setRecipe] = useState(null);
 
   const onSelectRecipe = (index) => {
@@ -25,7 +25,7 @@ const QuickViewCompilationModal = ({ compilation, show, onClose }) => {
   return (
     <Modal show={show} onHide={onClose} size='xl' xs={2} centered>
       <Modal.Header closeButton>
-        <Modal.Title><h2>Compilation: {compilation.name}</h2></Modal.Title>
+        <Modal.Title><h2>Compilation: {compilation.name} <Button variant='secondary' onClick={() => onSave(compilation.recipes)}>Save All</Button></h2></Modal.Title>
       </Modal.Header>
       <Row className='justify-content-md-center' style={{background: 'black', marginBottom: '0em', marginLeft: '0em', marginRight: '0em', marginTop: '0em'}}>
         <Col md='auto text-center'>
@@ -36,13 +36,15 @@ const QuickViewCompilationModal = ({ compilation, show, onClose }) => {
             {compilation.recipes.map(recipe => (
               <Carousel.Item key={recipe.id}>
                 <RecipeImage src={recipe.thumbnail_url} />
-                <Carousel.Caption><h3 className='bg-dark pb-1'>{recipe.name}</h3></Carousel.Caption>
               </Carousel.Item>
             ))}
           </Carousel>
         </Col>
       </Row>
       <Modal.Body>
+        {recipe !== null && (<>
+          <h3><span className='fw-bolder'>{recipe.name}</span> <Button style={{}} onClick={() => onSave(recipe)}>Save</Button></h3> 
+        </>)}
         <RecipeDescription recipe={(recipe !== null ? recipe : compilation)} />
         {recipe !== null && (
           <>
