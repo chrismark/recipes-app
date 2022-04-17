@@ -64,6 +64,7 @@ module.exports = {
       recipesToCreate = recipesToCreate.filter((recipe) => {
         return recipes.findIndex((savedRecipe) => savedRecipe.id == recipe.id) == -1;
       });
+      recipes = [];
       console.log('recipesToCreate: ', recipesToCreate);
       if (recipesToCreate.length > 0) {
         // Link recipe with user
@@ -72,7 +73,7 @@ module.exports = {
         let newRecipes = await this._createRecipes(recipesToCreate);
         console.log('new recipes: ', newRecipes);
         await this._createRecipesUsers(user, newRecipes);
-        recipes = [...recipes, ...newRecipes];
+        recipes = newRecipes;
       }
 
       return recipes;

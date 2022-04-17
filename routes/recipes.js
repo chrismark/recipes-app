@@ -8,8 +8,8 @@ const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require
  */
 router.get('/', checkPerms(PermsConfig.FetchAllRecipes), async function(req, res) {
   try {
-    const recipe = await Recipe.fetchAll();
-    res.status(200).json(recipe);
+    const recipes = await Recipe.fetchAll();
+    res.status(200).json(recipes);
   }
   catch (e) {
     console.error(e);
@@ -25,10 +25,10 @@ router.get('/', checkPerms(PermsConfig.FetchAllRecipes), async function(req, res
 router.post('/', checkPerms(PermsConfig.CreateRecipe), async function(req, res) {
   try {
     console.log('req.body: ', req.body);
-    let recipe = await Recipe.create(req.user.sub, req.body);
+    let recipes = await Recipe.create(req.user.sub, req.body);
 
-    if (recipe) {
-      res.status(201).json(recipe);
+    if (recipes) {
+      res.status(recipes.length > 0 ? 201 : 200).json(recipes);
     }
     else {
       res.status(200).send({

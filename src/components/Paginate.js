@@ -86,16 +86,16 @@ const Paginate = ({ dataSource, totalCount, pageOffset, size, onPage }) => {
         <Pagination>
           <Pagination.First disabled={enableFirstPageLink} onClick={() => onPage(1)}>First</Pagination.First>
           <Pagination.Prev disabled={enablePrevPageLink} onClick={() => onPage(currentPage - 1)}>Prev</Pagination.Prev>
-          {leftPages.map(page => (
+          {leftPages.map((page, index) => (
             page === '...' 
-              ? <Pagination.Item disabled>{page}</Pagination.Item>
-              : <Pagination.Item onClick={() => onPage(page)}>{page}</Pagination.Item>
+              ? <Pagination.Item key={index} disabled>{page}</Pagination.Item>
+              : <Pagination.Item key={index} onClick={() => onPage(page)}>{page}</Pagination.Item>
           ))}
           <Pagination.Item active>{currentPage}</Pagination.Item>
-          {rightPages.map(page => (
+          {rightPages.map((page, index) => (
             page === '...' 
-              ? <Pagination.Item disabled>{page}</Pagination.Item>
-              : <Pagination.Item onClick={() => onPage(page)}>{page}</Pagination.Item>
+              ? <Pagination.Item key={index} disabled>{page}</Pagination.Item>
+              : <Pagination.Item key={index} onClick={() => onPage(page)}>{page}</Pagination.Item>
           ))}
           <Pagination.Next disabled={enableNextPageLink} onClick={() => onPage(currentPage + 1)}>Next</Pagination.Next>
           <Pagination.Last disabled={enableLastPageLink} onClick={() => onPage(lastPage)}>Last</Pagination.Last>

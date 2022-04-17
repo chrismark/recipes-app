@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Pagination, Container, Row, Col, Spinner, Placeholder, Card, ListGroup, ListGroupItem } from 'react-bootstrap';
-import { useNavigate, Link } from 'react-router-dom';
+import { Container, Row, Col, Spinner } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import RecipeCompilation from './RecipeCompilation';
 import RecipeShort from './RecipeShort';
 import QuickViewModal from './QuickViewModal';
@@ -8,6 +8,7 @@ import QuickViewCompilationModal from './QuickViewCompilationModal';
 import Paginate from './Paginate';
 import MainContainer from './MainContainer';
 import RecipePlaceholder from './RecipePlaceholder';
+import SaveRecipeModal from './SaveRecipeModal';
 
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -19,13 +20,17 @@ const TastyRecipes = ({ user }) => {
   const [isRecipeModalShown, setIsRecipeModalShown] = useState(false);
   const [pageOffset, setPageOffset] = useState(0);
   const [activeCardId, setActiveCardId] = useState(-1);
+  const [isSavingRecipe, setIsSavingRecipe] = useState(false);
+  const [isSaveRecipeModalShown, setIsSaveRecipeModalShown] = useState(false);
+  const [recipesToSave, setRecipesToSave] = useState([]);
+  const [recipesSaved, setRecipesSaved] = useState([]);
   const size = 20;
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
   const NewDaysMs = 2 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     if (user) {
-      // getRecipes();
+      getRecipes();
     }
   }, [pageOffset]);
 
@@ -92,9 +97,6 @@ const TastyRecipes = ({ user }) => {
   };
 
   const saveRecipe = async (token, recipes) => {
-    if (!Array.isArray(recipes)) {
-      recipes = [recipes];
-    }
     const url = '/api/recipes';
     const result = await fetch(url, {
       method: 'POST',
@@ -109,12 +111,34 @@ const TastyRecipes = ({ user }) => {
     return [data, result.status];
   };
 
-  const doSave = async (curRecipe) => {
-    const [data, status] = await saveRecipe(user.token, curRecipe);
+  const doSave = async (recipes) => {
+    if (!Array.isArray(recipes)) {
+      recipes = [recipes];
+    }
+    if (isSavingRecipe) { 
+      return; 
+    }
+    setRecipesToSave(recipes);
+    setRecipesSaved([]);
+    setIsSaveRecipeModalShown(true);
+    setIsSavingRecipe(true);
+    const [data, status] = await saveRecipe(user.token, recipes);
+    setIsSavingRecipe(false);
     if (data.errorMessage) {
       return console.log('Error saving recipe: ', data.errorMessage);
     }
+    else {
+      setRecipesToSave([]);
+      setRecipesSaved(data);
+    }
     console.log('data: ', data);
+  };
+
+  const onSaveClose = () => {
+    setRecipesSaved([]);
+    setRecipesToSave([]);
+    setIsSavingRecipe(false);
+    setIsSaveRecipeModalShown(false);    
   };
 
   const replaceLinksWithText = (text) => {
@@ -170,6 +194,9 @@ const TastyRecipes = ({ user }) => {
           (quickViewRecipe.recipes && quickViewRecipe.recipes.length)  
             ? (<QuickViewCompilationModal show={isRecipeModalShown} onClose={closeQuickViewModal} compilation={quickViewRecipe} onSave={doSave} />)
             : (<QuickViewModal show={isRecipeModalShown} onClose={closeQuickViewModal} recipe={quickViewRecipe} />)
+        )}
+        {isSaveRecipeModalShown && (
+          <SaveRecipeModal recipesToSave={recipesToSave} recipesSaved={recipesSaved} show={isSaveRecipeModalShown} isSavingRecipe={isSavingRecipe} onClose={onSaveClose} />
         )}
       </Container>
     </MainContainer>

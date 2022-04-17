@@ -5,12 +5,14 @@
 exports.up = function(knex) {
   return knex.schema.createTable('recipes', function(table) {
     table.bigInteger('id').primary();
+    table.integer('approved_at');
     table.text('name').notNullable();
     table.text('description');
     table.text('slug');
     table.text('thumbnail_url');
     table.text('beauty_url');
     table.text('video_url');
+    table.string('aspect_ratio');
     table.string('servings_noun_singular');
     table.string('servings_noun_plural');
     table.smallint('total_time_minutes');
@@ -26,6 +28,7 @@ exports.up = function(knex) {
 
     table.index('slug');
     table.index('id');
+    table.index('approved_at');
   })
 };
 
