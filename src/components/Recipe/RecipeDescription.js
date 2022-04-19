@@ -1,5 +1,5 @@
 import { Row, Col } from 'react-bootstrap';
-import { isStringNotNullOrEmpty } from '../lib';
+import { isStringNotNullOrEmpty } from '../../lib';
 
 const RecipeDescription = ({ recipe }) => {
   return isStringNotNullOrEmpty(recipe.description) && (

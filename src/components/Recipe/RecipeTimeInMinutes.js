@@ -1,37 +1,44 @@
-import { Row, Col, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import { FaRegClock } from 'react-icons/fa';
 
-const toHrMin = (minutes) => {
+const toHrMin = (minutes, minimize) => {
   if (minutes < 60) {
-    return `${minutes} min`;
+    return minimize ? `${minutes}m` : `${minutes} min`;
   }
   else {
     const hr = Math.floor(minutes / 60);
     const min = minutes % 60;
-    return `${hr} hr` + (min > 0 ? ` ${min} min` : '');
+    return minimize ? `${hr}h` + (min > 0 ? ` ${min}m` : '') : `${hr} hr` + (min > 0 ? ` ${min} min` : '');
   }
 };
 
-const CompleteTime = ({ recipe }) => {
+const CompleteTime = ({ recipe, minimize }) => {
+  const fsClass = minimize ? 'fs-6' : 'fs-5';
   return (
     <Row className='recipe-time mt-2'>
       <Col>
-        <div className='fw-bold'>Total Time</div>
-        <div className='fs-5'>{toHrMin(recipe.total_time_minutes)}</div>
+        <div className='fw-bold'>Total{!minimize && ' Time'}</div>
+        <div className={fsClass}>{toHrMin(recipe.total_time_minutes, minimize)}</div>
       </Col>
       <Col>
-        <div className='fw-bold'>Prep Time</div>
-        <div className='fs-5'>{toHrMin(recipe.prep_time_minutes)}</div>
+        <div className='fw-bold'>Prep{!minimize && ' Time'}</div>
+        <div className={fsClass}>{toHrMin(recipe.prep_time_minutes, minimize)}</div>
       </Col>
       <Col>
-        <div className='fw-bold'>Cook Time</div>
-        <div className='fs-5'>{toHrMin(recipe.cook_time_minutes)}</div>
+        <div className='fw-bold'>Cook{!minimize && ' Time'}</div>
+        <div className={fsClass}>{toHrMin(recipe.cook_time_minutes, minimize)}</div>
       </Col>
-      <Col></Col>
-      <Col></Col>
-      <Col></Col>
+      {!minimize && (<>
+        <Col></Col>
+        <Col></Col>
+        <Col></Col>
+      </>)}
     </Row>
   )
+};
+
+CompleteTime.defaultProps = {
+  minimize: false
 };
 
 const TotalCookTime = ({ display }) => {
@@ -42,14 +49,14 @@ const TotalCookTime = ({ display }) => {
   );
 };
 
-const RecipeTimeInMinutes = ({ recipe }) => {
+const RecipeTimeInMinutes = ({ recipe, minimize }) => {
   const hasTotalTime = recipe.total_time_minutes !== null;
   const hasPrepTime = recipe.prep_time_minutes !== null;
   const hasCookTime = recipe.cook_time_minutes !== null;
   const hasTotalTimeTier = recipe.total_time_tier !== null;
 
   if (hasTotalTime && hasPrepTime && hasCookTime) {
-    return (<CompleteTime recipe={recipe} />);
+    return (<CompleteTime recipe={recipe} minimize={minimize} />);
   }
 
   if (hasTotalTime || hasCookTime || hasTotalTimeTier) {
@@ -67,6 +74,10 @@ const RecipeTimeInMinutes = ({ recipe }) => {
   }
 
   return (<></>);
+};
+
+RecipeTimeInMinutes.defaultProps = {
+  minimize: false
 };
 
 export default RecipeTimeInMinutes;

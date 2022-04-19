@@ -6,6 +6,7 @@ import Home from './components/Home';
 import YourPosts from './components/YourPosts';
 import TastyRecipes from './components/TastyRecipes';
 import SavedRecipes from './components/SavedRecipes';
+import ViewSavedRecipe from './components/Recipe/ViewSavedRecipe';
 import './App.css';
 
 const App = () => {
@@ -81,37 +82,16 @@ const App = () => {
 
   return (
     <Routes>
-      <Route
-        path='*'
-        element={<Navigate to='/' />}
-      />
-      <Route
-        index
-        path='/'
-        element={<Home user={user} />}
-      />
+      <Route path='*' element={<Navigate to='/' />} />
+      <Route path='/' element={<Home user={user} />} />
       {user ? (<>
-      <Route
-        path='/your-posts'
-        element={<YourPosts user={user} />}
-      />
-      <Route 
-        path='/tasty-recipes'
-        element={<TastyRecipes user={user} />}
-      />
-      <Route 
-        path='/saved-recipes'
-        element={<SavedRecipes user={user} />}
-      />
+        <Route path='/your-posts' element={<YourPosts user={user} />} />
+        <Route path='/tasty-recipes' element={<TastyRecipes user={user} />} />
+        <Route path='/saved-recipes' element={<SavedRecipes user={user} />} />
+        <Route path='/saved-recipes/:recipe' element={<ViewSavedRecipe user={user} />} />
       </>) : <></>}
-      <Route 
-        path='/login'
-        element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />}
-      />
-      <Route 
-        path='/register'
-        element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />}
-      />
+      <Route path='/login' element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />
+      <Route path='/register' element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />} />
     </Routes>
   );
 };

@@ -9,9 +9,9 @@ const RecipeBrandCredits = ({ credits }) => {
       <Col>
         <ListGroup horizontal flush='true'>
           <ListGroupItem style={{border: 0, paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
-            <Image src={credits[0].image_url} style={{maxHeight: '7vh'}} fluid />
+            <Image src={credits[0].image_url} style={{maxHeight: '12vh'}} fluid />
           </ListGroupItem>
-          <ListGroupItem style={{border: 0, paddingLeft: '1vh', paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
+          <ListGroupItem style={{border: 0, paddingLeft: '1vw', paddingRight: 0, paddingTop: 0, paddingBottom: 0}}>
             <div className='h5' style={{marginBottom: 0, alignItems: 'start'}}>Presented by</div>
             <div className='h3 fw-bolder'>{credits[0].name}</div>
           </ListGroupItem>

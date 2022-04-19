@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import RecipeCompilation from './RecipeCompilation';
-import RecipeShort from './RecipeShort';
-import QuickViewModal from './QuickViewModal';
-import QuickViewCompilationModal from './QuickViewCompilationModal';
+import RecipeCompilation from './Recipe/TastyRecipeCompilation';
+import RecipeShort from './Recipe/TastyRecipe';
+import QuickViewModal from './Recipe/QuickViewModal';
+import QuickViewCompilationModal from './Recipe/QuickViewCompilationModal';
 import Paginate from './Paginate';
 import MainContainer from './MainContainer';
-import RecipePlaceholder from './RecipePlaceholder';
-import SaveRecipeModal from './SaveRecipeModal';
+import RecipePlaceholder from './Recipe/RecipePlaceholder';
+import SaveRecipeModal from './Recipe/SaveRecipeModal';
 
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();

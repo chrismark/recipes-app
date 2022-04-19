@@ -1,5 +1,5 @@
 import { Offcanvas, Figure, ListGroup, ListGroupItem, Row, Col, Image } from 'react-bootstrap';
-import { isStringNotNullOrEmpty } from '../lib';
+import { isStringNotNullOrEmpty } from '../../lib';
 import RecipeCredits from './RecipeCredits';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 

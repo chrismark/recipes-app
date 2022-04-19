@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem, Figure } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
 
-const RecipeShort = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) => {
+const QuickRecipe = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) => {
   const style = {
     // Make the images same size
     width: (recipe.aspect_ratio == '16:9' ? '177.5%' : '')
@@ -23,8 +23,8 @@ const RecipeShort = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave 
   );
 };
 
-RecipeShort.defaultProps = {
+QuickRecipe.defaultProps = {
   onSave: (recipe) => console.log('Saving recipe ' + recipe.name),
 };
 
-export default RecipeShort;
+export default QuickRecipe;

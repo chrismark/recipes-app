@@ -52,6 +52,13 @@ router.get('/:recipe_id', checkPerms(PermsConfig.FetchRecipe), function(req, res
 })
 
 /**
+ * DELETE /recipes/recipe_id
+ */
+ router.delete('/:recipe_id', checkPerms(PermsConfig.FetchRecipe), function(req, res) {
+  
+})
+
+/**
  * PATCH /recipes/recipe_id
  */
 router.patch('/:recipe_id', checkPerms(PermsConfig.UpdateRecipe), function(req, res) {

@@ -3,8 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import MainContainer from './MainContainer';
 import Paginate from './Paginate';
-import RecipeShort from './RecipeShort';
-import RecipePlaceholder from './RecipePlaceholder';
+import Recipe from './Recipe/SavedRecipe';
+import RecipePlaceholder from './Recipe/RecipePlaceholder';
 
 const SavedRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -82,7 +82,7 @@ const SavedRecipes = ({ user }) => {
           </>)}
           {recipes.map((recipe, recipeIndex) => (
             <Col md={5} key={recipe.id}>
-              <RecipeShort activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} />
+              <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} />
             </Col>
           ))}
         </Row>

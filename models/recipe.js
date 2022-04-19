@@ -115,7 +115,7 @@ module.exports = {
     let {
       id, name, description, slug, thumbnail_url, beauty_url, video_url, servings_noun_singular, 
       servings_noun_plural, total_time_minutes, prep_time_minutes, cook_time_minutes, num_servings, total_time_tier, 
-      credits, sections, instructions, nutrition, tags
+      credits, sections, instructions, nutrition, tags, approved_at, aspect_ratio
     } = recipe;
 
     tags = JSON.stringify(tags);
@@ -128,7 +128,7 @@ module.exports = {
     return {
       id, name, description, slug, thumbnail_url, beauty_url, video_url, servings_noun_singular, 
       servings_noun_plural, total_time_minutes, prep_time_minutes, cook_time_minutes, num_servings, total_time_tier, 
-      credits, sections, instructions, nutrition, tags
+      credits, sections, instructions, nutrition, tags, approved_at, aspect_ratio
     };
   },
   /**
