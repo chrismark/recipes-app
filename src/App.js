@@ -6,7 +6,8 @@ import Home from './components/Home';
 import YourPosts from './components/YourPosts';
 import TastyRecipes from './components/TastyRecipes';
 import SavedRecipes from './components/SavedRecipes';
-import ViewSavedRecipe from './components/Recipe/ViewSavedRecipe';
+import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
+import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import './App.css';
 
 const App = () => {
@@ -87,8 +88,11 @@ const App = () => {
       {user ? (<>
         <Route path='/your-posts' element={<YourPosts user={user} />} />
         <Route path='/tasty-recipes' element={<TastyRecipes user={user} />} />
-        <Route path='/saved-recipes' element={<SavedRecipes user={user} />} />
-        <Route path='/saved-recipes/:recipe' element={<ViewSavedRecipe user={user} />} />
+        <Route path='/saved-recipes' element={<SavedRecipes user={user} />}>
+          <Route index element={<ListSavedRecipes />} />
+          <Route path=':recipe' element={<ViewSavedRecipe />} />
+        </Route>
+        
       </>) : <></>}
       <Route path='/login' element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />
       <Route path='/register' element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />} />

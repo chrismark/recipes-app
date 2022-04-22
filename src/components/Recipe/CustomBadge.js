@@ -1,4 +1,4 @@
-import { Badge, Card } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 
 const CustomBadge = ({ children, type }) => {
   return (

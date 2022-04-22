@@ -1,9 +1,6 @@
 import { Row, Col, Image, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 const RecipeBrandCredits = ({ credits }) => {
-  const lgStyle = {
-    border: 0,
-  };
   return (
     <Row className='recipe-credits'>
       <Col>
@@ -28,7 +25,7 @@ const RecipeNonBrandCredits = ({ credits }) => {
       if (idx === 0) { // outputs 'a'
         return cur.name ? cur.name : '';
       }
-      else if (idx == credits.length - 1) { // outpus ', b' then ' & c'
+      else if (idx === credits.length - 1) { // outpus ', b' then ' & c'
         return prev + ' & ' + cur.name; 
       }
       else {

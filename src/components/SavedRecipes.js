@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Outlet } from 'react-router-dom';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import MainContainer from './MainContainer';
 import Paginate from './Paginate';
-import Recipe from './Recipe/SavedRecipe';
-import RecipePlaceholder from './Recipe/RecipePlaceholder';
+import Recipe from './recipe/SavedRecipe';
+import RecipePlaceholder from './recipe/RecipePlaceholder';
 
 const SavedRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ const SavedRecipes = ({ user }) => {
   const [activeCardId, setActiveCardId] = useState(-1);
   const [pageOffset, setPageOffset] = useState(0);
   const [page, setPage] = useState(1);
+  const [recipe, setRecipe] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -62,35 +63,7 @@ const SavedRecipes = ({ user }) => {
         </Row>
       </Container>
       )}
-      <Container className='justify-content-sm-center justify-content-md-center'>
-        <h2>Saved Recipes</h2>
-        <br/>
-        {recipes.length > 0 && (<>
-          {/* <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
-          <br />
-        </>)}
-        <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
-          {isFetchingRecipes && isInitialLoad && (<>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-          </>)}
-          {recipes.map((recipe, recipeIndex) => (
-            <Col md={5} key={recipe.id}>
-              <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} />
-            </Col>
-          ))}
-        </Row>
-        {recipes.length > 0 && (<>
-          <br /><br />
-          {/* <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
-        </>)}
-      </Container>
+      <Outlet context={{ recipes, isFetchingRecipes, isInitialLoad, activeCardId }} />
     </MainContainer>
   );
 };

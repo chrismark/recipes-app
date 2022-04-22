@@ -1,16 +1,13 @@
-import { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card, ListGroup, ListGroupItem, Figure, OverlayTrigger, Fade } from 'react-bootstrap';
-import { FaArrowRight } from 'react-icons/fa';
-import CardImgBadge from './CardImgBadge';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Card, Fade } from 'react-bootstrap';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 
 const SavedRecipe = ({ activeCardId, recipe, recipeIndex }) => {
-  const target = useRef(null);
   const [showInfo, setShowInfo] = useState(false);
   const style = {
     // Make the images same size
-    width: (recipe.aspect_ratio == '16:9' ? '177.5%' : '')
+    width: (recipe.aspect_ratio === '16:9' ? '177.5%' : '')
   };
   return (
     <Card 
@@ -21,7 +18,7 @@ const SavedRecipe = ({ activeCardId, recipe, recipeIndex }) => {
       to={`/saved-recipes/${recipe.slug}`}
       className='text-body text-decoration-none' 
       style={{overflow: 'hidden', position: 'relative'}} 
-      border={activeCardId == recipe.id ? 'warning' : ''}
+      border={activeCardId === recipe.id ? 'warning' : ''}
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={style} />
       {(recipe.cook_time_minutes || recipe.prep_time_minutes || recipe.total_time_minutes || recipe.total_time_tier) && (

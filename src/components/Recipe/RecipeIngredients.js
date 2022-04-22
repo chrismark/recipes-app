@@ -3,14 +3,14 @@ import { Row, Col } from 'react-bootstrap';
 const Component = ({ data: component }) => {
   let ingredient = '';
   // Prefer to display imperial units with metric units inside parenthesis
-  const unitIndex = component.measurements[0].unit.system == 'imperial' ? 0 : (component.measurements.length > 1 ? 1 : 0);
-  const altUnitIndex = unitIndex == 0 ? 1 : 0;
+  const unitIndex = component.measurements[0].unit.system === 'imperial' ? 0 : (component.measurements.length > 1 ? 1 : 0);
+  const altUnitIndex = unitIndex === 0 ? 1 : 0;
   const quantity = parseInt(component.measurements[unitIndex].quantity);
 
-  if (component.measurements[unitIndex].quantity >= 1 || component.measurements[unitIndex].quantity != 0) {
+  if (component.measurements[unitIndex].quantity >= 1 || component.measurements[unitIndex].quantity !== 0) {
     ingredient += `${component.measurements[unitIndex].quantity} `;
   }
-  if (quantity == 0 || quantity == 1 || isNaN(quantity)) {
+  if (quantity === 0 || quantity === 1 || isNaN(quantity)) {
     ingredient +=  `${component.measurements[unitIndex].unit.display_singular} `;
   }
   else {

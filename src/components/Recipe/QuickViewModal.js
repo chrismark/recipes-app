@@ -1,4 +1,4 @@
-import { Figure, Modal, Row, Col } from 'react-bootstrap';
+import { Modal, Row, Col } from 'react-bootstrap';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 import RecipeCredits from './RecipeCredits';
 import RecipeDescription from './RecipeDescription';
