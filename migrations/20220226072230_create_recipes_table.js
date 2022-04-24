@@ -6,6 +6,7 @@ exports.up = function(knex) {
   return knex.schema.createTable('recipes', function(table) {
     table.bigInteger('id').primary();
     table.integer('approved_at');
+    table.timestamp('created_at').defaultTo(knex.fn.now());
     table.text('name').notNullable();
     table.text('description');
     table.text('slug');
@@ -27,8 +28,8 @@ exports.up = function(knex) {
     table.json('tags');
 
     table.index('slug');
-    table.index('id');
     table.index('approved_at');
+    table.index('created_at');
   })
 };
 
