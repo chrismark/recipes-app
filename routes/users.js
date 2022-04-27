@@ -12,7 +12,7 @@ router.get('/', checkPerms(PermsConfig.FetchAllUsers), function(req, res) {
 });
 
 /**
- * GET /users/user_id
+ * GET /users/user_uuid
  * 
  * Retrieve user information
  */
@@ -30,38 +30,54 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
 });
 
 /**
- * GET /users/user_id/posts
+ * GET /users/user_uuid/recipes - List saved recipes
+ */
+ router.get('/:user_uuid/recipes', checkPerms(PermsConfig.FetchUserRecipes), async function(req, res) {
+  try {
+    const recipes = await User.fetchRecipes(req.params.user_uuid);
+    res.status(200).json(recipes);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching saved recipes. Please try again later.'
+    });
+  }
+});
+
+/**
+ * GET /users/user_uuid/posts
  * 
  * Retrieve all posts belonging to user.
  */
-router.get('/:user_id/posts', checkPerms(PermsConfig.FetchAllUserPosts), function(req, res) {
+router.get('/:user_uuid/posts', checkPerms(PermsConfig.FetchAllUserPosts), function(req, res) {
   res.send([]);
 });
 
 /**
- * POST /users/user_id/posts
+ * POST /users/user_uuid/posts
  * 
  * Create post under user.
  */
-router.post('/:user_id/posts', checkPerms(PermsConfig.CreatePost), function(req, res) {
+router.post('/:user_uuid/posts', checkPerms(PermsConfig.CreatePost), function(req, res) {
 
 });
 
 /**
- * GET /users/user_id/posts/post_id
+ * GET /users/user_uuid/posts/post_id
  * 
  * Retrieve post under user.
  */
-router.get('/:user_id/posts/:post_id', checkPerms(PermsConfig.FetchPost), function(req, res) {
+router.get('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.FetchPost), function(req, res) {
 
 });
 
 /**
- * PATCH /users/user_id/posts/post_id
+ * PATCH /users/user_uuid/posts/post_id
  * 
  * Update post under user.
  */
-router.patch('/:user_id/posts/:post_id', checkPerms(PermsConfig.UpdatePost), function(req, res) {
+router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), function(req, res) {
 
 });
 

@@ -30,6 +30,7 @@ const TastyRecipes = ({ user }) => {
 
   useEffect(() => {
     if (user) {
+      window.scrollTo(0, 0);
       getRecipes();
     }
   }, [pageOffset]);

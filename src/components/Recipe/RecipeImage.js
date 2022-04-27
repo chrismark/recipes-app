@@ -1,8 +1,8 @@
 import { Figure } from 'react-bootstrap';
 
-const RecipeImage = ({ src }) => {
+const RecipeImage = ({ src, maxHeight }) => {
   const figureImgStyle = {
-    maxHeight: '50vh'
+    maxHeight: maxHeight ? maxHeight : '50vh'
   };
 
   return (

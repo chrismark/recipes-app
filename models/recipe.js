@@ -44,7 +44,7 @@ module.exports = {
     return await db('recipes').select(selectFields).whereIn('id', ids);
   },
   fetchAll: async function(selectFields = '*') {
-    return await db('recipes').select(selectFields);
+    return await db('recipes').select(selectFields).orderBy('created_at', 'desc');
   },
   /**
    * Create new recipe entries in the recipes table.

@@ -32,6 +32,7 @@ module.exports = {
           PermsConfig.CreateRecipe, PermsConfig.UpdateRecipe, PermsConfig.FetchAllRecipes,
           PermsConfig.CreateRecipeComment, PermsConfig.UpdateRecipeComment, PermsConfig.FetchAllRecipeComments,
           PermsConfig.CreateRating, PermsConfig.UpdateRating, PermsConfig.FetchAllRatings,
+          PermsConfig.FetchUserRecipes
         ].join(' '),
       },
       process.env.TOKEN_KEY,
@@ -48,7 +49,8 @@ module.exports = {
     if (user) {
       const isPasswordMatch = await bcrypt.compare(password, user.password);
       if (isPasswordMatch) {
-        return user;
+        let {uuid, email, username, firstname, lastname, timezone} = user;
+        return {uuid, email, username, firstname, lastname, timezone};
       }
     }
     return null;
@@ -94,5 +96,21 @@ module.exports = {
       return null;
     }  
   },
+  fetchRecipes: async function(user_uuid) {
+    /**
+     * select
+     *  r.*
+     * from recipes r
+     *  left join recipes_users ru on (ru.recipe_id = r.id)
+     *  left join users u on (u.id = ru.user_id)
+     * where
+     *  ru.user_id = user_uuid
+     */
+    return await db('recipes').select('recipes.*')
+      .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
+      .leftJoin('users', 'users.id', 'recipes_users.user_id')
+      .where('users.uuid', user_uuid)
+      .orderBy('recipes.created_at', 'desc');
+  }
 };
 

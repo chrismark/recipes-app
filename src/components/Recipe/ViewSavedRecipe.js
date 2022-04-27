@@ -20,12 +20,13 @@ const ViewSavedRecipe = ({ user }) => {
 
   return (<>
     <Container className='justify-content-sm-center justify-content-md-center'>
-      <h5><Link to='/saved-recipes' onClick={(e) => { e.stopPropagation(); navigate(-1); }}>Back</Link></h5>
+      <h5><Link to='/saved-recipes' style={{textDecoration: 'none'}} onClick={(e) => { e.stopPropagation(); navigate(-1); }}>Back</Link></h5>
+      <br/>
       <h2>{recipe.name}</h2>
       <br/>
       <Row className='justify-content-md-center' style={{background: 'black', marginBottom: '0em', marginLeft: '0em', marginRight: '0em', marginTop: '0em'}}>
         <Col md='auto text-center'>
-          <RecipeImage src={recipe.thumbnail_url} />
+          <RecipeImage src={recipe.thumbnail_url} maxHeight='60vh' />
         </Col>
       </Row>
       <Row>

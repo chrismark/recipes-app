@@ -40,7 +40,7 @@ const SavedRecipes = ({ user }) => {
   }
 
   const fetchRecipes = async (token) => {
-    const url = '/api/recipes?page=' + page;
+    const url = `/api/users/${user.uuid}/recipes?page=${page}`;
     console.log('fetchRecipes url: ', url);
     const result = await fetch(url, {
       method: 'GET',
