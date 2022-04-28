@@ -43,37 +43,76 @@ module.exports = {
   findById: async function(ids, selectFields = '*') {
     return await db('recipes').select(selectFields).whereIn('id', ids);
   },
+  /**
+   * Returns recipes found in ids and linked to provided user id.
+   * @param {number} userId 
+   * @param {object[]} ids 
+   * @returns {object[]}
+   */
+  findRecipeUserById: async function(userId, ids) {
+    /**
+     * select
+     *  r.id
+     * from recipes r
+     *  left join recipes_users ru on (ru.recipe_id = r.id)
+     * where
+     *  ru.user_id = userId
+     *  and ru.recipe_id in (ids)
+     */
+    return await db('recipes').select('recipes.*')
+      .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
+      .where('recipes_users.user_id', userId)
+      .whereIn('recipes_users.recipe_id', ids);
+  },
   fetchAll: async function(selectFields = '*') {
     return await db('recipes').select(selectFields).orderBy('created_at', 'desc');
   },
   /**
    * Create new recipe entries in the recipes table.
    * @param {string} userUuid 
-   * @param {Recipe[]} recipesToCreate 
+   * @param {Recipe[]} recipesSubmitted 
    * @param {string} returnFields 
    * @returns {object[]}
    */
-  create: async function(userUuid, recipesToCreate) {
+  create: async function(userUuid, recipesSubmitted) {
     try {
-      recipesToCreate = this._extractProps(recipesToCreate);
-      let recipeIds = recipesToCreate.map((recipe) => recipe.id);
-      // Look up if recipe has not been saved yet
-      let recipes = await this.findById(recipeIds);
-      console.log('existing recipes: ', recipes);
-      // Filter out from recipesToCreate the ones already saved
-      recipesToCreate = recipesToCreate.filter((recipe) => {
-        return recipes.findIndex((savedRecipe) => savedRecipe.id == recipe.id) == -1;
+      let recipesSubmittedProcessed = this._extractProps(recipesSubmitted);
+      let recipesSubmittedProcessedIds = recipesSubmittedProcessed.map((recipe) => recipe.id);
+      // Look up if recipe has not been saved yet for user
+      let existingRecipes = await this.findById(recipesSubmittedProcessedIds);
+      console.log('existing recipes: ', existingRecipes);
+      // Filter out from recipesSubmittedProcessed the ones already saved
+      let recipesToCreate = recipesSubmittedProcessed.filter((recipeSP) => {
+        return existingRecipes.findIndex((existingRecipe) => existingRecipe.id == recipeSP.id) == -1;
       });
-      recipes = [];
       console.log('recipesToCreate: ', recipesToCreate);
-      if (recipesToCreate.length > 0) {
+
+      let recipes = [];
+      const user = await db('users').select('id').where({uuid: userUuid});
+      console.log('user: ', user);
+      if (recipesToCreate.length == recipesSubmittedProcessedIds.length) {
+        // Create all new recipes
+        recipes = await this._createRecipes(recipesToCreate);
+        console.log('new recipes: ', recipes);
         // Link recipe with user
-        const user = await db('users').select('id').where({uuid: userUuid});
-        console.log('user: ', user);
-        let newRecipes = await this._createRecipes(recipesToCreate);
-        console.log('new recipes: ', newRecipes);
-        await this._createRecipesUsers(user, newRecipes);
-        recipes = newRecipes;
+        await this._createRecipesUsers(user[0].id, recipes);
+      }
+      else {
+        if (recipesToCreate.length > 0) {
+          // Create new recipes
+          await this._createRecipes(recipesToCreate);
+        }
+        // If the recipes have been created, then filter out ones already in recipes_users
+        let existingRecipesUsers = await this.findRecipeUserById(user[0].id, recipesSubmittedProcessedIds);
+        let recipesUsersToCreate = recipesSubmittedProcessed.filter((recipeSP) => {
+          return existingRecipesUsers.findIndex((existingRecipeUser) => existingRecipeUser.id == recipeSP.id) == -1;
+        });
+        console.log('recipesUsersToCreate: ', recipesUsersToCreate);
+        if (recipesUsersToCreate.length > 0) {
+          // Link recipe with user
+          await this._createRecipesUsers(user[0].id, recipesUsersToCreate);
+          recipes = recipesUsersToCreate;
+        }
       }
 
       return recipes;
@@ -84,8 +123,7 @@ module.exports = {
     }
   },
   /**
-  * Creates new recipe entries in the recipes table.;/
-  * @param {string} user_uuid
+  * Creates new recipe entries in the recipes table.
   * @param {Recipe[]} recipes 
   * @param {string[]} [returnFields=null]
   * @returns {object[]}
@@ -101,16 +139,26 @@ module.exports = {
       return [];
     }
   },
-  _createRecipesUsers: async function(user, recipes) {
+  /**
+   * Create new recipes_users entries.
+   * @param {number} userId 
+   * @param {object[]} recipes 
+   */
+  _createRecipesUsers: async function(userId, recipes) {
     try {
       // compose props array for insertion
-      let recipeUsers = recipes.map((recipe) => ({ user_id: user[0].id, recipe_id: recipe.id }));
+      let recipeUsers = recipes.map((recipe) => ({ user_id: userId, recipe_id: recipe.id }));
       await db('recipes_users').insert(recipeUsers);
     }
     catch (e) {
       console.error(e);
     }
   },
+  /**
+   * Returns a new object containing only the needed properties.
+   * @param {object} recipe 
+   * @returns {object}
+   */
   _processProps: function(recipe) {
     let {
       id, name, description, slug, thumbnail_url, beauty_url, video_url, servings_noun_singular, 
@@ -132,7 +180,7 @@ module.exports = {
     };
   },
   /**
-   * 
+   * Extract and return an array of recipes with only the neede properties
    * @param {object[]} recipes - Each recipe contains all properties including ones not needed
    * @returns {object[]} Returns recipe with only the needed properties
    */

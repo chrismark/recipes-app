@@ -96,7 +96,7 @@ module.exports = {
       return null;
     }  
   },
-  fetchRecipes: async function(user_uuid) {
+  fetchRecipes: async function(userUuid) {
     /**
      * select
      *  r.*
@@ -109,7 +109,7 @@ module.exports = {
     return await db('recipes').select('recipes.*')
       .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
       .leftJoin('users', 'users.id', 'recipes_users.user_id')
-      .where('users.uuid', user_uuid)
+      .where('users.uuid', userUuid)
       .orderBy('recipes.created_at', 'desc');
   }
 };
