@@ -7,7 +7,7 @@ const Component = ({ data: component }) => {
   const altUnitIndex = unitIndex === 0 ? 1 : 0;
   const quantity = parseInt(component.measurements[unitIndex].quantity);
 
-  if (component.measurements[unitIndex].quantity >= 1 || component.measurements[unitIndex].quantity !== 0) {
+  if (component.measurements[unitIndex].quantity >= 1 || component.measurements[unitIndex].quantity != 0) {
     ingredient += `${component.measurements[unitIndex].quantity} `;
   }
   if (quantity === 0 || quantity === 1 || isNaN(quantity)) {
