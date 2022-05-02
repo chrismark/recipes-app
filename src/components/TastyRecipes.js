@@ -9,6 +9,7 @@ import Paginate from './Paginate';
 import MainContainer from './MainContainer';
 import RecipePlaceholder from './recipe/RecipePlaceholder';
 import SaveRecipeModal from './recipe/SaveRecipeModal';
+import Loading from './Loading';
 
 const TastyRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -153,13 +154,7 @@ const TastyRecipes = ({ user }) => {
 
   return (
     <MainContainer user={user}>
-      {isFetchingRecipes && (
-      <Container fluid='sd' className='centered-loading-animation-container'>
-        <Row lg={1} className='centered-loading-animation-row justify-content-md-center'>
-          <Col className='centered-loading-animation-col'><Spinner animation="grow " /></Col>
-        </Row>
-      </Container>
-      )}
+      <Loading show={isFetchingRecipes} />
       <Container className='justify-content-sm-center justify-content-md-center'>
         <h2>Latest from Tasty.co</h2>
         <br/>
@@ -167,19 +162,19 @@ const TastyRecipes = ({ user }) => {
           <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
           <br />
         </>)}
-        <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
+        <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
           {isFetchingRecipes && isInitialLoad && (<>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
+            <Col sm={6}><RecipePlaceholder /></Col>
           </>)}
           {recipes.map((recipe, recipeIndex) => (
-            <Col md={5} key={recipe.id}>
+            <Col sm={6} key={recipe.id}>
               {recipe.recipes && recipe.recipes.length 
                 ? (<RecipeCompilation activeCardId={activeCardId} isNew={isRecipeNew(recipe)} compilation={recipe} compilationIndex={recipeIndex} onView={doQuickViewSidebar} />)
                 : (<RecipeShort activeCardId={activeCardId} isNew={isRecipeNew(recipe)} recipe={recipe} recipeIndex={recipeIndex} onView={doQuickViewSidebar} onSave={doSave} />)

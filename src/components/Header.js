@@ -18,7 +18,6 @@ const Header = ({ user }) => {
               :
               ''
             }
-            
           </Nav>
           {user ?
             (
@@ -26,7 +25,7 @@ const Header = ({ user }) => {
               <Nav.Link as={Link} to='/create-post'>Create Post</Nav.Link>
               <NavDropdown
                 id='account-dropdown'
-                title='Account'
+                title={'Account (' + (user.username ? user.username : user.firstname) + ')'}
                 menuVariant='dark'
               >
                 <NavDropdown.Item as={Link} to='/profile'>Profile</NavDropdown.Item>

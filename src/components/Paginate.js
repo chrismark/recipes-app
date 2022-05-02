@@ -81,7 +81,7 @@ const Paginate = ({ dataSource, totalCount, pageOffset, size, onPage }) => {
   }, [dataSource]);
 
   return (
-    <Row className='justify-content-md-center'>
+    <Row className='justify-content-md-center m-auto'>
       <Col md='auto'>
         <Pagination>
           <Pagination.First disabled={enableFirstPageLink} onClick={() => onPage(1)}>First</Pagination.First>

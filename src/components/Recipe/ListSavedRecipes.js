@@ -16,7 +16,7 @@ const ListSavedRecipes = () => {
           {/* <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
           <br />
         </>)}
-        <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
+        <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
           {isFetchingRecipes && isInitialLoad && (<>
             <Col md={5}><RecipePlaceholder /></Col>
             <Col md={5}><RecipePlaceholder /></Col>
@@ -28,7 +28,7 @@ const ListSavedRecipes = () => {
             <Col md={5}><RecipePlaceholder /></Col>
           </>)}
           {recipes.map((recipe, recipeIndex) => (
-            <Col md={5} key={recipe.id}>
+            <Col sm={6} key={recipe.id}>
               <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} onSelect={selectRecipe} />
             </Col>
           ))}

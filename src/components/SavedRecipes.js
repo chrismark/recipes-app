@@ -5,6 +5,7 @@ import MainContainer from './MainContainer';
 import Paginate from './Paginate';
 import Recipe from './recipe/SavedRecipe';
 import RecipePlaceholder from './recipe/RecipePlaceholder';
+import Loading from './Loading';
 
 const SavedRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -56,13 +57,7 @@ const SavedRecipes = ({ user }) => {
 
   return (
     <MainContainer user={user}>
-      {isFetchingRecipes && (
-      <Container fluid='sd' className='centered-loading-animation-container'>
-        <Row lg={1} className='centered-loading-animation-row justify-content-md-center'>
-          <Col className='centered-loading-animation-col'><Spinner animation="grow " /></Col>
-        </Row>
-      </Container>
-      )}
+      <Loading show={isFetchingRecipes} />
       <Outlet context={{ recipes, isFetchingRecipes, isInitialLoad, activeCardId }} />
     </MainContainer>
   );
