@@ -8,6 +8,7 @@ import RecipeIngredients from './RecipeIngredients';
 import RecipeNutrition from './RecipeNutrition';
 import RecipePreparation from './RecipePreparation';
 import RecipeImage from './RecipeImage';
+import StarRating from './StarRating';
 
 const ViewSavedRecipe = ({ user }) => {
   const location = useLocation();
@@ -17,13 +18,14 @@ const ViewSavedRecipe = ({ user }) => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, []); //
 
   return (<>
     <Container className='justify-content-sm-center justify-content-md-center'>
       <h5><Link to='/saved-recipes' style={{textDecoration: 'none'}} onClick={(e) => { e.stopPropagation(); navigate(-1); }}>Back</Link></h5>
       <br/>
-      <h2>{recipe.name}</h2>
+      <h2 className='mb-0'>{recipe.name}</h2>
+      <StarRating />
       <br/>
       <Row className='justify-content-md-center' style={{background: 'black', marginBottom: '0em', marginLeft: '0em', marginRight: '0em', marginTop: '0em'}}>
         <Col md='auto text-center'>
