@@ -90,9 +90,11 @@ const App = () => {
         <Route path='/tasty-recipes' element={<TastyRecipes user={user} />} />
         <Route path='/saved-recipes' element={<SavedRecipes user={user} />}>
           <Route index element={<ListSavedRecipes />} />
-          <Route path=':recipe' element={<ViewSavedRecipe />} />
+          <Route path=':recipe' element={<ViewSavedRecipe user={user} />} />
         </Route>
-        
+        <Route path='/recipes' element={<></>}>
+          <Route index element={<Navigate to='/tasty-recipes' />} />
+        </Route>
       </>) : <></>}
       <Route path='/login' element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />
       <Route path='/register' element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />} />

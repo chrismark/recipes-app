@@ -36,7 +36,9 @@ const Login = ({ errorMessage, onLogin, onPostLogin }) => {
   return (
     <MainContainer>
       <Container>
-        <Row className='justify-content-sm-center justify-content-md-center justify-content-lg-center justify-content-xl-center'>
+        <br/>
+        <br/>
+        <Row className='mt-20 justify-content-sm-center justify-content-md-center justify-content-lg-center justify-content-xl-center'>
           <Col sm='10' md='7' lg='6' xl='5' xxl='4'>
             <Formik
               validationSchema={schema}

@@ -1,3 +1,13 @@
+a.star-rating {
+
+}
+a.star-rating-disabled,a.star-rating.star-rating-disabled:hover, a.star-rating-disabled-hover {
+  opacity: 50%;
+}
+a.star-rating:hover:not(.star-rating-disabled), a.star-rating-hover {
+  color: gold;
+}
+
 div.centered-loading-animation-container {
   position: fixed;
   top: 0;

@@ -54,7 +54,7 @@ const RecipeNonBrandCredits = ({ credits }) => {
 };
 
 const RecipeCredits = ({ recipe }) => {
-  return (recipe && recipe.credits.length > 0) ? 
+  return (recipe && recipe.credits && recipe.credits.length > 0) ? 
     (recipe.credits[0].type === 'brand' 
         ? <RecipeBrandCredits credits={recipe.credits} /> 
         : <RecipeNonBrandCredits credits={recipe.credits} />)

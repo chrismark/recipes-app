@@ -5,6 +5,18 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const PermsConfig = require('../middleware/permissions').PermissionsConfig;
 const RETURN_FIELDS = ['id', 'uuid', 'email', 'username', 'firstname', 'lastname'];
+const GENERATE_TOKEN_SCOPE = [
+  PermsConfig.FetchAllPosts, PermsConfig.FetchTastyRecipes,
+  PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.FetchAllUserPosts, 
+  PermsConfig.CreateComment, PermsConfig.FetchAllComments, PermsConfig.UpdateComment,
+  PermsConfig.FetchUser, PermsConfig.UpdateUser, 
+  PermsConfig.CreateRecipe, PermsConfig.UpdateRecipe, PermsConfig.FetchAllRecipes,
+  PermsConfig.CreateRecipeComment, PermsConfig.UpdateRecipeComment, PermsConfig.FetchAllRecipeComments,
+  PermsConfig.CreateRating, PermsConfig.UpdateRating, PermsConfig.FetchAllRatings,
+  PermsConfig.FetchUserRecipes
+].join(' ');
+const FETCH_RECIPES_FIELDS = ['recipes.id', 'recipes.name', 'recipes.slug', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes.total_time_minutes', 'recipes.prep_time_minutes', 'recipes.cook_time_minutes', 'recipes.total_time_tier'];
+const FETCH_RECIPE_FIELDS = [...FETCH_RECIPES_FIELDS, 'description', 'video_url', 'servings_noun_singular', 'servings_noun_plural', 'num_servings', 'credits', 'sections', 'instructions', 'nutrition', db.raw('coalesce(recipe_ratings.rating, 0) as rating'), 'recipe_ratings.id as rating_id'];
 
 module.exports = {
   find: async function(fields) {
@@ -24,16 +36,7 @@ module.exports = {
     return jwt.sign(
       {
         email: user.email,
-        scope: [
-          PermsConfig.FetchAllPosts, PermsConfig.FetchTastyRecipes,
-          PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.FetchAllUserPosts, 
-          PermsConfig.CreateComment, PermsConfig.FetchAllComments, PermsConfig.UpdateComment,
-          PermsConfig.FetchUser, PermsConfig.UpdateUser, 
-          PermsConfig.CreateRecipe, PermsConfig.UpdateRecipe, PermsConfig.FetchAllRecipes,
-          PermsConfig.CreateRecipeComment, PermsConfig.UpdateRecipeComment, PermsConfig.FetchAllRecipeComments,
-          PermsConfig.CreateRating, PermsConfig.UpdateRating, PermsConfig.FetchAllRatings,
-          PermsConfig.FetchUserRecipes
-        ].join(' '),
+        scope: GENERATE_TOKEN_SCOPE,
       },
       process.env.TOKEN_KEY,
       {
@@ -106,11 +109,21 @@ module.exports = {
      * where
      *  ru.user_id = user_uuid
      */
-    return await db('recipes').select('recipes.*')
+    return await db('recipes').select(FETCH_RECIPES_FIELDS)
       .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
       .leftJoin('users', 'users.id', 'recipes_users.user_id')
       .where('users.uuid', userUuid)
       .orderBy('recipes.created_at', 'desc');
+  },
+  fetchRecipe: async function(userUuid, recipe_id) {
+    let query = db('recipes').select(FETCH_RECIPE_FIELDS)
+      .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
+      .leftJoin('users', 'users.id', 'recipes_users.user_id')
+      .leftJoin('recipe_ratings', 'recipe_ratings.recipe_id', 'recipes_users.recipe_id')
+      .where('users.uuid', userUuid)
+      .andWhere('recipes.id', parseInt(recipe_id, 10));
+    console.log('query: ', query.toString());
+    return await query;
   }
 };
 

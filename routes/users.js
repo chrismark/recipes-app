@@ -46,6 +46,26 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
 });
 
 /**
+ * GET /users/user_uuid/recipes/:recipe_id - List saved recipes
+ */
+ router.get('/:user_uuid/recipes/:recipe_id', checkPerms(PermsConfig.FetchUserRecipes), async function(req, res) {
+  try {
+    const recipe = await User.fetchRecipe(req.params.user_uuid, req.params.recipe_id);
+    res.status(200).json(recipe);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching saved recipe. Please try again later.'
+    });
+  }
+});
+
+/**
+ * POST /users/user_uuid/recipes/recipe_id/ratings - Submit rating for a recipe
+ */
+
+/**
  * GET /users/user_uuid/posts
  * 
  * Retrieve all posts belonging to user.

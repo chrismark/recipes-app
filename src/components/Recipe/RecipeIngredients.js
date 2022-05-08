@@ -54,7 +54,7 @@ const Section = ({ recipeId, index, data: section }) => {
 };
 
 const RecipeIngredients = ({ recipe }) => {
-  return (
+  return recipe.num_servings != null && recipe.sections && (
     <>
       <h4 className='fw-bolder mb-0'>Ingredients</h4>
       <h5>for {recipe.num_servings} {recipe.num_servings > 1 ? recipe.servings_noun_plural : recipe.servings_noun_singular}</h5>

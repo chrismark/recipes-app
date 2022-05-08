@@ -27,7 +27,7 @@ const ListSavedRecipes = () => {
             <Col md={5}><RecipePlaceholder /></Col>
             <Col md={5}><RecipePlaceholder /></Col>
           </>)}
-          {recipes.map((recipe, recipeIndex) => (
+          {recipes.length > 0 && recipes.map((recipe, recipeIndex) => (
             <Col sm={6} key={recipe.id}>
               <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} onSelect={selectRecipe} />
             </Col>

@@ -1,5 +1,4 @@
 const db = require('./db');
-const PermsConfig = require('../middleware/permissions').PermissionsConfig;
 const RETURN_FIELDS = '*';
 
 /**
