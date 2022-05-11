@@ -2,8 +2,14 @@ import { Row, Col } from 'react-bootstrap';
 
 const Component = ({ data: component }) => {
   let ingredient = '';
+  console.log('component.measurements: ', JSON.parse(JSON.stringify(component.measurements)));
+  if (component.measurements.length == 0) {
+    return (<Col className='fs-5 mb-1'>{component.raw_text}</Col>);
+  }
   // Prefer to display imperial units with metric units inside parenthesis
-  const unitIndex = component.measurements[0].unit.system === 'imperial' ? 0 : (component.measurements.length > 1 ? 1 : 0);
+  const unitIndex = component.measurements[0].unit.system === 'imperial' 
+                    ? 0 
+                    : (component.measurements.length > 1 ? 1 : 0);
   const altUnitIndex = unitIndex === 0 ? 1 : 0;
   const quantity = parseInt(component.measurements[unitIndex].quantity);
 
@@ -45,7 +51,7 @@ const Section = ({ recipeId, index, data: section }) => {
         <div className='mt-3'></div>
       )}
       <Row xs={1}>
-        {section.components/*.filter(component => component.raw_text !== 'n/a')*/.map(component => (
+        {section.components.map(component => (
           <Component data={component} key={`${recipeId}-${component.id}`} />
         ))}
       </Row>

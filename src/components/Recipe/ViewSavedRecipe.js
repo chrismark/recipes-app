@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Collapse, Button } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { IoIosArrowDropdown, IoIosArrowDropup } from 'react-icons/io';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 import RecipeCredits from './RecipeCredits';
 import RecipeDescription from './RecipeDescription';
@@ -9,6 +10,7 @@ import RecipeNutrition from './RecipeNutrition';
 import RecipePreparation from './RecipePreparation';
 import RecipeImage from './RecipeImage';
 import StarRating from './StarRating';
+import RecipeComments from './RecipeComments';
 
 const ViewSavedRecipe = ({ user }) => {
   const location = useLocation();
@@ -116,9 +118,12 @@ const ViewSavedRecipe = ({ user }) => {
             </Row>
           </Collapse>
           <div className='text-center'>
-            <br/>
-            <Button variant='light' onClick={() => setOpen(!open)}>Show {(open ? 'Less' : 'More')}</Button>
+            <span className='h1 cursor-pointer'>
+              {!open && (<IoIosArrowDropdown onClick={() => setOpen(true)} />)}
+              {open && (<IoIosArrowDropup onClick={() => setOpen(false)} />)}
+            </span>
           </div>
+          <RecipeComments />
         </Col>     
       </Row>
     </Container>
