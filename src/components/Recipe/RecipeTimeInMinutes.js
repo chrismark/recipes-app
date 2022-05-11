@@ -15,7 +15,7 @@ const toHrMin = (minutes, minimize) => {
 const CompleteTime = ({ recipe, minimize }) => {
   const fsClass = minimize ? 'fs-6' : 'fs-5';
   return (
-    <Row className='recipe-time mt-2'>
+    <Row className={'recipe-time mt-2 ' + (minimize ? 'gx-1 text-center' : '')}>
       <Col>
         <div className='fw-bold'>Total{!minimize && ' Time'}</div>
         <div className={fsClass}>{toHrMin(recipe.total_time_minutes, minimize)}</div>

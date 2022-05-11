@@ -5,11 +5,13 @@
 exports.up = function(knex) {
   return knex.schema.createTable('post_comments', function(table) {
     table.increments().primary();
+    table.integer('parent_id');
     table.integer('user_id');
     table.integer('post_id');
     table.text('message').notNullable();
     table.timestamp('posted_on', {useTz: true}).defaultTo(knex.fn.now());
 
+    table.index('parent_id');
     table.index('post_id');
     table.index('posted_on');
   });

@@ -72,13 +72,13 @@ const App = () => {
   const onPostLogin = (data) => {
     setUser(data);
     console.log('onPostLogin');
-    navigate('/');
+    navigate('/', {replace: true});
   };
 
   const onPostRegister = (data) => {
     setUser(data);
     console.log('onPostRegister');
-    navigate('/');
+    navigate('/', {replace: true});
   };
 
   return (

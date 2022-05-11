@@ -3,12 +3,7 @@ const router = express.Router();
 const Recipe = require('../models/recipe');
 const RecipeRating = require('../models/recipe_rating');
 const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
-
-async function delay(ms) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(), ms);
-  });
-}
+const { delay } = require('../lib/common');
 
 /**
  * GET /recipes - List saved recipes

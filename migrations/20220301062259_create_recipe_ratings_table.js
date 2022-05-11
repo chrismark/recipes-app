@@ -9,8 +9,7 @@ exports.up = function(knex) {
     table.integer('user_id').notNullable();
     table.smallint('rating').defaultTo(0);
 
-    table.index('recipe_id');
-    table.index('user_id');
+    table.unique(['recipe_id', 'user_id']);
   });
 };
 

@@ -1,10 +1,5 @@
 const User = require('../models/user');
-
-async function delay(ms) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(), ms);
-  });
-}
+const { delay } = require('../lib/common');
 
 // GET /login
 async function loginHandler(req, res) {

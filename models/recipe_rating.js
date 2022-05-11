@@ -8,7 +8,9 @@ module.exports = {
         recipe_id: recipeId, 
         user_id: user[0].id,
         rating: ratingValue
-      }).returning('*');
+      }).onConflict([
+        'recipe_id', 'user_id'
+      ]).merge().returning('*');
       return rating[0];
     }
     catch (e) {
