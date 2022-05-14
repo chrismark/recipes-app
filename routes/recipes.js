@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/recipe');
 const RecipeRating = require('../models/recipe_rating');
+const RecipeComment = require('../models/recipe_comment');
 const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 const { delay } = require('../lib/common');
 
@@ -82,8 +83,37 @@ router.patch('/:recipe_id', checkPerms(PermsConfig.UpdateRecipe), function(req, 
  * 
  * Retrieve comments for recipe.
  */
-router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments), function(req, res) {
+router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id);
+    res.status(200).json(comments);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching the recipe comments. Please try again later.'
+    });
+  }
+});
 
+/**
+ * GET /recipes/recipe_id/comments/comment_id
+ * 
+ * Retrieve comment replies for recipe.
+ */
+ router.get('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.FetchAllRecipeComments), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id, req.params.comment_id);
+    res.status(200).json(comments);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching the recipe comments. Please try again later.'
+    });
+  }
 });
 
 /**
@@ -91,8 +121,18 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
  * 
  * Post a comment under recipe.
  */
- router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment), function(req, res) {
-
+router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment), async function(req, res) {
+  try {
+    console.log('req.body: ', req.body);
+    let comment = await RecipeComment.create(req.user.sub, req.params.recipe_id, req.body);
+    res.status(200).json(comment);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem creating a comment. Please try again later.'
+    });
+  }
 });
 
 /**
@@ -100,7 +140,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
  * 
  * Update a comment for recipe.
  */
- router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), function(req, res) {
+router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), function(req, res) {
 
 });
 
@@ -109,7 +149,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
  * 
  * Retrieve ratings for recipe.
  */
- router.get('/:recipe_id/ratings', checkPerms(PermsConfig.FetchAllRatings), function(req, res) {
+router.get('/:recipe_id/ratings', checkPerms(PermsConfig.FetchAllRatings), function(req, res) {
 
 });
 

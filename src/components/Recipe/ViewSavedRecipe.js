@@ -123,7 +123,7 @@ const ViewSavedRecipe = ({ user }) => {
               {open && (<IoIosArrowDropup onClick={() => setOpen(false)} />)}
             </span>
           </div>
-          <RecipeComments />
+          <RecipeComments recipe={recipe} user={user} />
         </Col>     
       </Row>
     </Container>

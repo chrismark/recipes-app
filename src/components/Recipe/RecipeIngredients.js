@@ -2,10 +2,11 @@ import { Row, Col } from 'react-bootstrap';
 
 const Component = ({ data: component }) => {
   let ingredient = '';
-  console.log('component.measurements: ', JSON.parse(JSON.stringify(component.measurements)));
+  
   if (component.measurements.length == 0) {
     return (<Col className='fs-5 mb-1'>{component.raw_text}</Col>);
   }
+
   // Prefer to display imperial units with metric units inside parenthesis
   const unitIndex = component.measurements[0].unit.system === 'imperial' 
                     ? 0 

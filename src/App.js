@@ -10,6 +10,8 @@ import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
 import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import './App.css';
 
+// TODO: Create AppContext to store the user object
+
 const App = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
