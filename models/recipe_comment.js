@@ -20,7 +20,7 @@ module.exports = {
     else {
       query = query.andWhere('recipe_comments.parent_id', parseInt(parentId, 10));
     }
-    query = query.groupBy('recipe_comments.id', 'users.username', 'users.firstname', 'users.lastname');
+    query = query.groupBy('recipe_comments.id', 'users.username', 'users.firstname', 'users.lastname').orderBy('posted_on', 'desc')
 
     console.log('query: ', query.toString());
     const comments = await query;
@@ -29,14 +29,22 @@ module.exports = {
   },
   create: async function(userUuid, recipeId, newComment) {
     try {
-      const user = await db('users').select('id').where({uuid: userUuid});
-      const comment = await db('recipe_comments').insert({
+      const user = await db('users').select([
+        'id',
+        db.raw("COALESCE(users.username, users.firstname || ' ' || users.lastname) AS name")
+      ]).where({uuid: userUuid});
+      const payload = {
         recipe_id: recipeId, 
         user_id: user[0].id,
-        parent_id: newComment.parent_id,
         message: newComment.message
-      }).returning('*');
-      return comment[0];
+      };
+      if (newComment.parentId > 0) {
+        payload['parent_id'] = newComment.parentId;
+      }
+      const [comment] = await db('recipe_comments').insert(payload).returning('*');
+      comment.name = user[0].name;
+      comment.replies_count = 0;
+      return comment;
     }
     catch (e) {
       console.log(e);
