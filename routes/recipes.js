@@ -85,6 +85,7 @@ router.patch('/:recipe_id', checkPerms(PermsConfig.UpdateRecipe), function(req, 
  */
 router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments), async function(req, res) {
   try {
+    await delay(3000);
     console.log('req.params: ', req.params);
     let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id);
     res.status(200).json(comments);
@@ -104,6 +105,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
  */
  router.get('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.FetchAllRecipeComments), async function(req, res) {
   try {
+    await delay(3000);
     console.log('req.params: ', req.params);
     let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id, req.params.comment_id);
     res.status(200).json(comments);
@@ -123,6 +125,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
  */
 router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment), async function(req, res) {
   try {
+
     console.log('req.body: ', req.body);
     let comment = await RecipeComment.create(req.user.sub, req.params.recipe_id, req.body);
     res.status(200).json(comment);
@@ -140,8 +143,19 @@ router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment),
  * 
  * Update a comment for recipe.
  */
-router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), function(req, res) {
+router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), async function(req, res) {
+  try {
 
+    console.log('req.body: ', req.body);
+    let comment = await RecipeComment.update(req.body);
+    res.status(200).json(comment);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem creating a comment. Please try again later.'
+    });
+  }
 });
 
 /**

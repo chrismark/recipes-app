@@ -22,15 +22,15 @@ const fetchComments = async (token, recipe_id, comment_id, page) => {
   return [data, null];
 };
 
-const submitComment = async (token, recipe_id, comment_id, message) => {
-  const url = `/api/recipes/${recipe_id}/comments`;
+const submitComment = async (token, recipe_id, id, parent_id, message) => {
+  const url = `/api/recipes/${recipe_id}/comments` + (id != -1 ? `/${id}` : '');
   const result = await fetch(url, {
-    method: 'POST',
+    method: id != -1 ? 'PATCH' : 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({ parent_id: comment_id, message: message })
+    body: JSON.stringify(id != -1 ? { id, message } : { parent_id, message })
   });
   const data = await result.json();
   console.log('result: ', result);
@@ -42,16 +42,16 @@ const schema = Yup.object().shape({
   message: Yup.string().required(),
 });
 
-const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay }) => {
+const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay, submitButtonText, submitButtonVariant }) => {
+  console.log('re-render CommentForm');
   return (
     <Formik
+      enableReinitialize={true}
       validationSchema={schema}
       validateOnChange={false}
       validateOnBlur={false}
       onSubmit={async (values, actions) => {
         await onSubmit(values);
-        console.log('actions: ', actions);
-        actions.setSubmitting(false);
         actions.resetForm(initialValues);
       }}
       initialValues={initialValues}
@@ -71,6 +71,11 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
           {errorDisplay}
           <Form.Control
             type='hidden'
+            name='id'
+            value={values.id}
+            />
+          <Form.Control
+            type='hidden'
             name='parent_id'
             value={values.parent_id}
             />
@@ -88,7 +93,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
           <div className='text-right'>
           {!isSubmitting ? 
             (<>
-              <Button variant='primary' type='submit'>Submit</Button>{' '}
+              <Button variant={submitButtonVariant} type='submit'>{submitButtonText}</Button>{' '}
               {onCancel ? <Button variant='secondary' type='button' onClick={onCancel}>Cancel</Button> : ''}
             </>)
             :
@@ -117,83 +122,129 @@ CommentForm.defaultProps = {
   placeholder: '',
   errorDisplay: '',
   title: <div className='mt-2'></div>,
+  submitButtonText: 'Submit',
+  submitButtonVariant: 'primary'
 };
 
-const Comment = ({ recipe, user, data }) => {
+const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) => {
   const repliesRef = useRef(null);
-  const [submitting, setSubmitting] = useState(false);
+  const commentRef = useRef(null);
+  const [comment, setComment] = useState(data);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [replies, setReplies] = useState([]);
   const [page, setPage] = useState(0);
-  const [showForm, setShowForm] = useState(false);
-  const initialValues = {
-    comment: '',
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialValues, setInitialValues] = useState({
+    id: -1,
+    message: '',
     parent_id: data.id
-  };
+  });
 
-  const doSubmitReply = async (values, actions) => {
+  const onSubmit = async (values, actions) => {
     setShowSubmitError(false);
     setSubmitError('');
-    setSubmitting(true);
 
-    const data = await submitComment(user.token, recipe.id, values.parent_id, values.message);
+    const data = await submitComment(user.token, recipe.id, values.id, values.parent_id, values.message);
 
-    setSubmitting(false);
     if (data.errorMessage) {
       setSubmitError(data.errorMessage);
       setShowSubmitError(true);
     }
     else {
-      setShowForm(false);
+      setShowReplyFormId(-1);
+      if (values.id != -1) {
+        setComment({...comment, message: data.message, updated_on: data.updated_on});
+      }
+      else {
+        replies.unshift(data);
+        setReplies([...replies]);
+      }
     }
+  };
+
+  const onEdit = (e) => {
+    e.preventDefault();
+    setInitialValues({ id: data.id, message: comment.message, parent_id: data.id });
+    setTimeout(() => commentRef.current.scrollIntoView(), 100);
+    setShowReplyFormId(data.id);
+  };
+
+  const onDelete = (e) => {
+    e.preventDefault();
+    setTimeout(() => commentRef.current.scrollIntoView(), 100);
   };
 
   const onReply = (e) => {
     e.preventDefault();
-    setShowForm(true);
+    setInitialValues({ id: -1, message: '', parent_id: data.id });
+    setTimeout(() => commentRef.current.scrollIntoView(), 100);
+    setShowReplyFormId(data.id);
   };
 
   const onCancel = (e) => {
     e.preventDefault();
-    setShowForm(false);
+    setShowReplyFormId(-1);
   }
 
   const onViewReplies = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const [replies, error] = await fetchComments(user.token, recipe.id, data.id, page);
+    setIsLoading(false);
     setReplies(replies);
     repliesRef.current.scrollIntoView();
   };
 
   return (
   <>
-    <Card>
+    <Card ref={commentRef}>
       <Card.Header className='text-muted'>
         <Row>
           <Col md={6}>
-            {data.name}
-            <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>
+            <span className={data.uuid == user.uuid ? 'fw-bold' : ''}>{data.name}</span>
           </Col>
           <Col className='text-end'>
+            {data.uuid == user.uuid && (<>
+              <Link to='#' onClick={onEdit} className='text-decoration-none me-3'>Edit</Link>
+              <Link to='#' onClick={onDelete} className='text-decoration-none text-danger me-3'>Delete</Link>
+            </>)}
             {new Date(data.posted_on).toLocaleString('en-US', {timezone: user.timezone })}
-            <Link to={`#${data.id}`} onClick={onReply} className='text-decoration-none ms-3'>#{data.id}</Link>
+            <Link to={`#${data.id}`} className='text-decoration-none ms-3'>#{data.id}</Link>
           </Col>
         </Row>
       </Card.Header>
       <Card.Body>
-        {data.message}
+        {comment.message}
+      </Card.Body>
+      <Card.Body className='small text-muted pb-2 text-end'>
+        {comment.updated_on ? (
+        <span>Updated on {new Date(comment.updated_on).toLocaleString('en-US', {timezone: user.timezone })}
+        </span>) : ''}
       </Card.Body>
     </Card>
     <div className='text-start text-muted ms-3'>
-      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>Replies ({data.replies_count})</Link>
+      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>View Replies</Link>
+      <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>
     </div>
     <Row ref={repliesRef} xs={1} className='ms-4 gy-3'>
+      {isLoading && (
+      <Col className='text-muted text-center'>
+        <Spinner
+            as='span'
+            animation='border'
+            size='sm'
+            role='status'
+            aria-hidden='true'
+          />
+          {' '}Loading
+      </Col>
+      )}
       <Col>
-        {showForm && (
+        {(showReplyFormId == data.id) && (
         <CommentForm 
           initialValues={initialValues}
-          onSubmit={doSubmitReply}
+          onSubmit={onSubmit}
           onCancel={onCancel}
           showSubmitError={showSubmitError}
           errorDisplay={
@@ -201,12 +252,14 @@ const Comment = ({ recipe, user, data }) => {
             {(submitError ? submitError : '')}
           </Alert>
           }
+          submitButtonText={initialValues.id != -1 ? 'Update' : 'Submit'}
+          submitButtonVariant={initialValues.id != -1 ? 'warning' : 'primary'}
           />
         )}
       </Col>
-      {replies.length > 0 && replies.map(reply => (
+      {!isLoading && replies.length > 0 && replies.map(reply => (
         <Col key={reply.id}>
-          <Comment recipe={recipe} user={user} data={reply} />
+          <Comment recipe={recipe} user={user} data={reply} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
         </Col>
       ))}
     </Row>
@@ -220,8 +273,12 @@ const RecipeComments = ({ user, recipe }) => {
   const [submitError, setSubmitError] = useState('');
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(0);
+  const [showReplyFormId, setShowReplyFormId] = useState(-1);
+  const [isLoading, setIsLoading] = useState(false);
+  const commentsRef = useRef(null);
   const initialValues = {
-    comment: '',
+    id: -1,
+    message: '',
     parent_id: -1
   };
 
@@ -230,17 +287,19 @@ const RecipeComments = ({ user, recipe }) => {
   }, [page]);
 
   const getComments = async () => {
+    setIsLoading(true);
     const [comments, error] = await fetchComments(user.token, recipe.id, null, page);
+    setIsLoading(false);
     setComments(comments);
   };
 
-  const doSubmit = async (values, actions) => {
+  const onSubmit = async (values, actions) => {
     console.log('values: ', values);
     setShowSubmitError(false);
     setSubmitError('');
     setSubmitting(true);
 
-    const data = await submitComment(user.token, recipe.id, values.parent_id, values.message);
+    const data = await submitComment(user.token, recipe.id, -1, values.parent_id, values.message);
 
     setSubmitting(false);
     if (data.errorMessage) {
@@ -249,6 +308,7 @@ const RecipeComments = ({ user, recipe }) => {
     }
     else {
       comments.unshift(data);
+      commentsRef.current.scrollIntoView();
       setComments([...comments]);
     }
   };
@@ -258,7 +318,7 @@ const RecipeComments = ({ user, recipe }) => {
     <Col>
       <CommentForm 
         initialValues={initialValues}
-        onSubmit={doSubmit}
+        onSubmit={onSubmit}
         showSubmitError={showSubmitError}
         title={<h2>Comments</h2>}
         errorDisplay={
@@ -268,9 +328,22 @@ const RecipeComments = ({ user, recipe }) => {
         }
         />
     </Col>
-    {comments.length > 0 && comments.map(comment => (
+    <span className='m-0' ref={commentsRef}></span>
+    {isLoading && (
+    <Col className='text-muted text-center'>
+      <Spinner
+          as='span'
+          animation='border'
+          size='sm'
+          role='status'
+          aria-hidden='true'
+        />
+        {' '}Loading
+    </Col>
+    )}
+    {!isLoading && comments.length > 0 && comments.map(comment => (
     <Col key={comment.id}>
-        <Comment recipe={recipe} user={user} data={comment} />
+        <Comment recipe={recipe} user={user} data={comment} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
     </Col>
     ))}
   </Row>

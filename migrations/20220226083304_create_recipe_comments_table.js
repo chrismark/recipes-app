@@ -10,6 +10,8 @@ exports.up = function(knex) {
     table.integer('user_id');
     table.text('message').notNullable();
     table.timestamp('posted_on', {useTz: true}).defaultTo(knex.fn.now());
+    table.timestamp('updated_on', {useTz: true});
+    table.boolean('deleted').defaultTo(knex.raw('FALSE'));
 
     table.index('parent_id');
     table.index('recipe_id');
