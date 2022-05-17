@@ -159,6 +159,26 @@ router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRe
 });
 
 /**
+ * DELETE /recipes/recipe_id/comments/comment_id 
+ * 
+ * Delete a comment for recipe.
+ */
+ router.delete('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRecipeComment), async function(req, res) {
+  try {
+
+    console.log('req.body: ', req.body);
+    let comment = await RecipeComment.delete(req.user.sub, req.params.recipe_id, req.params.comment_id);
+    res.status(200).json(comment);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem deleting a recipe comment. Please try again later.'
+    });
+  }
+});
+
+/**
  * GET /recipes/recipe_id/ratings 
  * 
  * Retrieve ratings for recipe.

@@ -44,6 +44,15 @@ const schema = Yup.object().shape({
 
 const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay, submitButtonText, submitButtonVariant }) => {
   console.log('re-render CommentForm');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    console.log('CommentForm useEffect: ', ref);
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, [ref])
+  
   return (
     <Formik
       enableReinitialize={true}
@@ -81,6 +90,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
             />
           <Form.Group className='mb-3' controlId='validationFormik1'>
             <Form.Control
+              ref={ref}
               disabled={isSubmitting}
               as='textarea'
               name='message'
@@ -135,11 +145,27 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   const [replies, setReplies] = useState([]);
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
   const [initialValues, setInitialValues] = useState({
     id: -1,
     message: '',
     parent_id: data.id
   });
+
+  const doDelete = async (token, recipe_id, id) => {
+    const url = `/api/recipes/${recipe_id}/comments/${id}`;
+    const result = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await result.json();
+    console.log('result: ', result);
+    console.log('data: ', data);
+    return data;
+  };
 
   const onSubmit = async (values, actions) => {
     setShowSubmitError(false);
@@ -172,8 +198,32 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
 
   const onDelete = (e) => {
     e.preventDefault();
-    setTimeout(() => commentRef.current.scrollIntoView(), 100);
+    setIsConfirmDelete(true);
   };
+
+  const onMouseLeave = (e) => {
+    if (isConfirmDelete) {
+      setIsConfirmDelete(false);
+    }
+  };
+
+  const onDeleteYes = async (e) => {
+    e.preventDefault();
+    const data = doDelete(user.token, recipe.id, comment.id);
+    if (data.errorMessage) {
+      // TODO: show snackbar about comment being deleted
+    }
+    else {
+      setComment({...comment, deleted: true});
+    }
+  }
+
+  const onDeleteNo = (e) => {
+    e.preventDefault();
+    if (isConfirmDelete) {
+      setIsConfirmDelete(false);
+    }
+  }
 
   const onReply = (e) => {
     e.preventDefault();
@@ -199,33 +249,46 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   return (
   <>
     <Card ref={commentRef}>
-      <Card.Header className='text-muted'>
-        <Row>
-          <Col md={6}>
-            <span className={data.uuid == user.uuid ? 'fw-bold' : ''}>{data.name}</span>
-          </Col>
-          <Col className='text-end'>
-            {data.uuid == user.uuid && (<>
-              <Link to='#' onClick={onEdit} className='text-decoration-none me-3'>Edit</Link>
-              <Link to='#' onClick={onDelete} className='text-decoration-none text-danger me-3'>Delete</Link>
-            </>)}
-            {new Date(data.posted_on).toLocaleString('en-US', {timezone: user.timezone })}
-            <Link to={`#${data.id}`} className='text-decoration-none ms-3'>#{data.id}</Link>
-          </Col>
-        </Row>
-      </Card.Header>
-      <Card.Body>
-        {comment.message}
-      </Card.Body>
-      <Card.Body className='small text-muted pb-2 text-end'>
-        {comment.updated_on ? (
-        <span>Updated on {new Date(comment.updated_on).toLocaleString('en-US', {timezone: user.timezone })}
-        </span>) : ''}
-      </Card.Body>
+      {comment.deleted ? (
+        <Card.Body className='text-muted small fst-italic'>deleted by user</Card.Body> 
+      ) : (
+      <>
+        <Card.Header className='text-muted'>
+          <Row>
+            <Col md={6}>
+              <span className={data.uuid == user.uuid ? 'fw-bold' : ''}>{data.name}</span>
+            </Col>
+            <Col className='text-end'>
+              {data.uuid == user.uuid && (<>
+                <Link to='#' onClick={onEdit} className='text-decoration-none me-3'>Edit</Link>
+                {!isConfirmDelete ? (
+                  <Link to='#' onClick={onDelete} className='text-decoration-none text-danger me-3'>Delete</Link>
+                ) : (
+                <span onMouseLeave={onMouseLeave}>
+                  Delete? <Link to='#' onClick={onDeleteYes} className='text-decoration-none text-danger me-1'>Yes</Link>/
+                  <Link to='#' onClick={onDeleteNo} className='text-decoration-none text-primary me-3 ms-1'>No</Link>
+                </span>
+                )}
+              </>)}
+              {new Date(data.posted_on).toLocaleString('en-US', {timezone: user.timezone })}
+              <Link to={`#${data.id}`} className='text-decoration-none ms-3'>#{data.id}</Link>
+            </Col>
+          </Row>
+        </Card.Header>
+        <Card.Body>
+          {comment.message}
+        </Card.Body>
+        <Card.Body className='small text-muted pb-2 text-end'>
+          {comment.updated_on ? (
+          <span>Updated on {new Date(comment.updated_on).toLocaleString('en-US', {timezone: user.timezone })}
+          </span>) : ''}
+        </Card.Body>
+      </>
+      )}
     </Card>
     <div className='text-start text-muted ms-3'>
-      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>View Replies</Link>
-      <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>
+      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>View Replies ({data.replies_count})</Link>
+      {!comment.deleted && <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>}
     </div>
     <Row ref={repliesRef} xs={1} className='ms-4 gy-3'>
       {isLoading && (

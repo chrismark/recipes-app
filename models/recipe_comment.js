@@ -1,11 +1,12 @@
 const db = require('./db');
 const FETCH_FIELDS = [
-  'recipe_comments.id', 'recipe_comments.parent_id', 'recipe_comments.message', 'recipe_comments.posted_on', 'recipe_comments.updated_on', 'users.uuid',
+  'recipe_comments.id', 'recipe_comments.parent_id', 'recipe_comments.message', 'recipe_comments.posted_on', 'recipe_comments.updated_on', 'users.uuid', 
+  'recipe_comments.deleted',
   db.raw("COALESCE(users.username, users.firstname || ' ' || users.lastname) AS name"),
   db.raw("COUNT(replies.id) AS replies_count")
 ];
 const RETURN_FIELDS = [
-  'recipe_comments.id', 'recipe_comments.parent_id', 'recipe_comments.message', 'recipe_comments.posted_on', 'recipe_comments.updated_on'
+  'recipe_comments.id', 'recipe_comments.parent_id', 'recipe_comments.message', 'recipe_comments.posted_on', 'recipe_comments.updated_on', 'recipe_comments.deleted'
 ];
 
 module.exports = {
@@ -70,13 +71,16 @@ module.exports = {
       return null;
     }
   },
-  delete: async function(deleteComment) {
+  delete: async function(userUuid, recipe_id, comment_id) {
     try {
       const query = db.from('recipe_comments').update({
         deleted: true
       }).where({
-        id: deleteComment.id
-      }).returning('id');
+        id: comment_id,
+        recipe_id: recipe_id
+      })
+      .andWhere('user_id', db.select('id').from('users').where('uuid', userUuid))
+      .returning(['id', 'deleted']);
       console.log('query: ', query.toString());
       const comment = await query;
       return comment[0];
