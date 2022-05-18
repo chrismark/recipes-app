@@ -22,8 +22,11 @@ const ViewSavedRecipe = ({ user }) => {
   const [disableRating, setDisableRating] = useState(false);
 
   useEffect(() => {
+    console.log('ViewSavedRecipe useEffect() run');
     window.scrollTo(0, 0);
     getRecipe();
+
+    return () => console.log('ViewSavedRecipe unmount');
   }, []); //
 
   const getRecipe = async () => {

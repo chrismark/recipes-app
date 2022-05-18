@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Form, Control, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { toast } from '../Toaster';
 
 const fetchComments = async (token, recipe_id, comment_id, page) => {
   const url = `/api/recipes/${recipe_id}/comments` + (comment_id ? `/${comment_id}` : '');
@@ -51,6 +52,8 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
     if (ref.current) {
       ref.current.focus();
     }
+
+    return () => console.log('CommentForm unmount');
   }, [ref])
   
   return (
@@ -152,6 +155,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     parent_id: data.id
   });
 
+  useEffect(() => {
+    console.log('Comment mount');
+
+    return () => console.log('Comment unmount');
+  });
+
   const doDelete = async (token, recipe_id, id) => {
     const url = `/api/recipes/${recipe_id}/comments/${id}`;
     const result = await fetch(url, {
@@ -181,10 +190,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
       setShowReplyFormId(-1);
       if (values.id != -1) {
         setComment({...comment, message: data.message, updated_on: data.updated_on});
+        toast('Reply updated!');
       }
       else {
         replies.unshift(data);
         setReplies([...replies]);
+        toast('New reply added!');
       }
     }
   };
@@ -211,10 +222,11 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     e.preventDefault();
     const data = doDelete(user.token, recipe.id, comment.id);
     if (data.errorMessage) {
-      // TODO: show snackbar about comment being deleted
+
     }
     else {
       setComment({...comment, deleted: true});
+      toast('Comment deleted!');
     }
   }
 
@@ -347,6 +359,8 @@ const RecipeComments = ({ user, recipe }) => {
 
   useEffect(() => {
     getComments();
+
+    return () => console.log('RecipeComments unmount');
   }, [page]);
 
   const getComments = async () => {
@@ -373,6 +387,7 @@ const RecipeComments = ({ user, recipe }) => {
       comments.unshift(data);
       commentsRef.current.scrollIntoView();
       setComments([...comments]);
+      toast('New comment added!');
     }
   };
 
