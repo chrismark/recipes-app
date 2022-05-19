@@ -46,6 +46,14 @@ const schema = Yup.object().shape({
 const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay, submitButtonText, submitButtonVariant }) => {
   console.log('re-render CommentForm');
   const ref = useRef(null);
+  const isMounted = useRef(null);
+
+  useEffect(() => {
+    if (isMounted.current == null) {
+      isMounted.current = true;
+    }
+    return () => isMounted.current = false;
+  }, [])
 
   useEffect(() => {
     console.log('CommentForm useEffect: ', ref);
@@ -64,7 +72,9 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
       validateOnBlur={false}
       onSubmit={async (values, actions) => {
         await onSubmit(values);
-        actions.resetForm(initialValues);
+        if (isMounted.current) {
+          actions.resetForm(initialValues);
+        }
       }}
       initialValues={initialValues}
       >

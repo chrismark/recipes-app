@@ -12,22 +12,8 @@ const toastReducer = (state, {type, payload}) => {
     case 'dequeue': // decrease visible toasts
       let visible = Math.max(state.visible - 1, 0);
       console.log('visible: ', visible);
-      // if no visible toasts then clear array
-      if (visible === 0) {
-        console.log('empty');
-        return {
-          visible: 0,
-          toasts: []
-        };
-      }
-      else {
-        console.log('shift');
-        state.toasts.shift();
-        return {
-          visible: visible,
-          toasts: state.toasts
-        };
-      }
+      // if visible is 0 the set toasts to an empty array
+      return { visible, toasts: visible == 0 ? [] : state.toasts };
   }
   return state;
 };
