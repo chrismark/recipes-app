@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Pagination } from 'react-bootstrap';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 import Paginate from './Paginate';
 
 const Posts = ({ user, byUser = false }) => {

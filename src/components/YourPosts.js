@@ -4,9 +4,7 @@ import Posts from './Posts';
 
 const YourPosts = ({ user }) => {
   return (
-    <MainContainer user={user}>
-      <Posts user={user} byUser={true} />
-    </MainContainer>
+    <Posts user={user} byUser={true} />
   );
 };
 

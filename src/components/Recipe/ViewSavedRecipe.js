@@ -11,6 +11,7 @@ import RecipePreparation from './RecipePreparation';
 import RecipeImage from './RecipeImage';
 import StarRating from './StarRating';
 import RecipeComments from './RecipeComments';
+import { toast } from '../Toaster';
 
 const ViewSavedRecipe = ({ user }) => {
   const location = useLocation();
@@ -66,6 +67,7 @@ const ViewSavedRecipe = ({ user }) => {
     const [data, error] = await submitRating(user.token, recipe.id, recipe.rating_id, rating);
     setRecipe(recipe => ({...recipe, rating_id: data.id}));
     setDisableRating(false);
+    toast('Rating updated');
   }
 
   const submitRating = async (token, recipe_id, rating_id, rating) => {

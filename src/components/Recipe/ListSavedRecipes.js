@@ -8,37 +8,35 @@ import RecipePlaceholder from './RecipePlaceholder';
 const ListSavedRecipes = () => {
   const { recipes, isFetchingRecipes, isInitialLoad, activeCardId, selectRecipe } = useOutletContext();
   return (
-    <>
-      <Container className='justify-content-sm-center justify-content-md-center'>
-        <h2>List of Saved Recipes</h2>
-        <br/>
-        {recipes.length > 0 && (<>
-          {/* <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
-          <br />
+    <Container className='justify-content-sm-center justify-content-md-center'>
+      <h2>List of Saved Recipes</h2>
+      <br/>
+      {recipes.length > 0 && (<>
+        {/* <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
+        <br />
+      </>)}
+      <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
+        {isFetchingRecipes && isInitialLoad && (<>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
+          <Col md={5}><RecipePlaceholder /></Col>
         </>)}
-        <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
-          {isFetchingRecipes && isInitialLoad && (<>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-            <Col md={5}><RecipePlaceholder /></Col>
-          </>)}
-          {recipes.length > 0 && recipes.map((recipe, recipeIndex) => (
-            <Col sm={6} key={recipe.id}>
-              <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} onSelect={selectRecipe} />
-            </Col>
-          ))}
-        </Row>
-        {recipes.length > 0 && (<>
-          <br /><br />
-          {/* <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
-        </>)}
-      </Container>
-    </>
+        {recipes.length > 0 && recipes.map((recipe, recipeIndex) => (
+          <Col sm={6} key={recipe.id}>
+            <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} onSelect={selectRecipe} />
+          </Col>
+        ))}
+      </Row>
+      {recipes.length > 0 && (<>
+        <br /><br />
+        {/* <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
+      </>)}
+    </Container>
   );
 };
 

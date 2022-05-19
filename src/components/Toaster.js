@@ -70,11 +70,12 @@ AutoHideToast.defaultProps = {
 };
 
 export const Toaster = ({ delay }) => {
+  console.log('render Toaster');
   const store = useStore();
   useEffect(() => {
     console.log('Toaster mount');
     return () => console.log('Toaster unmount');
-  }, [store]);
+  }, []);
   return (
     <ToastContainer className='position-fixed' position='top-center' style={{marginTop: '.5vh', zIndex: 9999999}}>
       {store.toasts.map(toast => (

@@ -155,12 +155,6 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     parent_id: data.id
   });
 
-  useEffect(() => {
-    console.log('Comment mount');
-
-    return () => console.log('Comment unmount');
-  });
-
   const doDelete = async (token, recipe_id, id) => {
     const url = `/api/recipes/${recipe_id}/comments/${id}`;
     const result = await fetch(url, {
@@ -190,12 +184,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
       setShowReplyFormId(-1);
       if (values.id != -1) {
         setComment({...comment, message: data.message, updated_on: data.updated_on});
-        toast('Reply updated!');
+        toast('Reply updated');
       }
       else {
         replies.unshift(data);
         setReplies([...replies]);
-        toast('New reply added!');
+        toast('Reply added');
       }
     }
   };
@@ -226,7 +220,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     }
     else {
       setComment({...comment, deleted: true});
-      toast('Comment deleted!');
+      toast('Comment deleted');
     }
   }
 
@@ -387,7 +381,7 @@ const RecipeComments = ({ user, recipe }) => {
       comments.unshift(data);
       commentsRef.current.scrollIntoView();
       setComments([...comments]);
-      toast('New comment added!');
+      toast('Comment added');
     }
   };
 

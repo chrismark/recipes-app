@@ -153,7 +153,7 @@ const TastyRecipes = ({ user }) => {
   };
 
   return (
-    <MainContainer user={user}>
+    <>
       <Loading show={isFetchingRecipes} />
       <Container className='justify-content-sm-center justify-content-md-center'>
         <h2>Latest from Tasty.co</h2>
@@ -195,7 +195,7 @@ const TastyRecipes = ({ user }) => {
           <SaveRecipeModal recipesToSave={recipesToSave} recipesSaved={recipesSaved} show={isSaveRecipeModalShown} isSavingRecipe={isSavingRecipe} onClose={onSaveClose} />
         )}
       </Container>
-    </MainContainer>
+    </>
   );
 };
 

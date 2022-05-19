@@ -12,6 +12,7 @@ const schema = Yup.object().shape({
 });
 
 const Register = ({ onRegister, onPostRegister }) => {
+  console.log('render Register');
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -41,7 +42,7 @@ const Register = ({ onRegister, onPostRegister }) => {
   };
 
   return (
-    <MainContainer>
+    // <MainContainer>
       <Container>
         <Row className='justify-content-md-center'>
           <Col md='7'>
@@ -147,7 +148,7 @@ const Register = ({ onRegister, onPostRegister }) => {
           </Col>
         </Row>
       </Container>
-    </MainContainer>
+    // </MainContainer>
   );
 };
 

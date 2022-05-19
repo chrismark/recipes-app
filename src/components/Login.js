@@ -10,6 +10,7 @@ const schema = Yup.object().shape({
 });
 
 const Login = ({ errorMessage, onLogin, onPostLogin }) => {
+  console.log('render Login');
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -34,7 +35,7 @@ const Login = ({ errorMessage, onLogin, onPostLogin }) => {
   };
 
   return (
-    <MainContainer>
+    // <MainContainer>
       <Container>
         <br/>
         <br/>
@@ -113,7 +114,7 @@ const Login = ({ errorMessage, onLogin, onPostLogin }) => {
           </Col>
         </Row>    
       </Container>
-    </MainContainer>
+    // </MainContainer>
   );
 };
 
