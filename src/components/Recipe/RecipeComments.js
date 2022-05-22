@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Form, Control, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
+import { Form, Placeholder, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { toast } from '../Toaster';
@@ -43,7 +43,7 @@ const schema = Yup.object().shape({
   message: Yup.string().required(),
 });
 
-const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay, submitButtonText, submitButtonVariant }) => {
+const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, errorDisplay, submitButtonText, submitButtonVariant, isLoading }) => {
   console.log('re-render CommentForm');
   const ref = useRef(null);
   const isMounted = useRef(null);
@@ -104,7 +104,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
           <Form.Group className='mb-3' controlId='validationFormik1'>
             <Form.Control
               ref={ref}
-              disabled={isSubmitting}
+              disabled={isLoading || isSubmitting}
               as='textarea'
               name='message'
               value={values.message || ''}
@@ -116,7 +116,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
           <div className='text-right'>
           {!isSubmitting ? 
             (<>
-              <Button variant={submitButtonVariant} type='submit'>{submitButtonText}</Button>{' '}
+              <Button variant={submitButtonVariant} type='submit' disabled={isLoading}>{submitButtonText}</Button>{' '}
               {onCancel ? <Button variant='secondary' type='button' onClick={onCancel}>Cancel</Button> : ''}
             </>)
             :
@@ -336,6 +336,10 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
           />
         )}
       </Col>
+      {/* {isLoading && (<>
+        <Col><CommentPlaceholder /></Col>
+        <Col><CommentPlaceholder /></Col>
+      </>)} */}
       {!isLoading && replies.length > 0 && replies.map(reply => (
         <Col key={reply.id}>
           <Comment recipe={recipe} user={user} data={reply} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
@@ -343,6 +347,35 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
       ))}
     </Row>
   </>
+  );
+};
+
+const CommentPlaceholder = () => {
+  return (
+    <>
+      <Card>
+        <Card.Header>
+          <Row>
+            <Col md={6}>
+              <Placeholder animation='glow'>
+                <Placeholder xs={4} size='lg' />
+              </Placeholder>
+            </Col>
+          </Row>
+        </Card.Header>
+        <Card.Body>
+        <Placeholder animation='glow'>
+          <Placeholder xs={8} size='lg' />
+        </Placeholder>
+        </Card.Body>
+        <Card.Body className='small pb-2'></Card.Body>
+      </Card>
+      <div className='ms-3'>
+        <Placeholder animation='glow'>
+          <Placeholder xs={1} size='lg' />
+        </Placeholder>
+      </div>
+    </>
   );
 };
 
@@ -399,6 +432,7 @@ const RecipeComments = ({ user, recipe }) => {
   <Row xs={1} className='gy-3'>
     <Col>
       <CommentForm 
+        isLoading={isLoading}
         initialValues={initialValues}
         onSubmit={onSubmit}
         showSubmitError={showSubmitError}
@@ -411,7 +445,7 @@ const RecipeComments = ({ user, recipe }) => {
         />
     </Col>
     <span className='m-0' ref={commentsRef}></span>
-    {isLoading && (
+    {/* {isLoading && (
     <Col className='text-muted text-center'>
       <Spinner
           as='span'
@@ -422,7 +456,15 @@ const RecipeComments = ({ user, recipe }) => {
         />
         {' '}Loading
     </Col>
-    )}
+    )} */}
+    {isLoading && (<>
+      <Col><CommentPlaceholder /></Col>
+      <Col><CommentPlaceholder /></Col>
+      <Col><CommentPlaceholder /></Col>
+      <Col><CommentPlaceholder /></Col>
+      <Col><CommentPlaceholder /></Col>
+      <Col><CommentPlaceholder /></Col>
+    </>)}
     {!isLoading && comments.length > 0 && comments.map(comment => (
     <Col key={comment.id}>
         <Comment recipe={recipe} user={user} data={comment} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
