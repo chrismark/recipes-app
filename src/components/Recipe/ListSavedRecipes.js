@@ -17,14 +17,14 @@ const ListSavedRecipes = () => {
       </>)}
       <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
         {isFetchingRecipes && isInitialLoad && (<>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
-          <Col md={5}><RecipePlaceholder /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
+          <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
         </>)}
         {recipes.length > 0 && recipes.map((recipe, recipeIndex) => (
           <Col sm={6} key={recipe.id}>
