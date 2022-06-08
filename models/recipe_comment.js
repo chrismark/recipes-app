@@ -10,21 +10,40 @@ const RETURN_FIELDS = [
 ];
 
 module.exports = {
-  fetch: async function(userUuid, recipeId, parentId = -1) {
+  _composeFetchSubQuery: (userUuid, recipeId, parentId, deleted) => {
     let query = db('recipe_comments').select(FETCH_FIELDS)
       .leftJoin('users', 'users.id', 'recipe_comments.user_id')
       .leftJoin('recipe_comments as replies', 'replies.parent_id', 'recipe_comments.id')
       .where('recipe_comments.recipe_id', parseInt(recipeId, 10))
-      // .andWhere('recipe_comments.deleted', false)
-      ;
+      .andWhere('recipe_comments.deleted', deleted);
     if (parentId == -1) {
       query = query.andWhere(db.raw('recipe_comments.parent_id IS NULL'));
     }
     else {
       query = query.andWhere('recipe_comments.parent_id', parseInt(parentId, 10));
     }
-    query = query.groupBy('recipe_comments.id', 'users.username', 'users.firstname', 'users.lastname', 'users.uuid').orderBy('posted_on', 'desc')
-
+    query = query
+      .groupBy(
+        'recipe_comments.id', 'users.username', 'users.firstname', 'users.lastname', 'users.uuid'
+      );
+    if (deleted) {
+      query = query.havingRaw('COUNT(replies.id) > 0')
+    }
+    return query;
+  },
+  fetch: async function(userUuid, recipeId, parentId = -1) {
+    // Return union of:
+    // - comments that aren't marked deleted and their replies (it's fine if there are none), and
+    // - comments that are marked deleted and have replies
+    let t1 = db.select('t1.*').from(
+      this._composeFetchSubQuery(userUuid, recipeId, parentId, false).as('t1')
+    );
+    console.log('t1: ', t1.toString());
+    let t2 = db.select('t2.*').from(
+      this._composeFetchSubQuery(userUuid, recipeId, parentId, true).as('t2')
+    );
+    console.log('t2: ', t2.toString());
+    let query = t1.union(t2).orderBy('posted_on', 'desc');
     console.log('query: ', query.toString());
     const comments = await query;
     console.log('comments: ', comments);
