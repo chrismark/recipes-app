@@ -5,9 +5,10 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { toast } from '../Toaster';
 import { useIsMounted } from '../../lib';
+import SimplePaginate from '../SimplePaginate';
 
-const fetchComments = async (token, recipe_id, comment_id, page) => {
-  const url = `/api/recipes/${recipe_id}/comments` + (comment_id ? `/${comment_id}` : '');
+const fetchComments = async (token, recipe_id, comment_id, page = 0) => {
+  const url = `/api/recipes/${recipe_id}/comments` + (comment_id ? `/${comment_id}` : `?page=${page}`);
   console.log('url: ', url);
   const result = await fetch(url, {
     method: 'GET',
@@ -438,6 +439,11 @@ const RecipeComments = ({ user, recipe }) => {
     }
   };
 
+  const onPage = (page) => {
+    console.log('onPage: ', page);
+    setPage(page);
+  };
+
   return (
   <Row xs={1} className='gy-3'>
     <Col>
@@ -454,7 +460,10 @@ const RecipeComments = ({ user, recipe }) => {
         }
         />
     </Col>
-    <span className='m-0' ref={commentsRef}></span>
+    <Col>
+      <span className='m-0' ref={commentsRef}></span>
+      <SimplePaginate onPage={onPage} page={page} enabled={comments.length > 0} />
+    </Col>
     {isLoading && (<>
       <Col><CommentPlaceholder /></Col>
       <Col><CommentPlaceholder /></Col>

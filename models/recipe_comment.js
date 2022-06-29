@@ -8,6 +8,7 @@ const FETCH_FIELDS = [
 const RETURN_FIELDS = [
   'recipe_comments.id', 'recipe_comments.parent_id', 'recipe_comments.message', 'recipe_comments.posted_on', 'recipe_comments.updated_on', 'recipe_comments.deleted'
 ];
+const FETCH_PAGINATION_LIMIT = 3;
 
 module.exports = {
   _composeFetchSubQuery: (userUuid, recipeId, parentId, deleted) => {
@@ -31,7 +32,7 @@ module.exports = {
     }
     return query;
   },
-  fetch: async function(userUuid, recipeId, parentId = -1) {
+  fetch: async function(userUuid, recipeId, parentId = -1, offset = -1) {
     // Return union of:
     // - comments that aren't marked deleted and their replies (it's fine if there are none), and
     // - comments that are marked deleted and have replies
@@ -43,7 +44,12 @@ module.exports = {
       this._composeFetchSubQuery(userUuid, recipeId, parentId, true).as('t2')
     );
     console.log('t2: ', t2.toString());
-    let query = t1.union(t2).orderBy('posted_on', 'desc');
+    let query = t1.union(t2);
+    if (offset != -1) {
+      offset = Math.max(0, offset * FETCH_PAGINATION_LIMIT);
+      query = query.limit(FETCH_PAGINATION_LIMIT).offset(offset);
+    }
+    query = query.orderBy('posted_on', 'desc');
     console.log('query: ', query.toString());
     const comments = await query;
     console.log('comments: ', comments);

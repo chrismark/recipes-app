@@ -86,8 +86,10 @@ router.patch('/:recipe_id', checkPerms(PermsConfig.UpdateRecipe), function(req, 
 router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments), async function(req, res) {
   try {
     await delay(3000);
+    const { page } = req.query;
+    console.log('req.query: ', req.query);
     console.log('req.params: ', req.params);
-    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id);
+    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id, -1, page);
     res.status(200).json(comments);
   }
   catch (e) {
