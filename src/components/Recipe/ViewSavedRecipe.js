@@ -124,8 +124,8 @@ const ViewSavedRecipe = ({ user }) => {
           </Collapse>
           <div className='text-center'>
             <span className='h1 cursor-pointer'>
-              {!open && (<IoIosArrowDropdown onClick={() => setOpen(true)} />)}
-              {open && (<IoIosArrowDropup onClick={() => setOpen(false)} />)}
+              {!open && (<span onClick={() => setOpen(true)}><span className='fs-6 d-block'>Show More</span><IoIosArrowDropdown /></span>)}
+              {open && (<span onClick={() => setOpen(false)}><span className='fs-6 d-block'>Show Less</span><IoIosArrowDropup /></span>)}
             </span>
           </div>
           <RecipeComments recipe={recipe} user={user} />
