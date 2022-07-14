@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Container, Row, Col, Card } from 'react-bootstrap';
 import Paginate from './Paginate';
+import CreatePostModal from './CreatePostModal';
 
 const Posts = ({ user, byUser = false }) => {
   const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
+  const [showForm, setShowForm] = useState(false);
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
   const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
   const [enableNextPageLink, setEnableNextPageLink] = useState(false);
@@ -105,8 +108,33 @@ const Posts = ({ user, byUser = false }) => {
     }
   };
 
+  const onCreatePostSubmit = () => {
+
+  };
+
+  const onCreatePostClose = () => {
+    setShowCreatePostModal(false);
+  };
+
   return (
     <Container fluid className='recipes-app-posts'>
+      {user && (
+      <Row className='justify-content-md-center'>
+        <Col xs='8' className='m-5'>
+          <Form>
+            <Form.Control
+              readOnly={true}
+              value={"What food are you craving right now? TODO: onhover change lighter color"}
+              className='cursor-pointer'
+              onClick={() => { 
+                console.log('setShowCreatePostModal to true'); 
+                setShowCreatePostModal(true);
+              }}
+              />
+          </Form>
+        </Col>
+      </Row>
+      )}
       <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
         {posts.map((post) => (
           <Col key={post.id}>
@@ -122,6 +150,7 @@ const Posts = ({ user, byUser = false }) => {
         <br/><br/>
         <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
       </>)}
+      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onClose={onCreatePostClose} />
     </Container>
   );
 };

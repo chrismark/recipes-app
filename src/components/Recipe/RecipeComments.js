@@ -462,7 +462,7 @@ const RecipeComments = ({ user, recipe }) => {
     </Col>
     <Col>
       <span className='m-0' ref={commentsRef}></span>
-      <SimplePaginate onPage={onPage} page={page} enabled={comments.length > 0} />
+      <SimplePaginate onPage={onPage} page={page} />
     </Col>
     {isLoading && (<>
       <Col><CommentPlaceholder /></Col>

@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce';
 
 const DEBOUNCE_DELAY = 500;
 
-const SimplePaginate = ({ onPage, page, enabled }) => {
+const SimplePaginate = ({ onPage, page }) => {
   console.log('Render SimplePaginate: ', page);
 
   const onClickPrev = debounce((e) => {
@@ -21,8 +21,8 @@ const SimplePaginate = ({ onPage, page, enabled }) => {
     <Row className='justify-content-md-center m-auto'>
       <Col md='auto'>
         <Pagination>
-          <Pagination.Prev disabled={!enabled} onClick={onClickPrev}>Prev</Pagination.Prev>
-          <Pagination.Next disabled={!enabled} onClick={onClickNext}>Next</Pagination.Next>
+          <Pagination.Prev onClick={onClickPrev}>Prev</Pagination.Prev>
+          <Pagination.Next onClick={onClickNext}>Next</Pagination.Next>
         </Pagination>
       </Col>
     </Row>
