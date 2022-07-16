@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
+import { FaLongArrowAltRight } from 'react-icons/fa';
 
-const CreatePostModal = ({ show, onSubmit, onClose }) => {
+const CreatePostModal = ({ children, show, onSubmit, onClose, onAddARecipe }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <Modal show={show} onHide={onClose} size='md' xs={12} centered>
+    <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static' centered>
       <Modal.Header closeButton>
-        <Modal.Title><h5>Create A Post</h5></Modal.Title>
+        <Modal.Title><h5 className='m-0'>Create A Post</h5></Modal.Title>
       </Modal.Header>
       <Modal.Body>      
         <Form>
@@ -15,16 +16,12 @@ const CreatePostModal = ({ show, onSubmit, onClose }) => {
             <Form.Control
               as='textarea'
               placeholder={"What do you want to post?"}
-              rows={5}
+              rows={4}
               />
           </Form.Group>
-          <div className='mt-3'>
-            TODO: Add recipes to your post.
+          <div className='mt-3 text-center' onClick={onAddARecipe}>
+            <span className='h5 cursor-pointer'>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
           </div>
-          <Row>
-            <Col>
-            </Col>
-          </Row>
           <div className='d-grid mt-3'>
             <Button 
               variant='primary' 

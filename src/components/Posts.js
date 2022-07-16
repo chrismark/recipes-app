@@ -2,16 +2,15 @@ import { useState, useEffect } from 'react';
 import { Form, Container, Row, Col, Card } from 'react-bootstrap';
 import Paginate from './Paginate';
 import CreatePostModal from './CreatePostModal';
+import SelectRecipeModal from './SelectRecipeModal';
+import { FaLongArrowAltRight } from 'react-icons/fa';
 
 const Posts = ({ user, byUser = false }) => {
   const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
-  const [enableFirstPageLink, setEnableFirstPageLink] = useState(false);
-  const [enablePrevPageLink, setEnablePrevPageLink] = useState(false);
-  const [enableNextPageLink, setEnableNextPageLink] = useState(false);
-  const [enableLastPageLink, setEnableLastPageLink] = useState(false);
+  const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const size = 20;
   const postCount = 300;
 
@@ -20,15 +19,6 @@ const Posts = ({ user, byUser = false }) => {
       getPosts();
     }
   }, [pageOffset]);
-
-  const determinePageLinkAbleness = () => {
-    const isFirstPageLinkEnabled = !(pageOffset > 0);
-    const isOtherPageLinkEnabled = !( postCount - (size * (pageOffset + 1)) );
-    setEnableFirstPageLink(isFirstPageLinkEnabled);
-    setEnablePrevPageLink(isFirstPageLinkEnabled);
-    setEnableNextPageLink(isOtherPageLinkEnabled);
-    setEnableLastPageLink(isOtherPageLinkEnabled);
-  };
 
   const getPage = (page) => {
     page = parseInt(page);
@@ -46,7 +36,6 @@ const Posts = ({ user, byUser = false }) => {
     else {
       await fetchAllPosts(user);
     }
-    determinePageLinkAbleness();
   };
 
   const fetchAllPosts = async({token}) => {
@@ -116,11 +105,24 @@ const Posts = ({ user, byUser = false }) => {
     setShowCreatePostModal(false);
   };
 
+  const onAddARecipe = () => {
+    console.log('Add a recipe!');
+    setShowSelectRecipeModal(true);
+  };
+
+  const onSelectRecipeSubmit = () => {
+    setShowSelectRecipeModal(false);
+  };
+
+  const onSelectRecipeBack = () => {
+    setShowSelectRecipeModal(false);
+  };
+
   return (
     <Container fluid className='recipes-app-posts'>
       {user && (
       <Row className='justify-content-md-center'>
-        <Col xs='8' className='m-5'>
+        <Col xs='6' className='m-5'>
           <Form>
             <Form.Control
               readOnly={true}
@@ -150,7 +152,8 @@ const Posts = ({ user, byUser = false }) => {
         <br/><br/>
         <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
       </>)}
-      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onClose={onCreatePostClose} />
+      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} />
+      <SelectRecipeModal show={showSelectRecipeModal} onSelect={onSelectRecipeSubmit} onClose={onSelectRecipeBack} />
     </Container>
   );
 };
