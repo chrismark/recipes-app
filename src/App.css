@@ -1,5 +1,5 @@
-a.star-rating {
-
+.form-control[readonly]:hover {
+  background-color: rgb(59 60 59);
 }
 a.star-rating-disabled,a.star-rating.star-rating-disabled:hover, a.star-rating-disabled-hover {
   opacity: 50%;

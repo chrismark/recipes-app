@@ -6,6 +6,7 @@ import SelectRecipeModal from './SelectRecipeModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 
 const Posts = ({ user, byUser = false }) => {
+  const [selectedRecipes, setSelectedRecipes] = useState([]);
   const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
   const [showForm, setShowForm] = useState(false);
@@ -152,8 +153,8 @@ const Posts = ({ user, byUser = false }) => {
         <br/><br/>
         <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
       </>)}
-      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} />
-      <SelectRecipeModal show={showSelectRecipeModal} onSelect={onSelectRecipeSubmit} onClose={onSelectRecipeBack} />
+      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} selectedRecipes={selectedRecipes} />
+      <SelectRecipeModal user={user} show={showSelectRecipeModal} onSelect={onSelectRecipeSubmit} onClose={onSelectRecipeBack} selectedRecipes={selectedRecipes} setSelectedRecipes={setSelectedRecipes} />
     </Container>
   );
 };

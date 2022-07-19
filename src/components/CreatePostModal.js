@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 
-const CreatePostModal = ({ children, show, onSubmit, onClose, onAddARecipe }) => {
+const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipes }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static' centered>
+    <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
       <Modal.Header closeButton>
         <Modal.Title><h5 className='m-0'>Create A Post</h5></Modal.Title>
       </Modal.Header>

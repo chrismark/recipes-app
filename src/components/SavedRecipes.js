@@ -11,12 +11,9 @@ const SavedRecipes = ({ user }) => {
   const navigate = useNavigate();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [recipes, setRecipes] = useState([]);
-  const [recipeCount, setRecipeCount] = useState(-1);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
   const [activeCardId, setActiveCardId] = useState(-1);
-  const [pageOffset, setPageOffset] = useState(0);
   const [page, setPage] = useState(1);
-  const [recipe, setRecipe] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -36,7 +33,6 @@ const SavedRecipes = ({ user }) => {
     }
     setIsInitialLoad(false);
     setIsFetchingRecipes(false);
-    setRecipeCount(data.length);
     setRecipes(data);
   }
 
@@ -56,12 +52,10 @@ const SavedRecipes = ({ user }) => {
   };
 
   return (
-    // <MainContainer user={user}>
     <>
       <Loading show={isFetchingRecipes} />
       <Outlet context={{ recipes, isFetchingRecipes, isInitialLoad, activeCardId }} />
     </>
-    // </MainContainer>
   );
 };
 
