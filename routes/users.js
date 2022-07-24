@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
+const { delay } = require('../lib/common');
 
 /**
  * GET /users
@@ -34,6 +35,7 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
  */
  router.get('/:user_uuid/recipes', checkPerms(PermsConfig.FetchUserRecipes), async function(req, res) {
   try {
+    await await delay(5000);
     const recipes = await User.fetchRecipes(req.params.user_uuid);
     res.status(200).json(recipes);
   }
