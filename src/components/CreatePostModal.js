@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
+import PostRecipesPreview from './PostRecipesPreview';
 
 const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipes }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipe
               rows={4}
               />
           </Form.Group>
+          <PostRecipesPreview recipes={selectedRecipes} />
           <div className='mt-3 text-center' onClick={onAddARecipe}>
             <span className='h5 cursor-pointer'>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
           </div>
