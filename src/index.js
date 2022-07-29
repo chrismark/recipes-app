@@ -6,6 +6,9 @@ import { disableReactDevTools } from '@fvilers/disable-react-devtools';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { QueryClientProvider, QueryClient } from 'react-query';
+
+const queryClient = new QueryClient();
 
 if (process.env.NODE_ENV === 'production') {
   disableReactDevTools();
@@ -14,7 +17,9 @@ if (process.env.NODE_ENV === 'production') {
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')

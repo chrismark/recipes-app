@@ -36,7 +36,9 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
  router.get('/:user_uuid/recipes', checkPerms(PermsConfig.FetchUserRecipes), async function(req, res) {
   try {
     await await delay(5000);
-    const recipes = await User.fetchRecipes(req.params.user_uuid);
+    console.log(req.query);
+    const { page, mode } = req.query;
+    const recipes = await User.fetchRecipes(req.params.user_uuid, page, mode);
     res.status(200).json(recipes);
   }
   catch (e) {

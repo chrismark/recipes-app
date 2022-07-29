@@ -4,6 +4,9 @@ import Paginate from './Paginate';
 import CreatePostModal from './CreatePostModal';
 import SelectRecipeModal from './SelectRecipeModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
+// import { QueryClient, QueryClientProvider } from 'react-query';
+
+// const queryClient = new QueryClient();
 
 const Posts = ({ user, byUser = false }) => {
   const [selectedRecipes, setSelectedRecipes] = useState([]);
@@ -153,8 +156,19 @@ const Posts = ({ user, byUser = false }) => {
         <br/><br/>
         <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
       </>)}
-      <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} selectedRecipes={selectedRecipes} />
-      <SelectRecipeModal user={user} show={showSelectRecipeModal} onSelect={onSelectRecipeSubmit} onClose={onSelectRecipeBack} selectedRecipes={selectedRecipes} setSelectedRecipes={setSelectedRecipes} />
+      {user && (
+      <>
+        <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} selectedRecipes={selectedRecipes} />
+        <SelectRecipeModal 
+          user={user} 
+          show={showSelectRecipeModal} 
+          onSelect={onSelectRecipeSubmit} 
+          onClose={onSelectRecipeBack} 
+          selectedRecipes={selectedRecipes} 
+          setSelectedRecipes={setSelectedRecipes} 
+        />
+      </>
+      )}
     </Container>
   );
 };

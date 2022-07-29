@@ -15,6 +15,7 @@ const GENERATE_TOKEN_SCOPE = [
   PermsConfig.CreateRating, PermsConfig.UpdateRating, PermsConfig.FetchAllRatings,
   PermsConfig.FetchUserRecipes
 ].join(' ');
+const FETCH_RECIPES_FIELDS_MINIMAL = ['recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio' ];
 const FETCH_RECIPES_FIELDS = ['recipes.id', 'recipes.name', 'recipes.slug', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes.total_time_minutes', 'recipes.prep_time_minutes', 'recipes.cook_time_minutes', 'recipes.total_time_tier'];
 const FETCH_RECIPE_FIELDS = [...FETCH_RECIPES_FIELDS, 'description', 'video_url', 'servings_noun_singular', 'servings_noun_plural', 'num_servings', 'credits', 'sections', 'instructions', 'nutrition', db.raw('coalesce(recipe_ratings.rating, 0) as rating'), 'recipe_ratings.id as rating_id'];
 
@@ -99,7 +100,8 @@ module.exports = {
       return null;
     }  
   },
-  fetchRecipes: async function(userUuid) {
+  fetchRecipes: async function(userUuid, page = 1, mode = 'full') {
+    console.log('fetchRecipes: mode=', mode);
     /**
      * select
      *  r.*
@@ -109,11 +111,17 @@ module.exports = {
      * where
      *  ru.user_id = user_uuid
      */
-    return await db('recipes').select(FETCH_RECIPES_FIELDS)
+    let fields = FETCH_RECIPES_FIELDS;
+    if (mode == 'minimal') {
+      fields = FETCH_RECIPES_FIELDS_MINIMAL;
+    }
+    const sql = db('recipes').select(fields)
       .leftJoin('recipes_users', 'recipes_users.recipe_id', 'recipes.id')
       .leftJoin('users', 'users.id', 'recipes_users.user_id')
       .where('users.uuid', userUuid)
       .orderBy('recipes.created_at', 'desc');
+    console.log(sql.toString());
+    return await sql;
   },
   fetchRecipe: async function(userUuid, recipe_id) {
     let query = db('recipes').select(FETCH_RECIPE_FIELDS)

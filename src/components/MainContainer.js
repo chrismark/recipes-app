@@ -5,11 +5,10 @@ import Header from './Header';
 import Footer from './Footer';
 import { Toaster } from './Toaster';
 
-const MainContainer = ({ /*children,*/ user }) => {
+const MainContainer = ({ user }) => {
   return (
     <Container fluid='sd'>
       <Header user={user} />
-      {/* {children} */}
       <Outlet />
       <Toaster />
       <Footer />

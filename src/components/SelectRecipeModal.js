@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltLeft, FaCheckCircle } from 'react-icons/fa';
+import { useRecipes } from './recipeStore';
 
 const fetchRecipes = async (uuid, token, page) => {
   const url = `/api/users/${uuid}/recipes?page=${page}`;
@@ -28,7 +29,7 @@ const CardImgPlaceholder = () => {
   );
 };
 
-const CardSelectableRecipe = ({recipe, onToggleClick, isSelected}) => {
+const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
   return (
     <Card
       className='text-body text-decoration-none cursor-pointer' 
@@ -38,7 +39,7 @@ const CardSelectableRecipe = ({recipe, onToggleClick, isSelected}) => {
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : '')
       }} />
-      {isSelected && (
+      {selectionMap[recipe.id] && (
       <>
         <Card.Body style={{position: 'absolute', width: '100%', height: '100%'}} className=''>
           <FaCheckCircle fontSize='2em' color='#01c92c' fill='#01c92c' />
@@ -51,102 +52,65 @@ const CardSelectableRecipe = ({recipe, onToggleClick, isSelected}) => {
 
 const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, setSelectedRecipes }) => {
   console.log('SelectRecipeModal::rendering show=', show);
-  const navigate = useNavigate();
-  const isShown = useRef(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [recipes, setRecipes] = useState([]);
+  const [page, setPage] = useState(1);
+  const { data: recipes, error, isFetching } = useRecipes(user?.uuid, user?.token, page, 'minimal');
   const [localSelectedRecipes, setLocalSelectedRecipes] = useState([]);
   const [localSelectedRecipesMap, setLocalSelectedRecipesMap] = useState({});
-  const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
-  const [activeCardId, setActiveCardId] = useState(-1);
-  const [page, setPage] = useState(1);
-  isShown.current = show;
 
   useEffect(() => {
     console.log('SelectRecipeModal::mounted');
-    return () => console.og('SelectRecipeModal::unmounted');
+    return () => console.log('SelectRecipeModal::unmounted');
   }, []);
 
   useEffect(() => {
+    console.log('show or recipes changed.');
+
     if (show) {
-      getRecipes();
+      updateLocalSelectedRecipes();
     }
-  }, [show, page]);
+  }, [show, recipes]);
 
-  const getRecipes = async () => {
-    if (isFetchingRecipes) { return; }
-    setIsFetchingRecipes(true);
-    const [data, status] = await fetchRecipes(user.uuid, user.token, page);
-    console.log('getRecipes:: isMounted=' + isShown.current + ', show=' + show);
-    if (!isShown.current) {
-      setIsFetchingRecipes(false);
-      return; 
-    }
-    if (status !== 200) {
-      setIsFetchingRecipes(false);
-      setRecipes([]);
-      console.log('navigating to /login');
-      return setTimeout(() => navigate('/login'), 500);
-    }
-    setRecipes(data);
-    updateLocalSelectedRecipesData(selectedRecipes, data);
-    setIsFetchingRecipes(false);
-    console.log('data: ', data);
-  }
-
-  const updateLocalSelectedRecipesData = (selectedRecipes, data) => {
-    // update `data` so that recipes that are inside selectedRecipes have a property selected set to true
-    for (let i = 0; i < selectedRecipes.length; i++) {
-      let r = data.find(r => r.id == selectedRecipes[i].id);
-      console.log('r: ', r);
-      if (r) {
-        localSelectedRecipes.push(r);
-        localSelectedRecipesMap[r.id] = true;
-      }
-    }
-    setLocalSelectedRecipesMap(localSelectedRecipesMap);
-    setLocalSelectedRecipes(localSelectedRecipes);
+  const updateLocalSelectedRecipes = () => {
+    setLocalSelectedRecipes([...selectedRecipes]);
+    selectedRecipes.map(r => { 
+      localSelectedRecipesMap[r.id] = true; 
+    });
+    setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
   };
 
   const onClickRecipe = (recipe) => {
-    console.log('selected: ', recipe);
-    console.log('selectedRecipes: ', selectedRecipes);
+    if (!recipe) {
+      console.log('passed recipe is null or undefined');
+      return;
+    }
     if (!localSelectedRecipesMap[recipe.id]) {
-      let {id, thumbnail_url, aspect_ratio} = recipe;
-      localSelectedRecipes.push({id, thumbnail_url, aspect_ratio});
-      setLocalSelectedRecipes(localSelectedRecipes);
-      // set selected map
       localSelectedRecipesMap[recipe.id] = true;
-      setLocalSelectedRecipesMap(localSelectedRecipesMap);
+      localSelectedRecipes.push(recipe);
+      setLocalSelectedRecipes([...localSelectedRecipes]);
+      setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
     }
     else { // uncheck recipe
-      // search for index so we can remove it form localSelectedRecipes
-      let idx = localSelectedRecipes.findIndex(r => r.id == recipe.id);
-      // extract recipes excluding the unchecked one
-      let leftRecipes = localSelectedRecipes.slice(0, idx);
-      let rightRecipes = localSelectedRecipes.slice(idx + 1);
-      setLocalSelectedRecipes([...leftRecipes, ...rightRecipes]);
-      // set selected map
-      localSelectedRecipesMap[recipe.id] = null;
       delete localSelectedRecipesMap[recipe.id];
-      setLocalSelectedRecipesMap(localSelectedRecipesMap);
+      let index = localSelectedRecipes.findIndex(r => r.id == recipe.id);
+      let leftRecipes = localSelectedRecipes.slice(0, index);
+      let rightRecipes = localSelectedRecipes.slice(index + 1);
+      setLocalSelectedRecipes([...leftRecipes, ...rightRecipes]);
+      setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
     }
-    setRecipes([...recipes]);
   };
 
-  const onSelectRecipe = () => {
-    setSelectedRecipes(localSelectedRecipes);
+  const onClickSelectRecipes = () => {
+    console.log('Select Recipes');
+    setSelectedRecipes([...localSelectedRecipes]);
     setLocalSelectedRecipes([]);
     setLocalSelectedRecipesMap({});
-    isShown.current = false;
     onSelect();
   };
 
   const onClickBack = () => {
-    console.log('onClickBack');
+    console.log('Back');
     setLocalSelectedRecipes([]);
     setLocalSelectedRecipesMap({});
-    isShown.current = false;
     onClose();
   };
 
@@ -167,9 +131,11 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
         </Modal.Body>
       </Modal.Header>
       <Modal.Body>
-        <Row xs={3} className='gy-4'>
-          {isFetchingRecipes && (
+        <Row xs={4} className='gy-4'>
+          {isFetching && (
             <>
+              <Col><CardImgPlaceholder /></Col>
+              <Col><CardImgPlaceholder /></Col>
               <Col><CardImgPlaceholder /></Col>
               <Col><CardImgPlaceholder /></Col>
               <Col><CardImgPlaceholder /></Col>
@@ -178,12 +144,12 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
               <Col><CardImgPlaceholder /></Col>
             </>
           )}
-          {!isFetchingRecipes && recipes && recipes.length > 0 && recipes.map((recipe, idx) => (
+          {!isFetching && recipes && recipes.length > 0 && recipes.map((recipe, idx) => (
             <Col key={recipe.id}>
               <CardSelectableRecipe
                 recipe={recipe}
                 onToggleClick={() => onClickRecipe(recipe)}
-                isSelected={recipe && localSelectedRecipesMap[recipe.id]}
+                selectionMap={localSelectedRecipesMap}
               />
             </Col>
           ))}
@@ -195,10 +161,10 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
             <Button 
               variant={'primary'}
               type='submit' 
-              disabled={isFetchingRecipes}
+              disabled={isFetching}
               size='md'
-              onClick={onSelectRecipe}
-              >Select {localSelectedRecipes.length} Recipe{localSelectedRecipes.length > 1 || localSelectedRecipes.length == 0 ? 's' : ''}</Button>
+              onClick={onClickSelectRecipes}
+              >Select Recipe</Button>
           </Col>
         </Row>  
       </Modal.Footer>
