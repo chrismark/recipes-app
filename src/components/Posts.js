@@ -122,6 +122,11 @@ const Posts = ({ user, byUser = false }) => {
     setShowSelectRecipeModal(false);
   };
 
+  const clearSelectedRecipes = () => {
+    console.log('clear selected recipes');
+    setSelectedRecipes([]);
+  }
+
   return (
     <Container fluid className='recipes-app-posts'>
       {user && (
@@ -158,7 +163,14 @@ const Posts = ({ user, byUser = false }) => {
       </>)}
       {user && (
       <>
-        <CreatePostModal show={showCreatePostModal} onSubmit={onCreatePostSubmit} onAddARecipe={onAddARecipe} onClose={onCreatePostClose} selectedRecipes={selectedRecipes} />
+        <CreatePostModal 
+          show={showCreatePostModal} 
+          onSubmit={onCreatePostSubmit} 
+          onAddARecipe={onAddARecipe} 
+          onClose={onCreatePostClose} 
+          selectedRecipes={selectedRecipes}
+          clearSelectedRecipes={clearSelectedRecipes} 
+        />
         <SelectRecipeModal 
           user={user} 
           show={showSelectRecipeModal} 
