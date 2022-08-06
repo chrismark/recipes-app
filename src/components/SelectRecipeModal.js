@@ -4,21 +4,6 @@ import { Card, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltLeft, FaCheckCircle } from 'react-icons/fa';
 import { useRecipes } from './recipeStore';
 
-const fetchRecipes = async (uuid, token, page) => {
-  const url = `/api/users/${uuid}/recipes?page=${page}`;
-  console.log('fetchRecipes url: ', url);
-  const result = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  console.log('result: ', result);
-  const data = await result.json();
-  return [data, result.status];
-};
-
 const CardImgPlaceholder = () => {
   return (
     <Card style={{overflow: 'hidden', position: 'relative'}}>
