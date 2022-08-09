@@ -15,7 +15,7 @@
     "express-jwt-authz": "^2.4.1",
     "formik": "^2.2.9",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^1.0.3",
+    "knex": "^1.0.7",
     "lodash.debounce": "^4.0.8",
     "morgan": "^1.10.0",
     "pg": "^8.7.3",

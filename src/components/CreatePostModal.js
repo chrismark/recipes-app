@@ -3,7 +3,7 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import PostRecipesPreview from './PostRecipesPreview';
 
-const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipes, clearSelectedRecipes }) => {
+const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption, selectedRecipes, setSelectedRecipes, clearSelectedRecipes }) => {
   return (
     <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
       <Modal.Header closeButton>
@@ -18,7 +18,12 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipe
               rows={4}
               />
           </Form.Group>
-          <PostRecipesPreview recipes={selectedRecipes} onClearRecipes={clearSelectedRecipes} />
+          <PostRecipesPreview 
+            recipes={selectedRecipes} 
+            setRecipes={setSelectedRecipes}
+            onClearRecipes={clearSelectedRecipes} 
+            onEditCaption={onEditCaption}
+            />
           <div className='mt-3 text-center' onClick={onAddARecipe}>
             <span className='h5 cursor-pointer'>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
           </div>
@@ -26,6 +31,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, selectedRecipe
             <Button 
               variant='primary' 
               type='submit' 
+              onClick={onSubmit}
               size='md'>Post</Button>
           </div>
         </Form>

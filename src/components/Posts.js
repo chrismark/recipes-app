@@ -3,10 +3,8 @@ import { Form, Container, Row, Col, Card } from 'react-bootstrap';
 import Paginate from './Paginate';
 import CreatePostModal from './CreatePostModal';
 import SelectRecipeModal from './SelectRecipeModal';
+import AddRecipeCaptionModal from './AddRecipeCaptionModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
-// import { QueryClient, QueryClientProvider } from 'react-query';
-
-// const queryClient = new QueryClient();
 
 const Posts = ({ user, byUser = false }) => {
   const [selectedRecipes, setSelectedRecipes] = useState([]);
@@ -15,6 +13,7 @@ const Posts = ({ user, byUser = false }) => {
   const [showForm, setShowForm] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
+  const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   const size = 20;
   const postCount = 300;
 
@@ -127,6 +126,19 @@ const Posts = ({ user, byUser = false }) => {
     setSelectedRecipes([]);
   }
 
+  const onAddRecipeCaption = () => {
+    console.log('Add Recipe Caption');
+    setShowAddRecipeCaptionModal(true);
+  }
+
+  const onAddRecipeCaptionDone = () => {
+    setShowAddRecipeCaptionModal(false);
+  }
+
+  const onAddRecipeCaptionBack = () => {
+    setShowAddRecipeCaptionModal(false);
+  }
+
   return (
     <Container fluid className='recipes-app-posts'>
       {user && (
@@ -167,10 +179,12 @@ const Posts = ({ user, byUser = false }) => {
           show={showCreatePostModal} 
           onSubmit={onCreatePostSubmit} 
           onAddARecipe={onAddARecipe} 
+          onEditCaption={onAddRecipeCaption}
           onClose={onCreatePostClose} 
           selectedRecipes={selectedRecipes}
+          setSelectedRecipes={setSelectedRecipes}
           clearSelectedRecipes={clearSelectedRecipes} 
-        />
+          />
         <SelectRecipeModal 
           user={user} 
           show={showSelectRecipeModal} 
@@ -178,7 +192,14 @@ const Posts = ({ user, byUser = false }) => {
           onClose={onSelectRecipeBack} 
           selectedRecipes={selectedRecipes} 
           setSelectedRecipes={setSelectedRecipes} 
-        />
+          />
+        <AddRecipeCaptionModal
+          show={showAddRecipeCaptionModal}
+          onDone={onAddRecipeCaptionDone}
+          onClose={onAddRecipeCaptionBack}
+          selectedRecipes={selectedRecipes}
+          setSelectedRecipes={setSelectedRecipes}
+          />
       </>
       )}
     </Container>

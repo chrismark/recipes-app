@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Modal, Row, Col, Stack, Fade } from 'react-bootstrap';
+import { Card, Button, CloseButton, Row, Col } from 'react-bootstrap';
 import { FaTimesCircle } from 'react-icons/fa';
 
 const CardRecipeThumb = ({ recipe, count }) => {
@@ -26,18 +26,20 @@ CardRecipeThumb.defaultProps = {
   count: 0
 };
 
-const PostRecipesPreviewWrapper = ({ children, recipes, onClear }) => {
+const PostRecipesPreviewWrapper = ({ children, recipes, onClear, onEditCaption }) => {
   let classNames = recipes.length > 0 ? 'mt-3 g-0' : '';
-
   return (
     <div 
       style={{position: 'relative'}} 
     >
-      <div style={{position: 'absolute', zIndex: 9999, display: 'block', width: '100%', textAlign: 'right'}} className='post-recipes-preview-options p-2'>
+      <div style={{position: 'absolute', zIndex: 9999, display: 'block', right: 0}} className='post-recipes-preview-option m-2'>
         <div style={{position: 'relative'}}>
           <FaTimesCircle className='fs-1 cursor-pointer' color='gray' style={{position: 'absolute', top: '1px', right: '1px'}} />
           <FaTimesCircle className='fs-1 cursor-pointer' color='white' onClick={() => onClear()} style={{position: 'absolute', top: 0, right: 0}} />
         </div>
+      </div>
+      <div style={{position: 'absolute', zIndex: 9999, display: 'block'}}>
+          <Button variant='primary' className='m-2' onClick={onEditCaption}>Edit Captions</Button>
       </div>
       <Row className={classNames}>
         {children}
@@ -145,10 +147,10 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
   };
 };
 
-const PostRecipesPreview = ({ recipes, onClearRecipes }) => {
+const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption }) => {
   if (recipes.length >= 1) {
     return (
-      <PostRecipesPreviewWrapper recipes={recipes} onClear={onClearRecipes}>
+      <PostRecipesPreviewWrapper recipes={recipes} onClear={onClearRecipes} onEditCaption={onEditCaption}>
         <PostRecipesPreviewThumbnails recipes={recipes} />
       </PostRecipesPreviewWrapper>
     );
