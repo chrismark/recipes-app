@@ -49,11 +49,11 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
 
   useEffect(() => {
     console.log('show or recipes changed.');
-
+    console.log('error: ', error);
     if (show) {
       updateLocalSelectedRecipes();
     }
-  }, [show, recipes]);
+  }, [show, recipes, error]);
 
   const updateLocalSelectedRecipes = () => {
     setLocalSelectedRecipes([...selectedRecipes]);
@@ -70,7 +70,7 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
     }
     if (!localSelectedRecipesMap[recipe.id]) {
       localSelectedRecipesMap[recipe.id] = true;
-      localSelectedRecipes.push(recipe);
+      localSelectedRecipes.push(JSON.parse(JSON.stringify(recipe)));
       setLocalSelectedRecipes([...localSelectedRecipes]);
       setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
     }

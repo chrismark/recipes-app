@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Form, Card, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltLeft } from 'react-icons/fa';
 
-const RecipeCaptionEntryForm = ({ recipe, initialize, updateLocalSelectedRecipes }) => {
+const RecipeCaptionEntryForm = ({ recipe, recipesCaption, initialize, updateCaption }) => {
   const controlRef = useRef(null);
   console.log('RecipeCaptionEntryForm::initialize = ', initialize);
   console.log('recipe.caption = ', recipe.caption);
-
+  
   useEffect(() => {
     if (controlRef.value != null) {
       controlRef.value.value = initialize ? recipe.caption : '';
@@ -14,8 +14,7 @@ const RecipeCaptionEntryForm = ({ recipe, initialize, updateLocalSelectedRecipes
   }, [initialize]);
 
   const onCaptionChange = (e) => {
-    recipe.caption = e.target.value;
-    updateLocalSelectedRecipes();
+    updateCaption(recipe.id, e.target.value);
   }
 
   return (
@@ -36,7 +35,7 @@ const RecipeCaptionEntryForm = ({ recipe, initialize, updateLocalSelectedRecipes
           placeholder={"Caption"}
           rows={3}
           onChange={onCaptionChange}
-          value={recipe.caption}
+          value={recipesCaption[recipe.id]}
           />
       </Card.Body>
     </Card>
@@ -46,6 +45,7 @@ const RecipeCaptionEntryForm = ({ recipe, initialize, updateLocalSelectedRecipes
 const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSelectedRecipes }) => {
   console.log('AddRecipeCaptionModal::rendering show=', show);
   const [localSelectedRecipes, setLocalSelectedRecipes] = useState([]);
+  const [localSelectedRecipesCaption, setLocalSelectedRecipesCaption] = useState({});
 
   useEffect(() => {
     console.log('SelectRecipeModal::mounted');
@@ -56,28 +56,40 @@ const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSele
     console.log('show or recipes changed.');
 
     if (show) {
-      updateLocalFromSelectedRecipes();
+      initLocalSelectedRecipes();
     }
   }, [show]);
 
-  const updateLocalFromSelectedRecipes = () => {
+  const initLocalSelectedRecipes = () => {
+    console.log('Update Local Selected Recipes using selectedRecipes.');
     setLocalSelectedRecipes([...selectedRecipes]);
+    // copy caption to local map
+    selectedRecipes.map(r => { 
+      localSelectedRecipesCaption[r.id] = r.caption ? r.caption : ''; 
+    });
+    setLocalSelectedRecipesCaption(JSON.parse(JSON.stringify(localSelectedRecipesCaption)));
   };
 
-  const updateLocalSelectedRecipes = () => {
-    setLocalSelectedRecipes([...localSelectedRecipes]);
+  const updateLocalSelectedRecipesCaption = (recipeId, caption) => {
+    console.log('Update Local Selected Recipes using localSelectedRecipes.');
+    localSelectedRecipesCaption[recipeId] = caption;
+    setLocalSelectedRecipesCaption(JSON.parse(JSON.stringify(localSelectedRecipesCaption)));
   };
 
   const onClickDone = () => {
     console.log('Done Adding Captions');
+    // copy caption to selectedRecipes
+    localSelectedRecipes.forEach(r => r.caption = localSelectedRecipesCaption[r.id]);
     setSelectedRecipes([...localSelectedRecipes]);
     setLocalSelectedRecipes([]);
+    setLocalSelectedRecipesCaption({});
     onDone();
   };
 
   const onClickBack = () => {
     console.log('Back');
     setLocalSelectedRecipes([]);
+    setLocalSelectedRecipesCaption({});
     onClose();
   };
 
@@ -103,7 +115,8 @@ const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSele
             <Col key={recipe.id} xs={12}>
               <RecipeCaptionEntryForm 
                 recipe={recipe} 
-                updateLocalSelectedRecipes={updateLocalSelectedRecipes} 
+                recipesCaption={localSelectedRecipesCaption}
+                updateCaption={updateLocalSelectedRecipesCaption} 
                 initialize={show}
                 />
             </Col>

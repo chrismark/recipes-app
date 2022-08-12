@@ -7,7 +7,7 @@ const CardRecipeThumb = ({ recipe, count }) => {
   return (
     <Card
       className='text-body text-decoration-none user-select-none' 
-      style={{overflow: 'hidden', position: 'relative', background: count > 0 ?  'gray' : 'transparent'}}
+      style={{overflow: 'hidden', position: 'relative', background: count > 0 ?  'lightgray' : 'transparent'}}
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : ''),

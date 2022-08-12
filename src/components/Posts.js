@@ -106,6 +106,7 @@ const Posts = ({ user, byUser = false }) => {
 
   const onCreatePostClose = () => {
     setShowCreatePostModal(false);
+    setSelectedRecipes([]);
   };
 
   const onAddARecipe = () => {
