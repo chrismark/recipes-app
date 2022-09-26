@@ -19,14 +19,14 @@ const RecipeCaptionEntryForm = ({ recipe, recipesCaption, initialize, updateCapt
 
   return (
     <Card
-      className='text-body text-decoration-none cursor-pointer' 
+      className='text-body text-decoration-none' 
       style={{overflow: 'hidden', position: 'relative', border: 0}}
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : ''),
         borderBottomLeftRadius: 'calc(0.25rem - 1px)',
         borderBottomRightRadius: 'calc(0.25rem - 1px)'
-      }} />
+      }} className='user-select-none' />
       <Card.Body className='m-0 p-0 border-none'>
         <Form.Control
           ref={controlRef}
@@ -48,8 +48,8 @@ const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSele
   const [localSelectedRecipesCaption, setLocalSelectedRecipesCaption] = useState({});
 
   useEffect(() => {
-    console.log('SelectRecipeModal::mounted');
-    return () => console.log('SelectRecipeModal::unmounted');
+    console.log('AddRecipeCaptionModal::mounted');
+    return () => console.log('AddRecipeCaptionModal::unmounted');
   }, []);
 
   useEffect(() => {

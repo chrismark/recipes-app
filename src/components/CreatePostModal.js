@@ -3,7 +3,11 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import PostRecipesPreview from './PostRecipesPreview';
 
-const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption, selectedRecipes, setSelectedRecipes, clearSelectedRecipes }) => {
+const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes }) => {
+  const onMessageChange = (e) => {
+    setPostMessage(e.target.value);
+  };
+
   return (
     <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
       <Modal.Header closeButton>
@@ -16,6 +20,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
               as='textarea'
               placeholder={"What do you want to post?"}
               rows={4}
+              onChange={onMessageChange}
               />
           </Form.Group>
           <PostRecipesPreview 

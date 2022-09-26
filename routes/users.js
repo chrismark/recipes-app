@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Post = require('../models/post');
 const { checkPermissions: checkPerms, PermissionsConfig: PermsConfig } = require('../middleware/permissions');
 const { delay } = require('../lib/common');
 
@@ -74,8 +75,17 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
  * 
  * Retrieve all posts belonging to user.
  */
-router.get('/:user_uuid/posts', checkPerms(PermsConfig.FetchAllUserPosts), function(req, res) {
-  res.send([]);
+router.get('/:user_uuid/posts', checkPerms(PermsConfig.FetchAllUserPosts), async function(req, res) {
+  try {
+    const posts = await Post.fetch(req.params.user_uuid);
+    res.status(200).json(posts);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching posts. Please try again later.'
+    });
+  }
 });
 
 /**
@@ -83,8 +93,19 @@ router.get('/:user_uuid/posts', checkPerms(PermsConfig.FetchAllUserPosts), funct
  * 
  * Create post under user.
  */
-router.post('/:user_uuid/posts', checkPerms(PermsConfig.CreatePost), function(req, res) {
-
+router.post('/:user_uuid/posts', checkPerms(PermsConfig.CreatePost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);
+    const post = await Post.create(req.params.user_uuid, req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem creating a new post. Please try again later.'
+    });
+  }
 });
 
 /**
