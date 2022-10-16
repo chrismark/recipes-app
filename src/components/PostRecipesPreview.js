@@ -11,7 +11,8 @@ const CardRecipeThumb = ({ recipe, count }) => {
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : ''),
-        opacity: count > 0 ? '.6' : '1'
+        opacity: count > 0 ? '.6' : '1',
+        borderRadius: 0
       }} />
       {count > 0 && (
         <Card.Body style={{position: 'absolute', width: '100%', height: '100%'}} className='text-center text-white p-0 m-0 d-flex align-items-center justify-content-center'>
@@ -26,122 +27,158 @@ CardRecipeThumb.defaultProps = {
   count: 0
 };
 
-const PostRecipesPreviewWrapper = ({ children, recipes, onClear, onEditCaption }) => {
+const PostRecipesPreviewClear = ({ onClick }) => {
+  return (
+    <div style={{position: 'absolute', zIndex: 9999, display: 'block', right: 0}} className='post-recipes-preview-option m-2'>
+      <div style={{position: 'relative'}}>
+        <FaTimesCircle className='fs-1 cursor-pointer' color='gray' style={{position: 'absolute', top: '1px', right: '1px'}} />
+        <FaTimesCircle className='fs-1 cursor-pointer' color='white' onClick={() => onClick()} style={{position: 'absolute', top: 0, right: 0}} />
+      </div>
+    </div>
+  );
+};
+
+const PostRecipesPreviewEditButton = ({ onClick }) => {
+  return (
+    <div style={{position: 'absolute', zIndex: 9999, display: 'block'}}>
+      <Button variant='primary' className='m-2' onClick={onClick}>Edit Captions</Button>
+    </div>
+  );
+};
+
+const PostRecipesPreviewEditWrapper = ({ children, recipes, onClear, onEditCaption }) => {
   let classNames = recipes.length > 0 ? 'mt-3 g-0' : '';
   return (
-    <div 
-      style={{position: 'relative'}} 
-    >
-      <div style={{position: 'absolute', zIndex: 9999, display: 'block', right: 0}} className='post-recipes-preview-option m-2'>
-        <div style={{position: 'relative'}}>
-          <FaTimesCircle className='fs-1 cursor-pointer' color='gray' style={{position: 'absolute', top: '1px', right: '1px'}} />
-          <FaTimesCircle className='fs-1 cursor-pointer' color='white' onClick={() => onClear()} style={{position: 'absolute', top: 0, right: 0}} />
-        </div>
-      </div>
-      <div style={{position: 'absolute', zIndex: 9999, display: 'block'}}>
-          <Button variant='primary' className='m-2' onClick={onEditCaption}>Edit Captions</Button>
-      </div>
-      <Row className={classNames}>
-        {children}
-      </Row>
+    <div style={{position: 'relative'}}>
+      <PostRecipesPreviewClear onClick={onClear} />
+      <PostRecipesPreviewEditButton onClick={onEditCaption} />
+      {children}
+    </div>
+  );
+};
+
+const PostRecipesPreviewDisplayWrapper = ({ children, recipes, onClick }) => {
+  return (
+    <div style={{position: 'relative', marginLeft: '-1rem', marginRight: '-1rem'}}>
+      {children}
     </div>
   );
 };
 
 const PostRecipesPreviewThumbnails = ({ recipes }) => {
+  let classNamesTopRow = recipes.length > 0 ? 'mt-3 g-0' : '';
+  let classNamesBtmRow = recipes.length > 0 ? 'g-0' : '';
   if (recipes.length == 1) {
     return (
       <>
-        <Col>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+        </Row>
       </>
     );
   }
   else if (recipes.length == 2) {
     return (
       <>
-        <Col>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
-        <Col>
-          <CardRecipeThumb recipe={recipes[1]} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+          <Col>
+            <CardRecipeThumb recipe={recipes[1]} />
+          </Col>
+        </Row>
       </>
     );
   }
   else if (recipes.length == 3) {
     return (
       <>
-        <Col md='12'>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[1]} />
-        </Col>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[2]} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[1]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[2]} />
+          </Col>
+        </Row>
       </>
     );
   }
   else if (recipes.length == 4) {
     return (
       <>
-        <Col md='12'>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[1]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[2]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[3]} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[1]} />
+          </Col>
+        </Row>
+        <Row className={classNamesBtmRow}>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[2]} />
+          </Col>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[3]} />
+          </Col>
+        </Row>
       </>
     );
   }
   else if (recipes.length == 5) {
     return (
       <>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[1]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[2]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[3]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[4]} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[1]} />
+          </Col>
+        </Row>
+        <Row className={classNamesBtmRow}>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[2]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[3]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[4]} />
+          </Col>
+        </Row>
       </>
     );
   }
   else if (recipes.length > 5) {
     return (
       <>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[0]} />
-        </Col>
-        <Col md='6'>
-          <CardRecipeThumb recipe={recipes[1]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[2]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[3]} />
-        </Col>
-        <Col md='4'>
-          <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} />
-        </Col>
+        <Row className={classNamesTopRow}>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[0]} />
+          </Col>
+          <Col xs='6'>
+            <CardRecipeThumb recipe={recipes[1]} />
+          </Col>
+        </Row>
+        <Row className={classNamesBtmRow}>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[2]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[3]} />
+          </Col>
+          <Col xs='4'>
+            <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} />
+          </Col>
+        </Row>
       </>
     );
   };
@@ -150,9 +187,22 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
 const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption }) => {
   if (recipes.length >= 1) {
     return (
-      <PostRecipesPreviewWrapper recipes={recipes} onClear={onClearRecipes} onEditCaption={onEditCaption}>
+      <PostRecipesPreviewEditWrapper recipes={recipes} onClear={onClearRecipes} onEditCaption={onEditCaption}>
         <PostRecipesPreviewThumbnails recipes={recipes} />
-      </PostRecipesPreviewWrapper>
+      </PostRecipesPreviewEditWrapper>
+    );
+  }
+  else {
+    return <></>;
+  }
+};
+
+const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
+  if (recipes.length >= 1) {
+    return (
+      <PostRecipesPreviewDisplayWrapper recipes={recipes} onClick={onClick}>
+        <PostRecipesPreviewThumbnails recipes={recipes} />
+      </PostRecipesPreviewDisplayWrapper>
     );
   }
   else {
@@ -161,3 +211,4 @@ const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption }) => {
 };
 
 export default PostRecipesPreview;
+export { PostRecipesPreviewDisplay };

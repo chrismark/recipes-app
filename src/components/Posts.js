@@ -5,19 +5,25 @@ import CreatePostModal from './CreatePostModal';
 import SelectRecipeModal from './SelectRecipeModal';
 import AddRecipeCaptionModal from './AddRecipeCaptionModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
+import { toast } from './Toaster';
+import Post from './Post/Post';
 
-const Posts = ({ user, byUser = false }) => {
+const Posts = ({ user, byUser }) => {
+  console.log('Posts:', user);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
+  const [postMessage, setPostMessage] = useState('');
   const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
+  const [postsByUser, setPostsByUser] = useState(true);
   const size = 20;
   const postCount = 300;
 
   useEffect(() => {
+    console.log('fetch Posts: run when pageOffset changes');
     if (user) {
       getPosts();
     }
@@ -32,7 +38,8 @@ const Posts = ({ user, byUser = false }) => {
   };
 
   const getPosts = async() => {
-    if (byUser) {
+    console.log('getPosts: byUser=', postsByUser);
+    if (postsByUser) {
       // Fetch posts
       await fetchUserPosts(user);
     }
@@ -65,9 +72,9 @@ const Posts = ({ user, byUser = false }) => {
     }
   };
 
-  const fetchUserPosts = async ({id, token}) => {
+  const fetchUserPosts = async ({uuid, token}) => {
     try {
-      const result = await fetch(`/api/users/${id}/posts`, {
+      const result = await fetch(`/api/users/${uuid}/posts`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +91,7 @@ const Posts = ({ user, byUser = false }) => {
 
   const createPost = async (payload) => {
     try {
-      const result = await fetch(`/api/users/${user.id}/posts`, {
+      const result = await fetch(`/api/users/${user.uuid}/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,8 +107,24 @@ const Posts = ({ user, byUser = false }) => {
     }
   };
 
-  const onCreatePostSubmit = () => {
-
+  const onCreatePostSubmit = async (e) => {
+    e.preventDefault();
+    console.log('POST: ', selectedRecipes);
+    // remove unneeded fields
+    let recipes = selectedRecipes.map(r => {
+      let {id, caption} = r;
+      return {id, caption};
+    });
+    let newPost = {
+      message: postMessage,
+      recipes: recipes
+    };
+    let post = await createPost(newPost);
+    console.log('New post: ', post);
+    toast('New post added!');
+    setShowCreatePostModal(false);
+    setSelectedRecipes([]);
+    setPostMessage('');
   };
 
   const onCreatePostClose = () => {
@@ -142,38 +165,45 @@ const Posts = ({ user, byUser = false }) => {
 
   return (
     <Container fluid className='recipes-app-posts'>
-      {user && (
-      <Row className='justify-content-md-center'>
-        <Col xs='6' className='m-5'>
-          <Form>
-            <Form.Control
-              readOnly={true}
-              value={"What food are you craving right now? TODO: onhover change lighter color"}
-              className='cursor-pointer'
-              onClick={() => { 
-                console.log('setShowCreatePostModal to true'); 
-                setShowCreatePostModal(true);
-              }}
-              />
-          </Form>
+      <Row>
+        <Col xs={3} className='left-sidebar bg-secondary'>
+          Left
+        </Col>
+        <Col className='mid-content justify-content-md-center'>
+          {user && (
+          <Row className='justify-content-md-center'>
+            <Col className='mb-5 mt-5'>
+              <Form>
+                <Form.Control
+                  readOnly={true}
+                  value={"What food are you craving right now? TODO: onhover change lighter color"}
+                  className='cursor-pointer'
+                  onClick={() => { 
+                    console.log('setShowCreatePostModal to true'); 
+                    setShowCreatePostModal(true);
+                  }}
+                  />
+              </Form>
+            </Col>
+          </Row>
+          )}
+          <Row xs={1} className='posts-list gy-4'>
+            {posts.map(post => (
+              <Col className='justify-content-md-center' key={post.id}>
+                <Post user={user} post={post} />
+              </Col>
+            ))}
+          </Row>
+          {posts.length > 0 && (<>
+            <br/><br/>
+            <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
+          </>)}
+        </Col>
+        <Col xs={3} className='right-sidebar bg-info'>
+          Right
         </Col>
       </Row>
-      )}
-      <Row xs={1} sm={2} md={2} lg={3} xl={4} xxl={4} className='gy-4'>
-        {posts.map((post) => (
-          <Col key={post.id}>
-            <Card>
-              <Card.Body>
-                <span className='h2'>{post.id}</span>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      {posts.length > 0 && (<>
-        <br/><br/>
-        <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
-      </>)}
+      
       {user && (
       <>
         <CreatePostModal 
@@ -182,6 +212,7 @@ const Posts = ({ user, byUser = false }) => {
           onAddARecipe={onAddARecipe} 
           onEditCaption={onAddRecipeCaption}
           onClose={onCreatePostClose} 
+          setPostMessage={setPostMessage}
           selectedRecipes={selectedRecipes}
           setSelectedRecipes={setSelectedRecipes}
           clearSelectedRecipes={clearSelectedRecipes} 
@@ -205,6 +236,10 @@ const Posts = ({ user, byUser = false }) => {
       )}
     </Container>
   );
+};
+
+Posts.defaultProps = {
+  byUser: false
 };
 
 export default Posts;
