@@ -176,7 +176,7 @@ const Posts = ({ user, byUser }) => {
               <Form>
                 <Form.Control
                   readOnly={true}
-                  value={"What food are you craving right now? TODO: onhover change lighter color"}
+                  value={"What food are you craving right now?"}
                   className='cursor-pointer'
                   onClick={() => { 
                     console.log('setShowCreatePostModal to true'); 

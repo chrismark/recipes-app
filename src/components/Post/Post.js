@@ -1,4 +1,5 @@
 import PostHeader from './PostHeader';
+import PostFooter from './PostFooter';
 import Card from 'react-bootstrap/Card';
 import { PostRecipesPreviewDisplay } from '../PostRecipesPreview'
 
@@ -9,7 +10,7 @@ const Post = ({ user, post }) => {
       <PostHeader user={user} post={post} />
       <p>{post.message}</p>
       <PostRecipesPreviewDisplay recipes={post.recipes} onClick={() => console.log('click')} />
-      <div style={{marginTop: '1rem'}}>Post Actions Here</div>
+      <PostFooter user={user} post={post} />
     </Card.Body>
   </Card>
   );
