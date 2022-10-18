@@ -1,5 +1,5 @@
 import { Row, Col } from 'react-bootstrap';
-import { FaRegThumbsUp, FaRegCommentAlt } from 'react-icons/fa';
+import { FaRegThumbsUp, FaRegCommentAlt, FaShare } from 'react-icons/fa';
 
 const PostLike = () => {
   return (
@@ -17,7 +17,7 @@ const PostActions = () => {
         <small><FaRegCommentAlt /> Comment</small>
       </Col>
       <Col className='post-action text-center cursor-pointer pt-1 pb-1 rounded fw-bolder text-muted'>
-        <small>Share</small>
+        <small><FaShare className='fs-5 pb-1' /> Share</small>
       </Col>
     </Row>
   );

@@ -10,6 +10,13 @@ a.star-rating:hover:not(.star-rating-disabled), a.star-rating-hover {
 .post-action:hover {
   background:rgb(224, 224, 224);
 }
+.post-stat:hover {
+  text-decoration: underline;
+}
+.post-stat {
+  text-decoration: none;
+}
+
 
 div.centered-loading-animation-container {
   position: fixed;
