@@ -16,6 +16,13 @@ a.star-rating:hover:not(.star-rating-disabled), a.star-rating-hover {
 .post-stat {
   text-decoration: none;
 }
+.post-options-toggle:hover {
+  background: rgb(224, 224, 224);
+}
+.post-options-toggle {
+  border-radius: 50rem;
+  padding: .3rem .5rem .5rem .5rem;
+}
 
 
 div.centered-loading-animation-container {

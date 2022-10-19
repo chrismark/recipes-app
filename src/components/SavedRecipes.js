@@ -53,7 +53,6 @@ const SavedRecipes = ({ user }) => {
 
   return (
     <>
-      <Loading show={isFetchingRecipes} />
       <Outlet context={{ recipes, isFetchingRecipes, isInitialLoad, activeCardId }} />
     </>
   );

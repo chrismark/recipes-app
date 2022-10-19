@@ -7,6 +7,7 @@ import AddRecipeCaptionModal from './AddRecipeCaptionModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import { toast } from './Toaster';
 import Post from './Post/Post';
+import CreatePostModalLauncher from './CreatePostModalLauncher';
 
 const Posts = ({ user, byUser }) => {
   console.log('Posts:', user);
@@ -172,18 +173,14 @@ const Posts = ({ user, byUser }) => {
         <Col className='mid-content justify-content-md-center'>
           {user && (
           <Row className='justify-content-md-center'>
-            <Col className='mb-5 mt-5'>
-              <Form>
-                <Form.Control
-                  readOnly={true}
-                  value={"What food are you craving right now?"}
-                  className='cursor-pointer'
-                  onClick={() => { 
+            <Col className='mb-5 mt-0'>
+              <CreatePostModalLauncher
+                text='What food are you craving right now?'
+                onClick={() => { 
                     console.log('setShowCreatePostModal to true'); 
                     setShowCreatePostModal(true);
-                  }}
-                  />
-              </Form>
+                }}
+                />
             </Col>
           </Row>
           )}

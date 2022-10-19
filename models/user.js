@@ -132,6 +132,12 @@ module.exports = {
       .andWhere('recipes.id', parseInt(recipe_id, 10));
     console.log('query: ', query.toString());
     return await query;
+  },
+  fetchPosts: async function(userUuid, page = 1) {
+
+  },
+  fetchPost: async function(userUuid, post) {
+    
   }
 };
 

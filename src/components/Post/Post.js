@@ -6,7 +6,7 @@ import { PostRecipesPreviewDisplay } from '../PostRecipesPreview'
 const Post = ({ user, post }) => {
   return (
   <Card>
-    <Card.Body style={{marginTop: '-.5rem'}}>
+    <Card.Body style={{paddingTop: '.5rem', paddingBottom: '.1rem'}}>
       <PostHeader user={user} post={post} />
       <p>{post.message}</p>
       <PostRecipesPreviewDisplay recipes={post.recipes} onClick={() => console.log('click')} />
