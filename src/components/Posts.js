@@ -7,6 +7,7 @@ import AddRecipeCaptionModal from './AddRecipeCaptionModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import { toast } from './Toaster';
 import Post from './Post/Post';
+import PostPlaceholder from './Post/PostPlaceholder';
 import CreatePostModalLauncher from './CreatePostModalLauncher';
 
 const Posts = ({ user, byUser }) => {
@@ -20,6 +21,7 @@ const Posts = ({ user, byUser }) => {
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   const [postsByUser, setPostsByUser] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const size = 20;
   const postCount = 300;
 
@@ -38,8 +40,9 @@ const Posts = ({ user, byUser }) => {
     setPageOffset((page - 1) * size);
   };
 
-  const getPosts = async() => {
+  const getPosts = async () => {
     console.log('getPosts: byUser=', postsByUser);
+    setIsFetching(true);
     if (postsByUser) {
       // Fetch posts
       await fetchUserPosts(user);
@@ -47,6 +50,7 @@ const Posts = ({ user, byUser }) => {
     else {
       await fetchAllPosts(user);
     }
+    setIsFetching(false);
   };
 
   const fetchAllPosts = async({token}) => {
@@ -185,6 +189,17 @@ const Posts = ({ user, byUser }) => {
           </Row>
           )}
           <Row xs={1} className='posts-list gy-4'>
+            {isFetching ? (<>
+              <Col className='justify-content-md-center' key={1}>
+                <PostPlaceholder />
+              </Col>
+              <Col className='justify-content-md-center' key={2}>
+                <PostPlaceholder />
+              </Col>
+              <Col className='justify-content-md-center' key={3}>
+                <PostPlaceholder />
+              </Col>
+            </>) : ''}
             {posts.map(post => (
               <Col className='justify-content-md-center' key={post.id}>
                 <Post user={user} post={post} />
