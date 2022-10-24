@@ -72,7 +72,7 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col>
+          <Col className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
         </Row>
@@ -83,10 +83,10 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col>
+          <Col className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col>
+          <Col className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
         </Row>
@@ -97,13 +97,13 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[2]} />
           </Col>
         </Row>
@@ -114,18 +114,18 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[2]} />
           </Col>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[3]} />
           </Col>
         </Row>
@@ -136,21 +136,21 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[2]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[3]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[4]} />
           </Col>
         </Row>
@@ -161,21 +161,21 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col xs='6'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[2]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[3]} />
           </Col>
-          <Col xs='4'>
+          <Col xs='4' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} />
           </Col>
         </Row>

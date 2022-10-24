@@ -34,8 +34,8 @@ const RecipeCaptionEntryForm = ({ recipe, recipesCaption, initialize, updateCapt
           as='textarea'
           placeholder={"Caption"}
           rows={3}
-          onChange={onCaptionChange}
-          value={recipesCaption[recipe.id]}
+          onBlur={onCaptionChange}
+          defaultValue={recipesCaption[recipe.id]}
           />
       </Card.Body>
     </Card>

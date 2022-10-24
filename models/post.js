@@ -81,6 +81,8 @@ module.exports = {
       return {
         id: createdPost.id,
         message: createdPost.message,
+        user_id: createdPost.user_id,
+        posted_on: createdPost.posted_on,
         recipes: recipesPost
       };
     }
@@ -98,7 +100,7 @@ module.exports = {
   _createPost: async function(post, returnFields = '*') {
     try {
       let newPost = await db('posts').insert(post).returning(
-        returnFields || RETURN_FIELDS
+        returnFields
       );
       return newPost[0];
     }
@@ -112,13 +114,21 @@ module.exports = {
    * @param {number} userId 
    * @param {object[]} recipes 
    */
-  _createRecipesPost: async function(post, recipes, returnFields = '*') {
+  _createRecipesPost: async function(post, recipes, returnFields = 'id, name, thumbnail_url, aspect_ratio') {
     try {
       // compose props array for insertion
       let recipePosts = recipes.map((recipe) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption }));
-      return await db('recipes_post').insert(recipePosts).returning(
-        returnFields || RETURN_FIELDS
-      );
+      let query = db.with('inserted_recipes_post', 
+        db('recipes_post').insert(recipePosts).returning('recipe_id')
+      )
+      .select([
+        'recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio'
+      ])
+      .from('inserted_recipes_post')
+      .leftJoin('recipes', 'recipes.id', 'inserted_recipes_post.recipe_id')
+      .orderBy('inserted_recipes_post.recipe_id', 'asc');
+      console.log('query: ', query.toString());
+      return await query;
     }
     catch (e) {
       console.error(e);

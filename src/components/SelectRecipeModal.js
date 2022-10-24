@@ -35,7 +35,7 @@ const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
   );
 };
 
-const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, setSelectedRecipes }) => {
+const ActualSelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, setSelectedRecipes }) => {
   console.log('SelectRecipeModal::rendering show=', show);
   const [page, setPage] = useState(1);
   const { data: recipes, error, isFetching } = useRecipes(user?.uuid, user?.token, page, 'minimal');
@@ -155,6 +155,10 @@ const SelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, set
       </Modal.Footer>
     </Modal>
   );
+};
+
+const SelectRecipeModal = (props) => {
+  return props.show ? <ActualSelectRecipeModal {...props} /> : <></>;
 };
 
 export default SelectRecipeModal;

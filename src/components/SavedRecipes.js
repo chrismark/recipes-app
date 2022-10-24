@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import MainContainer from './MainContainer';
@@ -14,6 +14,18 @@ const SavedRecipes = ({ user }) => {
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
   const [activeCardId, setActiveCardId] = useState(-1);
   const [page, setPage] = useState(1);
+  const mounted = useRef(null);
+
+  useEffect(() => {
+    if (mounted.current == null) {
+      console.log('Mounted SavedRecipes');
+      mounted.current = true;
+    }
+    return () => {
+      console.log('Dismounted SavedRecipes');
+      mounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -25,6 +37,7 @@ const SavedRecipes = ({ user }) => {
     if (isFetchingRecipes) { return; }
     setIsFetchingRecipes(true);
     const [data, status] = await fetchRecipes(user.token);
+    if (!mounted.current) { return; }
     if (status !== 200) {
       setIsFetchingRecipes(false);
       setRecipes([]);

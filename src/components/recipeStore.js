@@ -12,8 +12,10 @@ const fetchRecipes = async (uuid, token, page, mode) => {
     }
   });
   console.log('result: ', result);
+  if (result.status == 401) {
+    throw new Error('Token expired.');
+  }
   return result.json();
-  // return data;
 };
 
 const useRecipes = (uuid, token, page, mode) => {
@@ -24,40 +26,11 @@ const useRecipes = (uuid, token, page, mode) => {
     { 
       refetchOnWindowFocus: false,
       refetchOnMount: true,
-      //staleTime: (60 * 1000 * 5),
+      staleTime: (60 * 1000),
+      cacheTime: 60 * 1000,
     },
   );
   return queryData;
-};
-
-const _useRecipes = (uuid, token, page, mode) => {
-  const [recipes, setRecipes] = useState(null);
-  const [error, setError] = useState(null);
-  const [isFetching, setIsFetching] = useState(false);
-
-  useEffect(() => {
-    getRecipes();
-  }, [page]);
-
-  const getRecipes = async () => {
-    console.log('getRecipes');
-    setIsFetching(true);
-    try {
-      const data = await fetchRecipes(uuid, token, page, mode);
-      setRecipes(data);
-    }
-    catch (e) {
-      setError(e);
-    }
-    setIsFetching(false);
-  }
-
-  return {
-    recipes,
-    setRecipes,
-    error,
-    isFetching
-  };
 };
 
 export { useRecipes };

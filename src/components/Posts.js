@@ -130,6 +130,7 @@ const Posts = ({ user, byUser }) => {
     setShowCreatePostModal(false);
     setSelectedRecipes([]);
     setPostMessage('');
+    setPosts([post, ...posts]);
   };
 
   const onCreatePostClose = () => {

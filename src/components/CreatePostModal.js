@@ -20,7 +20,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
               as='textarea'
               placeholder={"What do you want to post?"}
               rows={4}
-              onChange={onMessageChange}
+              onBlur={onMessageChange}
               />
           </Form.Group>
           <PostRecipesPreview 
