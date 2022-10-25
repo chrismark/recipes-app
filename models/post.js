@@ -55,7 +55,7 @@ module.exports = {
     let query = db('recipes_post').select(FETCH_RECIPES_FIELDS_MINIMAL)
       .leftJoin('recipes', 'recipes.id', 'recipes_post.recipe_id')
       .where('recipes_post.post_id', postId)
-      .orderBy('recipe_id', 'asc');
+      .orderBy('order', 'asc');
     console.log('query: ', query.toString());
     return await query;
   },
@@ -117,22 +117,31 @@ module.exports = {
   _createRecipesPost: async function(post, recipes, returnFields = 'id, name, thumbnail_url, aspect_ratio') {
     try {
       // compose props array for insertion
-      let recipePosts = recipes.map((recipe) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption }));
+      let recipePosts = recipes.map((recipe, index) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption, order: index }));
       let query = db.with('inserted_recipes_post', 
-        db('recipes_post').insert(recipePosts).returning('recipe_id')
+        db('recipes_post').insert(recipePosts).returning(['order', 'recipe_id'])
       )
       .select([
         'recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio'
       ])
       .from('inserted_recipes_post')
       .leftJoin('recipes', 'recipes.id', 'inserted_recipes_post.recipe_id')
-      .orderBy('inserted_recipes_post.recipe_id', 'asc');
+      .orderBy('inserted_recipes_post.order', 'asc');
       console.log('query: ', query.toString());
       return await query;
     }
     catch (e) {
       console.error(e);
       return [];
+    }
+  },
+  update: async function(userUuid, post) {
+    try {
+      // TODO: 
+    }
+    catch (e) {
+      console.log(e);
+      return null;
     }
   },
 };

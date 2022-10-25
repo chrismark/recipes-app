@@ -83,10 +83,10 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
     return (
       <>
         <Row className={classNamesTopRow}>
-          <Col className='d-flex justify-content-center'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[0]} />
           </Col>
-          <Col className='d-flex justify-content-center'>
+          <Col xs='6' className='d-flex justify-content-center'>
             <CardRecipeThumb recipe={recipes[1]} />
           </Col>
         </Row>
