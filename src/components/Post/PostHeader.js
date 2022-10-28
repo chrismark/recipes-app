@@ -17,7 +17,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   </span>
 ));
 
-const PostHeader = ({ user, post }) => {
+const PostHeader = ({ user, post, onClickEdit }) => {
   return (
     <Row className='mb-2'>
       <Col>
@@ -32,7 +32,7 @@ const PostHeader = ({ user, post }) => {
             <FaEllipsisH className='cursor-pointer fs-6 fw-normal'  />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
+            <Dropdown.Item onClick={() => onClickEdit(post)} className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item className='fw-bold'><FaRegTrashAlt className='fs-5 mb-1 me-2' />Move to trash</Dropdown.Item>
           </Dropdown.Menu>

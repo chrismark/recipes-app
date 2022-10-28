@@ -1,6 +1,6 @@
 const db = require('./db');
 const RETURN_FIELDS = '*';
-const FETCH_RECIPES_FIELDS_MINIMAL = ['recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio'];
+const FETCH_RECIPES_POST_FIELDS_MINIMAL = ['recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes_post.caption'];
 const FETCH_PAGINATION_LIMIT = 6;
 
 /**
@@ -52,7 +52,7 @@ module.exports = {
     return posts;
   },
   _fetchRecipesPostByPostId: async function(postId, selectFields = '*') {
-    let query = db('recipes_post').select(FETCH_RECIPES_FIELDS_MINIMAL)
+    let query = db('recipes_post').select(FETCH_RECIPES_POST_FIELDS_MINIMAL)
       .leftJoin('recipes', 'recipes.id', 'recipes_post.recipe_id')
       .where('recipes_post.post_id', postId)
       .orderBy('order', 'asc');
@@ -119,11 +119,9 @@ module.exports = {
       // compose props array for insertion
       let recipePosts = recipes.map((recipe, index) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption, order: index }));
       let query = db.with('inserted_recipes_post', 
-        db('recipes_post').insert(recipePosts).returning(['order', 'recipe_id'])
+        db('recipes_post').insert(recipePosts).returning(['order', 'recipe_id', 'caption'])
       )
-      .select([
-        'recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio'
-      ])
+      .select(FETCH_RECIPES_POST_FIELDS_MINIMAL)
       .from('inserted_recipes_post')
       .leftJoin('recipes', 'recipes.id', 'inserted_recipes_post.recipe_id')
       .orderBy('inserted_recipes_post.order', 'asc');
@@ -138,10 +136,25 @@ module.exports = {
   update: async function(userUuid, post) {
     try {
       // TODO: 
+      // 1. If post message changed, Update
+      // 2. For each recipes,
+      //  2.1 If recipe has no ID then it's new, Create
+      //  2.2 If recipe has ID,
+      //   2.2.1 If caption changed, Update
+      //   2.2.2 If caption NOT changed, Delete
     }
     catch (e) {
       console.log(e);
       return null;
     }
   },
+  delete: async function(userUuid, post) {
+    try {
+      // TODO: 
+    }
+    catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 };

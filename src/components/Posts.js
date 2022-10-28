@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Container, Row, Col, Card } from 'react-bootstrap';
 import Paginate from './Paginate';
-import CreatePostModal from './CreatePostModal';
+import CreateEditPostModal from './CreateEditPostModal';
 import SelectRecipeModal from './SelectRecipeModal';
 import AddRecipeCaptionModal from './AddRecipeCaptionModal';
 import { FaLongArrowAltRight } from 'react-icons/fa';
@@ -13,11 +13,12 @@ import CreatePostModalLauncher from './CreatePostModalLauncher';
 const Posts = ({ user, byUser }) => {
   console.log('Posts:', user);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
+  const [postId, setPostId] = useState(null);
   const [postMessage, setPostMessage] = useState('');
   const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+  const [showCreateEditPostModal, setShowCreateEditPostModal] = useState(false);
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   const [postsByUser, setPostsByUser] = useState(true);
@@ -127,14 +128,14 @@ const Posts = ({ user, byUser }) => {
     let post = await createPost(newPost);
     console.log('New post: ', post);
     toast('New post added!');
-    setShowCreatePostModal(false);
+    setShowCreateEditPostModal(false);
     setSelectedRecipes([]);
     setPostMessage('');
     setPosts([post, ...posts]);
   };
 
   const onCreatePostClose = () => {
-    setShowCreatePostModal(false);
+    setShowCreateEditPostModal(false);
     setSelectedRecipes([]);
   };
 
@@ -169,6 +170,14 @@ const Posts = ({ user, byUser }) => {
     setShowAddRecipeCaptionModal(false);
   }
 
+  const onEditPost = (post) => {
+    console.log('Edit Post: ', post);
+    setPostId(post.id);
+    setPostMessage(post.message);
+    setSelectedRecipes(JSON.parse(JSON.stringify(post.recipes)));
+    setShowCreateEditPostModal(true);
+  };
+
   return (
     <Container fluid className='recipes-app-posts'>
       <Row>
@@ -182,8 +191,7 @@ const Posts = ({ user, byUser }) => {
               <CreatePostModalLauncher
                 text='What food are you craving right now?'
                 onClick={() => { 
-                    console.log('setShowCreatePostModal to true'); 
-                    setShowCreatePostModal(true);
+                    setShowCreateEditPostModal(true);
                 }}
                 />
             </Col>
@@ -203,7 +211,7 @@ const Posts = ({ user, byUser }) => {
             </>) : ''}
             {posts.map(post => (
               <Col className='justify-content-md-center' key={post.id}>
-                <Post user={user} post={post} />
+                <Post user={user} post={post} onEditPost={onEditPost} />
               </Col>
             ))}
           </Row>
@@ -219,8 +227,10 @@ const Posts = ({ user, byUser }) => {
       
       {user && (
       <>
-        <CreatePostModal 
-          show={showCreatePostModal} 
+        <CreateEditPostModal 
+          show={showCreateEditPostModal} 
+          postId={postId} 
+          postMessage={postMessage}
           onSubmit={onCreatePostSubmit} 
           onAddARecipe={onAddARecipe} 
           onEditCaption={onAddRecipeCaption}

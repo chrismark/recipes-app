@@ -3,7 +3,14 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import PostRecipesPreview from './PostRecipesPreview';
 
-const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes }) => {
+// TODO: Why not create a Post object that contains:
+// - id,
+// - message
+// - recipes
+// - updateMessage
+// - updateRecipes
+// - clearRecipes
+const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onSubmit, onClose, onAddARecipe, onEditCaption }) => {
   const onMessageChange = (e) => {
     setPostMessage(e.target.value);
   };
@@ -11,7 +18,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
   return (
     <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
       <Modal.Header closeButton>
-        <Modal.Title><h5 className='m-0'>Create A Post</h5></Modal.Title>
+        <Modal.Title><h5 className='m-0'>{postId == null ? 'Create' : 'Edit'} A Post</h5></Modal.Title>
       </Modal.Header>
       <Modal.Body>      
         <Form>
@@ -21,6 +28,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
               placeholder={"What do you want to post?"}
               rows={4}
               onBlur={onMessageChange}
+              defaultValue={postMessage}
               />
           </Form.Group>
           <PostRecipesPreview 
@@ -37,7 +45,7 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
               variant='primary' 
               type='submit' 
               onClick={onSubmit}
-              size='md'>Post</Button>
+              size='md'>{postId == null ? 'Post' : 'Update'}</Button>
           </div>
         </Form>
       </Modal.Body>
@@ -45,4 +53,4 @@ const CreatePostModal = ({ show, onSubmit, onClose, onAddARecipe, onEditCaption,
   );
 };
 
-export default CreatePostModal;
+export default CreateEditPostModal;

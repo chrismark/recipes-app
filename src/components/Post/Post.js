@@ -3,11 +3,11 @@ import PostFooter from './PostFooter';
 import Card from 'react-bootstrap/Card';
 import { PostRecipesPreviewDisplay } from '../PostRecipesPreview'
 
-const Post = ({ user, post }) => {
+const Post = ({ user, post, onEditPost }) => {
   return (
   <Card>
     <Card.Body style={{paddingTop: '.5rem', paddingBottom: '.1rem'}}>
-      <PostHeader user={user} post={post} />
+      <PostHeader user={user} post={post} onClickEdit={onEditPost} />
       <p>{post.message}</p>
       <PostRecipesPreviewDisplay recipes={post.recipes} onClick={() => console.log('click')} />
       <PostFooter user={user} post={post} />
