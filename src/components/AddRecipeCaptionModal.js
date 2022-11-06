@@ -42,7 +42,7 @@ const RecipeCaptionEntryForm = ({ recipe, recipesCaption, initialize, updateCapt
   );
 };
 
-const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSelectedRecipes }) => {
+const AddRecipeCaptionModal = ({ show, postId, onDone, onClose, selectedRecipes, setSelectedRecipes }) => {
   console.log('AddRecipeCaptionModal::rendering show=', show);
   const [localSelectedRecipes, setLocalSelectedRecipes] = useState([]);
   const [localSelectedRecipesCaption, setLocalSelectedRecipesCaption] = useState({});
@@ -62,6 +62,7 @@ const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSele
 
   const initLocalSelectedRecipes = () => {
     console.log('Update Local Selected Recipes using selectedRecipes.');
+    console.log('initialize with ', selectedRecipes);
     setLocalSelectedRecipes([...selectedRecipes]);
     // copy caption to local map
     selectedRecipes.map(r => { 
@@ -111,7 +112,7 @@ const AddRecipeCaptionModal = ({ show, onDone, onClose, selectedRecipes, setSele
       </Modal.Header>
       <Modal.Body>
         <Row className='gy-4'>
-          {localSelectedRecipes && localSelectedRecipes.length > 0 && localSelectedRecipes.map((recipe, idx) => (
+          {localSelectedRecipes && localSelectedRecipes.length > 0 && localSelectedRecipes.map((recipe) => ((postId != null && !recipe.deleted) || (postId == null)) && (
             <Col key={recipe.id} xs={12}>
               <RecipeCaptionEntryForm 
                 recipe={recipe} 

@@ -1,6 +1,6 @@
 const db = require('./db');
 const RETURN_FIELDS = '*';
-const FETCH_RECIPES_POST_FIELDS_MINIMAL = ['recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes_post.caption'];
+const FETCH_RECIPES_POST_FIELDS_MINIMAL = ['recipes_post.post_id', 'recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes_post.caption'];
 const FETCH_PAGINATION_LIMIT = 6;
 
 /**
@@ -119,12 +119,12 @@ module.exports = {
       // compose props array for insertion
       let recipePosts = recipes.map((recipe, index) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption, order: index }));
       let query = db.with('inserted_recipes_post', 
-        db('recipes_post').insert(recipePosts).returning(['order', 'recipe_id', 'caption'])
+        db('recipes_post').insert(recipePosts).returning(['post_id', 'order', 'recipe_id', 'caption'])
       )
       .select(FETCH_RECIPES_POST_FIELDS_MINIMAL)
-      .from('inserted_recipes_post')
-      .leftJoin('recipes', 'recipes.id', 'inserted_recipes_post.recipe_id')
-      .orderBy('inserted_recipes_post.order', 'asc');
+      .from('inserted_recipes_post as recipes_post')
+      .leftJoin('recipes', 'recipes.id', 'recipes_post.recipe_id')
+      .orderBy('recipes_post.order', 'asc');
       console.log('query: ', query.toString());
       return await query;
     }

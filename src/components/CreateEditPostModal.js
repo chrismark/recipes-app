@@ -3,14 +3,7 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import PostRecipesPreview from './PostRecipesPreview';
 
-// TODO: Why not create a Post object that contains:
-// - id,
-// - message
-// - recipes
-// - updateMessage
-// - updateRecipes
-// - clearRecipes
-const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onSubmit, onClose, onAddARecipe, onEditCaption }) => {
+const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onCreateSubmit, onUpdateSubmit, onClose, onAddARecipe, onEditCaption }) => {
   const onMessageChange = (e) => {
     setPostMessage(e.target.value);
   };
@@ -36,6 +29,7 @@ const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, select
             setRecipes={setSelectedRecipes}
             onClearRecipes={clearSelectedRecipes} 
             onEditCaption={onEditCaption}
+            isFilterDeleted={postId != null}
             />
           <div className='mt-3 text-center' onClick={onAddARecipe}>
             <span className='h5 cursor-pointer'>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
@@ -44,7 +38,7 @@ const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, select
             <Button 
               variant='primary' 
               type='submit' 
-              onClick={onSubmit}
+              onClick={postId == null ? onCreateSubmit : onUpdateSubmit}
               size='md'>{postId == null ? 'Post' : 'Update'}</Button>
           </div>
         </Form>

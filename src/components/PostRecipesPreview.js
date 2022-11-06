@@ -184,8 +184,11 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
   };
 };
 
-const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption }) => {
+const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
   if (recipes.length >= 1) {
+    if (isFilterDeleted) {
+      recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
+    }
     return (
       <PostRecipesPreviewEditWrapper recipes={recipes} onClear={onClearRecipes} onEditCaption={onEditCaption}>
         <PostRecipesPreviewThumbnails recipes={recipes} />
@@ -195,6 +198,10 @@ const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption }) => {
   else {
     return <></>;
   }
+};
+
+PostRecipesPreview.defaultProps = {
+  isFilterDeleted: false,
 };
 
 const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {

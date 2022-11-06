@@ -1,7 +1,7 @@
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
-const CreatePostModalLauncher = ({text, onClick}) => {
+const CreateEditPostModalLauncher = ({text, onClick}) => {
   return (
     <Card>
       <Card.Body>
@@ -18,4 +18,4 @@ const CreatePostModalLauncher = ({text, onClick}) => {
   );
 };
 
-export default CreatePostModalLauncher;
+export default CreateEditPostModalLauncher;

@@ -122,8 +122,19 @@ router.get('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.FetchPost), func
  * 
  * Update post under user.
  */
-router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), function(req, res) {
-
+router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);
+    const post = await Post.update(req.params.user_uuid, req.body);
+    res.status(200);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem updating the post. Please try again later.'
+    });
+  }
 });
 
 module.exports = router;

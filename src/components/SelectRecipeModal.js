@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, Modal, Row, Col } from 'react-bootstrap';
-import { FaLongArrowAltLeft, FaCheckCircle } from 'react-icons/fa';
+import { FaLongArrowAltLeft, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { useRecipes } from './recipeStore';
 
 const CardImgPlaceholder = () => {
@@ -20,14 +20,20 @@ const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
       className='text-body text-decoration-none cursor-pointer' 
       style={{overflow: 'hidden', position: 'relative'}}
       onClick={onToggleClick}
+      tooltip='test'
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : '')
       }} />
-      {selectionMap[recipe.id] && (
+      {selectionMap.hasOwnProperty(recipe.id) && (
       <>
         <Card.Body style={{position: 'absolute', width: '100%', height: '100%'}} className=''>
-          <FaCheckCircle fontSize='2em' color='#01c92c' fill='#01c92c' />
+          {!selectionMap[recipe.id] ? (
+            <FaTimesCircle fontSize='2em' color='#e52e49' fill='#e52e49' />
+          ) : (
+            <FaCheckCircle fontSize='2em' color='#01c92c' fill='#01c92c' />
+          )}
+          
         </Card.Body>
       </>
       )}
@@ -35,7 +41,7 @@ const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
   );
 };
 
-const ActualSelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipes, setSelectedRecipes }) => {
+const ActualSelectRecipeModal = ({ user, show, postId, onSelect, onClose, selectedRecipes, setSelectedRecipes }) => {
   console.log('SelectRecipeModal::rendering show=', show);
   const [page, setPage] = useState(1);
   const { data: recipes, error, isFetching } = useRecipes(user?.uuid, user?.token, page, 'minimal');
@@ -58,7 +64,8 @@ const ActualSelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipe
   const updateLocalSelectedRecipes = () => {
     setLocalSelectedRecipes([...selectedRecipes]);
     selectedRecipes.map(r => { 
-      localSelectedRecipesMap[r.id] = true; 
+      // initialize selection map using 'deleted' prop
+      localSelectedRecipesMap[r.id] = r.deleted ? false : true; 
     });
     setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
   };
@@ -68,18 +75,37 @@ const ActualSelectRecipeModal = ({ user, show, onSelect, onClose, selectedRecipe
       console.log('passed recipe is null or undefined');
       return;
     }
-    if (!localSelectedRecipesMap[recipe.id]) {
+    if (!localSelectedRecipesMap[recipe.id]) { // check recipe
       localSelectedRecipesMap[recipe.id] = true;
-      localSelectedRecipes.push(JSON.parse(JSON.stringify(recipe)));
+      let index = localSelectedRecipes.findIndex(r => r.id == recipe.id);
+      // if Editing and recipe is already associated with edited post
+      if (postId != null && localSelectedRecipes[index] != null && localSelectedRecipes[index].post_id != null) {
+        localSelectedRecipes[index].deleted = undefined;
+        delete localSelectedRecipes[index]['deleted'];
+        console.log('Removing ' + recipe.name + ' from localDeleteMap.');
+      }
+      else {
+        localSelectedRecipes.push(JSON.parse(JSON.stringify(recipe)));
+      }
       setLocalSelectedRecipes([...localSelectedRecipes]);
       setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
     }
     else { // uncheck recipe
       delete localSelectedRecipesMap[recipe.id];
       let index = localSelectedRecipes.findIndex(r => r.id == recipe.id);
-      let leftRecipes = localSelectedRecipes.slice(0, index);
-      let rightRecipes = localSelectedRecipes.slice(index + 1);
-      setLocalSelectedRecipes([...leftRecipes, ...rightRecipes]);
+      // if Editing and recipe is already associated with edited post
+      if (postId != null && localSelectedRecipes[index] != null && localSelectedRecipes[index].post_id != null) {
+        // mark for deletion
+        localSelectedRecipes[index].deleted = true;
+        console.log('Adding ' + recipe.name + ' to localDeleteMap.');
+        localSelectedRecipesMap[recipe.id] = false;
+        setLocalSelectedRecipes([...localSelectedRecipes]);
+      }
+      else {
+        let leftRecipes = localSelectedRecipes.slice(0, index);
+        let rightRecipes = localSelectedRecipes.slice(index + 1);
+        setLocalSelectedRecipes([...leftRecipes, ...rightRecipes]);
+      }      
       setLocalSelectedRecipesMap(JSON.parse(JSON.stringify(localSelectedRecipesMap)));
     }
   };

@@ -8,7 +8,7 @@ import { FaLongArrowAltRight } from 'react-icons/fa';
 import { toast } from './Toaster';
 import Post from './Post/Post';
 import PostPlaceholder from './Post/PostPlaceholder';
-import CreatePostModalLauncher from './CreatePostModalLauncher';
+import CreatePostModalLauncher from './CreateEditPostModalLauncher';
 
 const Posts = ({ user, byUser }) => {
   console.log('Posts:', user);
@@ -113,6 +113,24 @@ const Posts = ({ user, byUser }) => {
     }
   };
 
+  const updatePost = async (postId, payload) => {
+    try {
+      const result = await fetch(`/api/users/${user.uuid}/posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const post = await result.json();
+      return post;
+    }
+    catch (e) {
+      console.error(e);
+    }
+  };
+
   const onCreatePostSubmit = async (e) => {
     e.preventDefault();
     console.log('POST: ', selectedRecipes);
@@ -134,8 +152,32 @@ const Posts = ({ user, byUser }) => {
     setPosts([post, ...posts]);
   };
 
-  const onCreatePostClose = () => {
+  const onUpdatePostSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Update POST: ', selectedRecipes);
+    console.log('Update Post Message: ', postMessage);
+    console.log('Update Post Id: ', postId);
+    // remove unneeded fields
+    let order = 0;
+    let recipes = selectedRecipes.map(r => {
+      let {post_id, id, caption, deleted} = r;
+      return {post_id, id, caption, deleted, order: order++};
+    });
+    let editPost = {
+      message: postMessage,
+      recipes: recipes
+    };
+    console.log('PATCH POST ', editPost);
+    // let post = await updatePost(postId, editPost);
+  };
+
+  const onCreateEditPostClose = () => {
+    console.log('')
     setShowCreateEditPostModal(false);
+    if (postId != null) {
+      setPostId(null);
+      setPostMessage('');
+    }
     setSelectedRecipes([]);
   };
 
@@ -231,16 +273,18 @@ const Posts = ({ user, byUser }) => {
           show={showCreateEditPostModal} 
           postId={postId} 
           postMessage={postMessage}
-          onSubmit={onCreatePostSubmit} 
+          onCreateSubmit={onCreatePostSubmit} 
+          onUpdateSubmit={onUpdatePostSubmit} 
           onAddARecipe={onAddARecipe} 
           onEditCaption={onAddRecipeCaption}
-          onClose={onCreatePostClose} 
+          onClose={onCreateEditPostClose} 
           setPostMessage={setPostMessage}
           selectedRecipes={selectedRecipes}
           setSelectedRecipes={setSelectedRecipes}
           clearSelectedRecipes={clearSelectedRecipes} 
           />
         <SelectRecipeModal 
+          postId={postId} 
           user={user} 
           show={showSelectRecipeModal} 
           onSelect={onSelectRecipeSubmit} 
@@ -249,6 +293,7 @@ const Posts = ({ user, byUser }) => {
           setSelectedRecipes={setSelectedRecipes} 
           />
         <AddRecipeCaptionModal
+          postId={postId} 
           show={showAddRecipeCaptionModal}
           onDone={onAddRecipeCaptionDone}
           onClose={onAddRecipeCaptionBack}
