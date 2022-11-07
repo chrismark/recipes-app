@@ -126,8 +126,8 @@ router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), a
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
-    const post = await Post.update(req.params.user_uuid, req.body);
-    res.status(200);
+    const post = await Post.update(req.params.user_uuid, req.params.post_id, req.body);
+    res.status(200).json(post);
   }
   catch (e) {
     console.error(e);

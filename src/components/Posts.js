@@ -150,25 +150,48 @@ const Posts = ({ user, byUser }) => {
     setSelectedRecipes([]);
     setPostMessage('');
     setPosts([post, ...posts]);
+
+    // TODO: Do something if it fails
   };
 
   const onUpdatePostSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Update POST: ', selectedRecipes);
-    console.log('Update Post Message: ', postMessage);
-    console.log('Update Post Id: ', postId);
-    // remove unneeded fields
-    let order = 0;
-    let recipes = selectedRecipes.map(r => {
-      let {post_id, id, caption, deleted} = r;
-      return {post_id, id, caption, deleted, order: order++};
-    });
-    let editPost = {
-      message: postMessage,
-      recipes: recipes
-    };
-    console.log('PATCH POST ', editPost);
-    // let post = await updatePost(postId, editPost);
+    try {
+      e.preventDefault();
+      console.log('Update POST: ', selectedRecipes);
+      console.log('Update Post Message: ', postMessage);
+      console.log('Update Post Id: ', postId);
+      // remove unneeded fields
+      let order = 0;
+      let recipes = selectedRecipes.map(r => {
+        let {post_id, id, caption, deleted} = r;
+        if (deleted) {
+          return {post_id, id, caption, deleted};
+        }
+        return {post_id, id, caption, deleted, order: order++};
+      });
+      let editPost = {
+        message: postMessage,
+        recipes: recipes
+      };
+      console.log('PATCH POST ', editPost);
+      let post = await updatePost(postId, editPost);
+      console.log('Update post: ', post);
+      // find and update post
+      let index = posts.findIndex(p => p.id == postId);
+      posts[index].message = post.message;
+      posts[index].recipes = post.recipes;
+      setShowCreateEditPostModal(false);
+      setPostId(null);
+      setPostMessage('');
+      setSelectedRecipes([]);
+      setPosts([...posts]);
+      
+      toast('Updated post!');
+      // TODO: Do something if it fails
+    }
+    catch (e) {
+      console.log('Error updating: ', e);
+    }
   };
 
   const onCreateEditPostClose = () => {
@@ -240,7 +263,7 @@ const Posts = ({ user, byUser }) => {
           </Row>
           )}
           <Row xs={1} className='posts-list gy-4'>
-            {isFetching ? (<>
+            {isFetching && (<>
               <Col className='justify-content-md-center' key={1}>
                 <PostPlaceholder />
               </Col>
@@ -250,7 +273,7 @@ const Posts = ({ user, byUser }) => {
               <Col className='justify-content-md-center' key={3}>
                 <PostPlaceholder />
               </Col>
-            </>) : ''}
+            </>)}
             {posts.map(post => (
               <Col className='justify-content-md-center' key={post.id}>
                 <Post user={user} post={post} onEditPost={onEditPost} />
