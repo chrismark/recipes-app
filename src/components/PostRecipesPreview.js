@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card, Button, CloseButton, Row, Col } from 'react-bootstrap';
 import { FaTimesCircle } from 'react-icons/fa';
 
-const CardRecipeThumb = ({ recipe, count }) => {
+const CardRecipeThumb = ({ recipe, count, isClickable, onClick }) => {
   return (
     <Card
-      className='text-body text-decoration-none user-select-none' 
+      className={'text-body text-decoration-none user-select-none' + (isClickable ? ' cursor-pointer' : '')} 
       style={{overflow: 'hidden', position: 'relative', background: count > 0 ?  'lightgray' : 'transparent'}}
+      onClick={() => isClickable ? onClick(recipe) : null}
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
         width: (recipe.aspect_ratio === '16:9' ? '177.5%' : ''),
@@ -24,7 +25,8 @@ const CardRecipeThumb = ({ recipe, count }) => {
 };
 
 CardRecipeThumb.defaultProps = {
-  count: 0
+  count: 0,
+  isClickable: false,
 };
 
 const PostRecipesPreviewClear = ({ onClick }) => {
@@ -46,8 +48,7 @@ const PostRecipesPreviewEditButton = ({ onClick }) => {
   );
 };
 
-const PostRecipesPreviewEditWrapper = ({ children, recipes, onClear, onEditCaption }) => {
-  let classNames = recipes.length > 0 ? 'mt-3 g-0' : '';
+const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption }) => {
   return (
     <div style={{position: 'relative'}}>
       <PostRecipesPreviewClear onClick={onClear} />
@@ -57,7 +58,7 @@ const PostRecipesPreviewEditWrapper = ({ children, recipes, onClear, onEditCapti
   );
 };
 
-const PostRecipesPreviewDisplayWrapper = ({ children, recipes, onClick }) => {
+const PostRecipesPreviewDisplayWrapper = ({ children }) => {
   return (
     <div style={{position: 'relative', marginLeft: '-1rem', marginRight: '-1rem'}}>
       {children}
@@ -65,7 +66,7 @@ const PostRecipesPreviewDisplayWrapper = ({ children, recipes, onClick }) => {
   );
 };
 
-const PostRecipesPreviewThumbnails = ({ recipes }) => {
+const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
   let classNamesTopRow = recipes.length > 0 ? 'mt-3 g-0' : '';
   let classNamesBtmRow = recipes.length > 0 ? 'g-0' : '';
   if (recipes.length == 1) {
@@ -73,7 +74,7 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
@@ -84,10 +85,10 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
@@ -98,13 +99,13 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
@@ -115,18 +116,18 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
@@ -137,21 +138,21 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[4]} />
+            <CardRecipeThumb recipe={recipes[4]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
@@ -162,26 +163,30 @@ const PostRecipesPreviewThumbnails = ({ recipes }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} />
+            <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} isClickable={isClickable} onClick={onClick} />
           </Col>
         </Row>
       </>
     );
   };
+};
+
+PostRecipesPreviewThumbnails.defaultProps = {
+  isClickable: false,
 };
 
 const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
@@ -190,7 +195,7 @@ const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDe
       recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
     }
     return (
-      <PostRecipesPreviewEditWrapper recipes={recipes} onClear={onClearRecipes} onEditCaption={onEditCaption}>
+      <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption}>
         <PostRecipesPreviewThumbnails recipes={recipes} />
       </PostRecipesPreviewEditWrapper>
     );
@@ -207,8 +212,8 @@ PostRecipesPreview.defaultProps = {
 const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
   if (recipes.length >= 1) {
     return (
-      <PostRecipesPreviewDisplayWrapper recipes={recipes} onClick={onClick}>
-        <PostRecipesPreviewThumbnails recipes={recipes} />
+      <PostRecipesPreviewDisplayWrapper>
+        <PostRecipesPreviewThumbnails recipes={recipes} isClickable={true} onClick={onClick} />
       </PostRecipesPreviewDisplayWrapper>
     );
   }

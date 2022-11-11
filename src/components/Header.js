@@ -50,3 +50,32 @@ const Header = ({ user }) => {
 };
 
 export default Header;
+
+const HeaderMinimal = ({ user, style = {}, onClose }) => {
+  return (
+    <Navbar expand='lg' bg='primary' variant='dark' className='app-header' style={style}>
+      <Container fluid>
+        <Navbar.Toggle aria-controls='responsive-navbar-nav' />
+        <Navbar.Collapse id='responsive-navbar-nav'>
+          <Nav className='me-auto'>
+            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+          </Nav>
+          <Nav>
+            <NavDropdown
+              id='account-dropdown'
+              title={'Account (' + (user.username ? user.username : user.firstname) + ')'}
+              menuVariant='dark'
+            >
+              <NavDropdown.Item as={Link} to='/profile'>Profile</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to='/your-posts'>Your Posts</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item as={Link} to='/logout'>Logout</NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+};
+
+export { HeaderMinimal };

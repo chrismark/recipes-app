@@ -43,18 +43,10 @@ const RecipeCaptionEntryForm = ({ recipe, recipesCaption, initialize, updateCapt
 };
 
 const AddRecipeCaptionModal = ({ show, postId, onDone, onClose, selectedRecipes, setSelectedRecipes }) => {
-  console.log('AddRecipeCaptionModal::rendering show=', show);
   const [localSelectedRecipes, setLocalSelectedRecipes] = useState([]);
   const [localSelectedRecipesCaption, setLocalSelectedRecipesCaption] = useState({});
 
   useEffect(() => {
-    console.log('AddRecipeCaptionModal::mounted');
-    return () => console.log('AddRecipeCaptionModal::unmounted');
-  }, []);
-
-  useEffect(() => {
-    console.log('show or recipes changed.');
-
     if (show) {
       initLocalSelectedRecipes();
     }

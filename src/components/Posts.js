@@ -9,29 +9,33 @@ import { toast } from './Toaster';
 import Post from './Post/Post';
 import PostPlaceholder from './Post/PostPlaceholder';
 import CreatePostModalLauncher from './CreateEditPostModalLauncher';
+import { useUserPosts } from './postStore';
 
 const Posts = ({ user, byUser }) => {
   console.log('Posts:', user);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
   const [postId, setPostId] = useState(null);
   const [postMessage, setPostMessage] = useState('');
-  const [posts, setPosts] = useState([]);
+  // const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
+  const useUserPostsResult = useUserPosts(user?.uuid, user?.token, pageOffset);
+  console.log('useUserPostsResult: ', useUserPostsResult);
+  const { data: posts, error, isFetching, isLoading } = useUserPostsResult;
   const [showForm, setShowForm] = useState(false);
   const [showCreateEditPostModal, setShowCreateEditPostModal] = useState(false);
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   const [postsByUser, setPostsByUser] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
+  // const [isFetching, setIsFetching] = useState(false);
   const size = 20;
   const postCount = 300;
 
-  useEffect(() => {
-    console.log('fetch Posts: run when pageOffset changes');
-    if (user) {
-      getPosts();
-    }
-  }, [pageOffset]);
+  // useEffect(() => {
+  //   console.log('fetch Posts: run when pageOffset changes');
+  //   if (user) {
+  //     getPosts();
+  //   }
+  // }, [page]);
 
   const getPage = (page) => {
     page = parseInt(page);
@@ -41,59 +45,59 @@ const Posts = ({ user, byUser }) => {
     setPageOffset((page - 1) * size);
   };
 
-  const getPosts = async () => {
-    console.log('getPosts: byUser=', postsByUser);
-    setIsFetching(true);
-    if (postsByUser) {
-      // Fetch posts
-      await fetchUserPosts(user);
-    }
-    else {
-      await fetchAllPosts(user);
-    }
-    setIsFetching(false);
-  };
+  // const getPosts = async () => {
+  //   console.log('getPosts: byUser=', postsByUser);
+  //   setIsFetching(true);
+  //   if (postsByUser) {
+  //     // Fetch posts
+  //     await fetchUserPosts(user);
+  //   }
+  //   else {
+  //     await fetchAllPosts(user);
+  //   }
+  //   setIsFetching(false);
+  // };
 
-  const fetchAllPosts = async({token}) => {
-    try {
-      const result = await fetch(`/api/posts`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      let data = await result.json();
-      // TODO: Remove after testing
-      // Fill up posts with dummy objects
-      data = [];
-      for (let i = pageOffset, m = i + size; i < m && i < postCount; i++) {
-        data.push({id: i});
-      }
-      console.log('posts: ', data);
-      setPosts(data);
-    }
-    catch (e) {
-      console.error(e);
-    }
-  };
+  // const fetchAllPosts = async({token}) => {
+  //   try {
+  //     const result = await fetch(`/api/posts`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       }
+  //     });
+  //     let data = await result.json();
+  //     // TODO: Remove after testing
+  //     // Fill up posts with dummy objects
+  //     data = [];
+  //     for (let i = pageOffset, m = i + size; i < m && i < postCount; i++) {
+  //       data.push({id: i});
+  //     }
+  //     console.log('posts: ', data);
+  //     setPosts(data);
+  //   }
+  //   catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 
-  const fetchUserPosts = async ({uuid, token}) => {
-    try {
-      const result = await fetch(`/api/users/${uuid}/posts`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const posts = await result.json();
-      setPosts(posts);
-    }
-    catch (e) {
-      console.error(e);
-    }
-  };
+  // const fetchUserPosts = async ({uuid, token}) => {
+  //   try {
+  //     const result = await fetch(`/api/users/${uuid}/posts`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       }
+  //     });
+  //     const posts = await result.json();
+  //     setPosts(posts);
+  //   }
+  //   catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 
   const createPost = async (payload) => {
     try {
@@ -149,7 +153,7 @@ const Posts = ({ user, byUser }) => {
     setShowCreateEditPostModal(false);
     setSelectedRecipes([]);
     setPostMessage('');
-    setPosts([post, ...posts]);
+    // setPosts([post, ...posts]);
 
     // TODO: Do something if it fails
   };
@@ -184,7 +188,7 @@ const Posts = ({ user, byUser }) => {
       setPostId(null);
       setPostMessage('');
       setSelectedRecipes([]);
-      setPosts([...posts]);
+      // setPosts([...posts]);
       
       toast('Updated post!');
       // TODO: Do something if it fails
@@ -263,7 +267,7 @@ const Posts = ({ user, byUser }) => {
           </Row>
           )}
           <Row xs={1} className='posts-list gy-4'>
-            {isFetching && (<>
+            {isLoading && (<>
               <Col className='justify-content-md-center' key={1}>
                 <PostPlaceholder />
               </Col>
@@ -274,13 +278,13 @@ const Posts = ({ user, byUser }) => {
                 <PostPlaceholder />
               </Col>
             </>)}
-            {posts.map(post => (
+            {posts && posts.map(post => (
               <Col className='justify-content-md-center' key={post.id}>
                 <Post user={user} post={post} onEditPost={onEditPost} />
               </Col>
             ))}
           </Row>
-          {posts.length > 0 && (<>
+          {posts && posts.length > 0 && (<>
             <br/><br/>
             <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
           </>)}

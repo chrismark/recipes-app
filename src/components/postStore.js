@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
 
-const fetchRecipes = async (uuid, token, page, mode) => {
-  const url = `/api/users/${uuid}/recipes?page=${page}&mode=${mode}`;
-  console.log('fetchRecipes url: ', url);
+const fetchUserPosts = async (uuid, token, page) => {
+  const url = `/api/users/${uuid}/posts?page=${page}`;
+  console.log('fetchUserPosts url: ', url);
   const result = await fetch(url, {
     method: 'GET',
     headers: {
@@ -14,17 +14,21 @@ const fetchRecipes = async (uuid, token, page, mode) => {
   if (result.status == 401) {
     throw new Error('Token expired.');
   }
+  else if (!result.ok) {
+    throw new Error('Something is wrong. Please try again.');
+  }
   return result.json();
 };
 
-const useRecipes = (uuid, token, page, mode) => {
+const useUserPosts = (uuid, token, page, mode) => {
   console.log('react-query fetching');
   const queryData = useQuery(
-    ['recipes', uuid, token, page], 
-    async () => fetchRecipes(uuid, token, page, mode),
+    ['user-posts', uuid, token, page], 
+    async () => fetchUserPosts(uuid, token, page),
     { 
+      keepPreviousData: true, 
       refetchOnWindowFocus: false,
-      refetchOnMount: true,
+      refetchOnMount: false,
       staleTime: (60 * 1000),
       cacheTime: 60 * 1000,
     },
@@ -32,4 +36,4 @@ const useRecipes = (uuid, token, page, mode) => {
   return queryData;
 };
 
-export { useRecipes };
+export { useUserPosts };

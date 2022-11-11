@@ -5,7 +5,6 @@ import PostRecipesPreview from './PostRecipesPreview';
 
 const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onCreateSubmit, onUpdateSubmit, onClose, onAddARecipe, onEditCaption }) => {
   const onMessageChange = (e) => {
-    console.log('Message Changed: ', e.target.value, e.target.defaultValue);
     setPostMessage(e.target.value);
   };
 

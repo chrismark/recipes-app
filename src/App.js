@@ -9,6 +9,7 @@ import SavedRecipes from './components/SavedRecipes';
 import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
 import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import MainContainer from './components/MainContainer';
+import PostFullscreen from './components/Post/PostFullscreen';
 import './App.css';
 
 // TODO: Create AppContext to store the user object
@@ -98,6 +99,9 @@ const App = () => {
           </Route>
           <Route path='/recipes' element={<></>}>
             <Route index element={<Navigate to='/tasty-recipes' />} />
+          </Route>
+          <Route path='/posts' element={<Outlet />}>
+            <Route path=':post/recipes' element={<PostFullscreen user={user} />} />
           </Route>
         </>) : <></>}
         <Route exact path='/login' element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />

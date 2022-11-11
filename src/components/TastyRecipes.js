@@ -154,7 +154,7 @@ const TastyRecipes = ({ user }) => {
 
   return (
     <>
-      <Loading show={isFetchingRecipes} />
+      {/* <Loading show={isFetchingRecipes} /> */}
       <Container className='justify-content-sm-center justify-content-md-center'>
         <h2>Latest from Tasty.co</h2>
         <br/>
