@@ -250,10 +250,11 @@ const Posts = ({ user, byUser }) => {
   return (
     <Container fluid className='recipes-app-posts'>
       <Row>
-        <Col xs={3} className='left-sidebar bg-secondary'>
+        <Col className='left-sidebar bg-secondary'>
           Left
         </Col>
-        <Col className='mid-content justify-content-md-center'>
+        <Col className='justify-content-md-center'>
+          <div className='mid-content'>
           {user && (
           <Row className='justify-content-md-center'>
             <Col className='mb-5 mt-0'>
@@ -288,8 +289,9 @@ const Posts = ({ user, byUser }) => {
             <br/><br/>
             <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
           </>)}
+          </div>
         </Col>
-        <Col xs={3} className='right-sidebar bg-info'>
+        <Col className='right-sidebar bg-info'>
           Right
         </Col>
       </Row>

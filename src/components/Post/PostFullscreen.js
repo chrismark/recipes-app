@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Row, Col } from 'react-bootstrap';
+import { Modal, Container, Row, Col } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HeaderMinimal } from '../Header';
 
@@ -19,7 +19,16 @@ const PostFullscreen = ({ user }) => {
     <Modal show={true} fullscreen={true}>
       <Modal.Body>
         <HeaderMinimal user={user} onClose={onClose} style={{margin: '-1rem'}} />
-        
+        <Container className='g-0' fluid={true} style={{marginTop: '1rem'}}>
+          <Row style={{marginLeft: '-1rem', marginRight: '-1rem'}}>
+            <Col style={{background: 'red'}}>
+              Test
+            </Col>
+            <Col style={{background: 'blue'}} className='fixed-sidebar'>
+              Test
+            </Col>
+          </Row>
+        </Container>
       </Modal.Body>
     </Modal>
   );
