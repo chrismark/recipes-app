@@ -4,7 +4,7 @@ import MainContainer from './MainContainer';
 const Home = ({ user }) => {
   console.log('render Home');
   return (
-    <Posts user={user} />
+    user && <Posts user={user} />
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Container, Row, Col } from 'react-bootstrap';
+import { Modal, Container, Row, Col, Carousel } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HeaderMinimal } from '../Header';
 
@@ -18,13 +18,13 @@ const PostFullscreen = ({ user }) => {
   return (
     <Modal show={true} fullscreen={true}>
       <Modal.Body>
-        <HeaderMinimal user={user} onClose={onClose} style={{margin: '-1rem'}} />
-        <Container className='g-0' fluid={true} style={{marginTop: '1rem'}}>
-          <Row style={{marginLeft: '-1rem', marginRight: '-1rem'}}>
-            <Col style={{background: 'red'}}>
+        <HeaderMinimal user={user} id='postfullscreen-header' className='postfullscreen-header' onClose={onClose} />
+        <Container className='g-0' fluid={true} style={{marginTop: '0'}}>
+          <Row className='postfullscreen' style={{marginLeft: '-1rem', marginRight: '-1rem', marginTop: '-1rem', marginBottom: '-1rem' }}>
+            <Col style={{background: 'black'}} className='postfullscreen-viewer'>
               Test
             </Col>
-            <Col style={{background: 'blue'}} className='fixed-sidebar'>
+            <Col style={{background: 'lightblue'}} className='postfullscreen-comments'>
               Test
             </Col>
           </Row>

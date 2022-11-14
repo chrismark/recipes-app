@@ -1,11 +1,28 @@
-.col.fixed-sidebar {
+div.postfullscreen {
+  height: 100vh;
+  flex-flow: row;
+}
+div.postfullscreen-comments {
   -ms-flex: 0 0 400px;
   flex: 0 0 400px;
 } 
 
+@media (min-width: 900px) {
+  #postfullscreen-header {
+    --bs-bg-opacity: 0 !important;
+    background: transparent !important;
+  }
+}
+
 @media (max-width: 900px) {
-  .col.fixed-sidebar {
-    flex: 0 0 100%;
+  div.postfullscreen {
+    flex-flow: column;
+  }
+  div.postfullscreen-viewer {
+    margin-top: 3.5rem;
+  }
+  div.postfullscreen-comments {
+    flex: 1 0 auto;
   } 
 }
 

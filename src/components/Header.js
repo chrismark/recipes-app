@@ -51,9 +51,9 @@ const Header = ({ user }) => {
 
 export default Header;
 
-const HeaderMinimal = ({ user, style = {}, onClose }) => {
+const HeaderMinimal = ({ user, style = {}, id='', className='', onClose }) => {
   return (
-    <Navbar expand='lg' bg='primary' variant='dark' className='app-header' style={style}>
+    <Navbar id={id} fixed='top' bg='primary' expanded={true} variant='dark' className={'app-header' + (className ? ' ' + className: '')} style={style}>
       <Container fluid>
         <Navbar.Toggle aria-controls='responsive-navbar-nav' />
         <Navbar.Collapse id='responsive-navbar-nav'>
