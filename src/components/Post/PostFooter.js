@@ -12,14 +12,14 @@ const PostFooter = ({ user, post }) => {
   };
 
   return (
-    <>
+    <div className='post-footer'>
       <PostStats />
       <PostActions 
         onLike={() => console.log('click Like')} 
         onShowComments={doShowComments}
         />
       <PostComments show={showComments} />
-    </>
+    </div>
   );
 };
 

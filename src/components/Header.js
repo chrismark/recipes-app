@@ -1,5 +1,6 @@
 import { Nav, Navbar, Container, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { BsXLg } from 'react-icons/bs';
 
 const Header = ({ user }) => {
   return (
@@ -58,7 +59,9 @@ const HeaderMinimal = ({ user, style = {}, id='', className='', onClose }) => {
         <Navbar.Toggle aria-controls='responsive-navbar-nav' />
         <Navbar.Collapse id='responsive-navbar-nav'>
           <Nav className='me-auto'>
-            <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
+            <span className='my-btn-close-wrapper cursor-pointer' onClick={onClose}>
+              <BsXLg aria-label='Close' className='my-btn-close fs-5 font-weight-light'  />
+            </span>
           </Nav>
           <Nav>
             <NavDropdown

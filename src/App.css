@@ -2,13 +2,37 @@ div.postfullscreen {
   height: 100vh;
   flex-flow: row;
 }
+div.postfullscreen-header-spacer {
+  position: sticky;
+  height: 3.5rem;
+  border-bottom: 0.5px solid #3E4042;
+  margin-left: calc(1.5rem * -.5);
+  margin-right: calc(1.5rem * -.5);
+  z-index: 1;
+}
+div.postfullscreen-viewer {
+
+}
+div.postfullscreen-viewer .carousel .carousel-inner .carousel-item {
+  text-align: center;
+}
+div.postfullscreen-viewer .carousel img {
+  max-height: 100vh;
+  height: 100vh;
+  max-width: 100%;
+  object-fit: scale-down;
+}
 div.postfullscreen-comments {
   -ms-flex: 0 0 400px;
   flex: 0 0 400px;
-} 
+}
+div.postfullscreen-comments .post-header {
+  padding-top: 0.5rem;
+}
 
 @media (min-width: 900px) {
-  #postfullscreen-header {
+  /* if screensize wider than 900px then make background transparent */
+  .postfullscreen-header {
     --bs-bg-opacity: 0 !important;
     background: transparent !important;
   }
@@ -18,12 +42,50 @@ div.postfullscreen-comments {
   div.postfullscreen {
     flex-flow: column;
   }
+  div.postfullscreen-viewer .carousel img {
+    max-height: 50vh;
+    height: 50vh;
+  }
   div.postfullscreen-viewer {
     margin-top: 3.5rem;
+    max-height: 50vh;
+    position: fixed;
   }
   div.postfullscreen-comments {
-    flex: 1 0 auto;
-  } 
+    position: fixed;
+    bottom: 0;
+    max-height: 50vh;
+    flex-basis: auto;
+    height: 44.2vh;
+    overflow-y: auto;
+  }
+  div.postfullscreen-header-spacer {
+    display: none;
+  }
+}
+
+span.my-btn-close-wrapper {
+  display: block;
+  padding: .4rem .7rem .6rem .6rem;
+  border-radius: 50rem;
+  background:rgba(0, 0, 0, 0.199);
+  opacity: .65;
+  transition: all .3s ease-in-out;
+}
+span.my-btn-close-wrapper:hover {
+  opacity: 1;
+}
+svg.my-btn-close {
+  color: rgba(255, 255, 255, 0.856);
+  opacity: .65;
+  transition: all .3s ease-in-out;
+}
+span.my-btn-close-wrapper:hover svg.my-btn-close {
+  opacity: 1;
+}
+
+div.postfullscreen-viewer > div.carousel > .carousel-control-next, div.postfullscreen-viewer > div.carousel > .carousel-control-prev {
+  width: 8%;
 }
 
 div.mid-content {

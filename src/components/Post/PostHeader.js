@@ -19,7 +19,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 
 const PostHeader = ({ user, post, onClickEdit }) => {
   return (
-    <Row className='mb-2'>
+    <Row className='mb-2 post-header'>
       <Col>
         <div className='post-user fw-bold pt-0'>{user.username || user.firstname}</div>
         <div style={{marginTop: '-.5rem'}} className='post-timestamp'>

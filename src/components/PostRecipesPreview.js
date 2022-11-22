@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button, CloseButton, Row, Col } from 'react-bootstrap';
-import { FaTimesCircle } from 'react-icons/fa';
+import { BsXCircleFill } from 'react-icons/bs';
 
 const CardRecipeThumb = ({ recipe, count, isClickable, onClick }) => {
   return (
@@ -33,8 +33,8 @@ const PostRecipesPreviewClear = ({ onClick }) => {
   return (
     <div style={{position: 'absolute', zIndex: 9999, display: 'block', right: 0}} className='post-recipes-preview-option m-2'>
       <div style={{position: 'relative'}}>
-        <FaTimesCircle className='fs-1 cursor-pointer' color='gray' style={{position: 'absolute', top: '1px', right: '1px'}} />
-        <FaTimesCircle className='fs-1 cursor-pointer' color='white' onClick={() => onClick()} style={{position: 'absolute', top: 0, right: 0}} />
+        <BsXCircleFill className='fs-1 cursor-pointer' color='gray' style={{position: 'absolute', top: '1px', right: '1px'}} />
+        <BsXCircleFill className='fs-1 cursor-pointer' color='white' onClick={() => onClick()} style={{position: 'absolute', top: 0, right: 0}} />
       </div>
     </div>
   );
