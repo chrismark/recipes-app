@@ -64,6 +64,18 @@ div.postfullscreen-comments .post-header {
   }
 }
 
+.post-recipes-preview-display .card-img-top, .selectable-recipe .card-img-top {
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-action-heart-eyes, .post-action-laugh, .post-action-sad, .post-action-surprise {
+  color:rgba(224, 202, 3, 0.863);
+}
+.post-action-angry {
+  color:rgba(224, 121, 3, 0.863);
+}
+
 span.my-btn-close-wrapper {
   display: block;
   padding: .4rem .7rem .6rem .6rem;

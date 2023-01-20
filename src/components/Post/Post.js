@@ -7,13 +7,14 @@ import { PostRecipesPreviewDisplay } from '../PostRecipesPreview'
 const Post = ({ user, post, onEditPost }) => {
   const navigate = useNavigate();
 
-  const handleItemClick = (recipe) => {
-    console.log('Clicked ', recipe);
-    navigate('/posts/' + post.id +'/recipes/', {state: {post: post}});
-  };
+  const handleItemClick = (index) => {
+    console.log('Clicked ', index);
+    navigate('/posts/' + post.id +'/recipes/', {state: {post: post, index: index}});
+  }
+  
 
   return (
-  <Card>
+  <Card className='post'>
     <Card.Body style={{paddingTop: '.5rem', paddingBottom: '.1rem'}}>
       <PostHeader user={user} post={post} onClickEdit={onEditPost} />
       <p>{post.message}</p>

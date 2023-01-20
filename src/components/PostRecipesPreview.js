@@ -69,12 +69,16 @@ const PostRecipesPreviewDisplayWrapper = ({ children }) => {
 const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
   let classNamesTopRow = recipes.length > 0 ? 'mt-3 g-0' : '';
   let classNamesBtmRow = recipes.length > 0 ? 'g-0' : '';
+  const createHandler = (handler, num) => {
+    return () => handler(num);
+  };
+
   if (recipes.length == 1) {
     return (
       <>
         <Row className={classNamesTopRow}>
           <Col className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
         </Row>
       </>
@@ -85,10 +89,10 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={createHandler(onClick, 1)} />
           </Col>
         </Row>
       </>
@@ -99,13 +103,13 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={createHandler(onClick, 1)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={createHandler(onClick, 2)} />
           </Col>
         </Row>
       </>
@@ -116,18 +120,18 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={createHandler(onClick, 1)} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={createHandler(onClick, 2)} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={createHandler(onClick, 3)} />
           </Col>
         </Row>
       </>
@@ -138,21 +142,21 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={createHandler(onClick, 1)} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={createHandler(onClick, 2)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={createHandler(onClick, 3)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[4]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[4]} isClickable={isClickable} onClick={createHandler(onClick, 4)} />
           </Col>
         </Row>
       </>
@@ -163,21 +167,21 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
       <>
         <Row className={classNamesTopRow}>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[0]} isClickable={isClickable} onClick={createHandler(onClick, 0)} />
           </Col>
           <Col xs='6' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[1]} isClickable={isClickable} onClick={createHandler(onClick, 1)} />
           </Col>
         </Row>
         <Row className={classNamesBtmRow}>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[2]} isClickable={isClickable} onClick={createHandler(onClick, 2)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[3]} isClickable={isClickable} onClick={createHandler(onClick, 3)} />
           </Col>
           <Col xs='4' className='d-flex justify-content-center'>
-            <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} isClickable={isClickable} onClick={onClick} />
+            <CardRecipeThumb recipe={recipes[4]} count={recipes.length-5} isClickable={isClickable} onClick={createHandler(onClick, 4)} />
           </Col>
         </Row>
       </>
@@ -195,9 +199,11 @@ const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDe
       recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
     }
     return (
-      <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption}>
-        <PostRecipesPreviewThumbnails recipes={recipes} />
-      </PostRecipesPreviewEditWrapper>
+      <div className='post-recipes-preview'>
+        <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption}>
+          <PostRecipesPreviewThumbnails recipes={recipes} />
+        </PostRecipesPreviewEditWrapper>
+      </div>
     );
   }
   else {
@@ -212,9 +218,11 @@ PostRecipesPreview.defaultProps = {
 const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
   if (recipes.length >= 1) {
     return (
-      <PostRecipesPreviewDisplayWrapper>
-        <PostRecipesPreviewThumbnails recipes={recipes} isClickable={true} onClick={onClick} />
-      </PostRecipesPreviewDisplayWrapper>
+      <div className='post-recipes-preview-display'>
+        <PostRecipesPreviewDisplayWrapper>
+          <PostRecipesPreviewThumbnails recipes={recipes} isClickable={true} onClick={onClick} />
+        </PostRecipesPreviewDisplayWrapper>
+      </div>
     );
   }
   else {
