@@ -17,7 +17,7 @@ const CardImgPlaceholder = () => {
 const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
   return (
     <Card
-      className='text-body text-decoration-none cursor-pointer' 
+      className='selectable-recipe text-body text-decoration-none cursor-pointer' 
       style={{overflow: 'hidden', position: 'relative'}}
       onClick={onToggleClick}
       tooltip='test'
@@ -156,7 +156,7 @@ const ActualSelectRecipeModal = ({ user, show, postId, onSelect, onClose, select
             </>
           )}
           {!isFetching && recipes && recipes.length > 0 && recipes.map((recipe, idx) => (
-            <Col key={recipe.id}>
+            <Col key={recipe.id} className='d-flex'>
               <CardSelectableRecipe
                 recipe={recipe}
                 onToggleClick={() => onClickRecipe(recipe)}

@@ -1,7 +1,50 @@
 import { useState, useRef } from 'react';
 import { Row, Col, Overlay } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { FaRegThumbsUp, FaRegCommentAlt, FaShare, FaRegHeart, FaRegGrinHearts, FaRegGrinSquint, FaRegSadTear, FaRegSurprise, FaRegAngry } from 'react-icons/fa';
 import PostButton from './PostButton';
+
+const PostActionLikePopup = ({children, target, show, popupHoverIn, popupHoverOut}) => {
+  return (
+    <Overlay target={target.current} show={show} placement="top-start">
+      {({ placement, arrowProps, show: _show, popper, ...props }) => (
+        <div
+          {...props}
+          style={{
+            position: 'absolute',
+            paddingBottom: '.1rem',
+            color: 'white',
+            borderRadius: 3,
+            cursor: 'pointer',
+            zIndex: 999999,
+            ...props.style,
+          }}
+          onMouseEnter={popupHoverIn}
+          onMouseLeave={popupHoverOut}
+        >
+          <span className='fs-1 bg-white d-inline-flex'>
+            {children}
+          </span>
+        </div>
+      )}
+    </Overlay>
+  );
+};
+
+const PostActionLikeTooltip = ({children, text}) => {
+  return (
+    <OverlayTrigger
+        key={text}
+        placement='top'
+        overlay={
+          <Tooltip id={`tooltip-${text}`}>{text}</Tooltip>
+        }
+      >
+      <span className='d-inline-flex'>{children}</span>
+    </OverlayTrigger>
+  );
+};
 
 const PostActions = ({onLike, onShowComments}) => {
   const target = useRef(null);
@@ -64,49 +107,46 @@ const PostActions = ({onLike, onShowComments}) => {
   return (
     <>
       <Row className='m-0 mt-1 mb-1'>
-        <Col className='pt-1 pb-1'>
+        <Col className='p-0 pt-1 pb-1'>
           <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut}>
             <small><FaRegThumbsUp className='fs-4 pb-1' />Like</small>
           </PostButton>
         </Col>
-        <Col className='pt-1 pb-1'>
+        <Col className='p-0 pt-1 pb-1'>
           <PostButton>
             <small><FaRegCommentAlt /> Comment</small>
           </PostButton>
         </Col>
-        <Col className='pt-1 pb-1'>
+        <Col className='p-0 pt-1 pb-1'>
           <PostButton>
             <small><FaShare className='fs-5 pb-1' /> Share</small>
           </PostButton>
         </Col>
       </Row>
-      <Overlay target={target.current} show={show} placement="top">
-        {({ placement, arrowProps, show: _show, popper, ...props }) => (
-          <div
-            {...props}
-            style={{
-              position: 'absolute',
-              padding: '2px 10px',
-              color: 'white',
-              borderRadius: 3,
-              cursor: 'pointer',
-              ...props.style,
-            }}
-            onMouseEnter={popupHoverIn}
-            onMouseLeave={popupHoverOut}
-          >
-            <span className='fs-2 bg-white'>
-              <FaRegThumbsUp className='post-action post-action-like cursor-pointer' style={{color: 'blue'}} />
-              <FaRegHeart className='post-action-icon post-action-heart cursor-pointer' style={{color: 'red'}} />
-              <FaRegGrinHearts className='post-action-icon post-action-heart-eyes cursor-pointer' />
-              <FaRegGrinSquint className='post-action-icon post-action-laugh cursor-pointer' />
-              <FaRegSadTear className='post-action-icon post-action-sad cursor-pointer' />
-              <FaRegSurprise className='post-action-icon post-action-surprise cursor-pointer' />
-              <FaRegAngry className='post-action-icon post-action-angry cursor-pointer' />
-            </span>
-          </div>
-        )}
-      </Overlay>
+      <PostActionLikePopup show={show} target={target} popupHoverIn={popupHoverIn} popupHoverOut={popupHoverOut}>
+        <PostActionLikeTooltip text='Like'>
+          <FaRegThumbsUp className='post-action-icon post-action-like cursor-pointer' style={{color: 'blue'}} />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Love'>
+          <FaRegHeart className='post-action-icon post-action-heart cursor-pointer' style={{color: 'red'}} />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Care'>
+          <FaRegGrinHearts className='post-action-icon post-action-heart-eyes cursor-pointer' />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Laugh'>
+          <FaRegGrinSquint className='post-action-icon post-action-laugh cursor-pointer' />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Sad'>
+          <FaRegSadTear className='post-action-icon post-action-sad cursor-pointer' />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Surprise'>
+          <FaRegSurprise className='post-action-icon post-action-surprise cursor-pointer' />
+        </PostActionLikeTooltip>
+        <PostActionLikeTooltip text='Angry'>
+          <FaRegAngry className='post-action-icon post-action-angry cursor-pointer' />
+        </PostActionLikeTooltip>
+      </PostActionLikePopup>
+      
     </>
   );
 };
