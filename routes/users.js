@@ -113,7 +113,7 @@ router.post('/:user_uuid/posts', checkPerms(PermsConfig.CreatePost), async funct
  * 
  * Retrieve post under user.
  */
-router.get('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.FetchPost), function(req, res) {
+router.get('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.FetchPost), async function(req, res) {
 
 });
 
@@ -133,6 +133,66 @@ router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), a
     console.error(e);
     res.status(200).send({
       errorMessage: 'There was a problem updating the post. Please try again later.'
+    });
+  }
+});
+
+/**
+ * PATCH /users/user_uuid/posts/post_id/like
+ * 
+ * Like post under user
+ */
+router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.PostPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);  
+    const post = await Post.like(req.params.user_uuid, req.params.post_id, req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem liking the post. Please try again later.'
+    });
+  }
+});
+
+/**
+ * PATCH /users/user_uuid/posts/post_id/unlike
+ * 
+ * Unlike post under user.
+ */
+router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.PostPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);  
+    const post = await Post.unlike(req.params.user_uuid, req.params.post_id, req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem unliking the post. Please try again later.'
+    });
+  }
+});
+
+/**
+ * GET /users/user_uuid/posts/post_id/like/like_type
+ * 
+ * Fetch users who liked the post by like type
+ */
+router.get('/:user_uuid/posts/:post_id/like/:like_type', checkPerms(PermsConfig.PostPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);  
+    const post = await Post.fetchUsersByLike(req.params.user_uuid, req.params.post_id, req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching users by like. Please try again later.'
     });
   }
 });

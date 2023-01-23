@@ -1,7 +1,12 @@
+const {z} = require('zod');
 const db = require('./db');
 const RETURN_FIELDS = '*';
 const FETCH_RECIPES_POST_FIELDS_MINIMAL = ['recipes_post.post_id', 'recipes.id', 'recipes.name', 'recipes.thumbnail_url', 'recipes.aspect_ratio', 'recipes_post.caption'];
 const FETCH_PAGINATION_LIMIT = 6;
+const LIKE_SCHEMA = z.object({
+  like: z.number().gte(1).lte(7)
+});
+const LIKE_VAL_TO_COL = ['like', 'heart', 'care', 'laugh', 'sad', 'surprise', 'angry'];
 
 /**
   * @typedef {object} Post
@@ -137,8 +142,9 @@ module.exports = {
     }
   },
   update: async function(userUuid, postId, post) {
+    let trx = null;
     try {
-      let trx = await db.transaction();
+      trx = await db.transaction();
       // Update post
       let editPost = {
         id: postId,
@@ -175,6 +181,7 @@ module.exports = {
       };
     }
     catch (e) {
+      trx.rollback();
       console.log(e);
       return null;
     }
@@ -239,6 +246,61 @@ module.exports = {
     catch (e) {
       console.log(e);
       return null;
+    }
+  },
+  like: async function(userUuid, postId, like) {
+    LIKE_SCHEMA.parse(like);
+    let trx = null;
+    try {
+      trx = await db.transaction();
+      const user = await db('users').select('id').where({uuid: userUuid});
+      // create post_likes
+      let postLike = await this._createPostLike(trx, postId, user[0].id, like);
+      console.log('new post like: ', postLike);
+      // update post stats count after
+      let updatedPostStat = await this._updateLike(trx, postId, like);
+      console.log('updated post stat: ', updatedPostStat);
+      if (!trx.isCompleted()) {
+        await trx.commit();
+      }
+
+    }
+    catch (e) {
+      if (trx) {
+        trx.rollback();
+      }
+      console.log(e);
+      return null;
+    }
+  },
+  _createPostLike: async function(trx, postId, userId, like) {
+    try {
+      let query = trx('post_likes').insert({
+        post_id: postId,
+        user_id: userId,
+        type: like.like
+      });
+      console.log('query: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.log(e);
+      throw e;
+    }
+  },
+  _updateLike: async function(trx, postId, like) {
+    try {
+      let col = LIKE_VAL_TO_COL[like.like - 1];
+      let query = trx('post_stats_count')
+                  .increment(col, 1)
+                  .where({post_id: postId})
+                  .returning(['id', 'post_id', col]);
+      console.log('_updateLike: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.log(e);
+      throw e;
     }
   }
 };
