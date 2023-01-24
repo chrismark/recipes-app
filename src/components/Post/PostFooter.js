@@ -4,7 +4,7 @@ import PostStats from './PostStats';
 import PostActions from './PostActions';
 import PostComments from './PostComments';
 
-const PostFooter = ({ user, post }) => {
+const PostFooter = ({ post }) => {
   let [showComments, setShowComments] = useState(false);
 
   const doShowComments = () => {
@@ -15,6 +15,7 @@ const PostFooter = ({ user, post }) => {
     <div className='post-footer'>
       <PostStats />
       <PostActions 
+        post={post}
         onLike={() => console.log('click Like')} 
         onShowComments={doShowComments}
         />

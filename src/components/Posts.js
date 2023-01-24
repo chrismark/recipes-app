@@ -250,7 +250,7 @@ const Posts = ({ user, byUser }) => {
   return (
     <Container fluid className='recipes-app-posts'>
       <Row>
-        <Col className='left-sidebar bg-secondary'>
+        <Col className='left-sidebar'>
           Left
         </Col>
         <Col className='justify-content-md-center'>
@@ -291,7 +291,7 @@ const Posts = ({ user, byUser }) => {
           </>)}
           </div>
         </Col>
-        <Col className='right-sidebar bg-info'>
+        <Col className='right-sidebar'>
           Right
         </Col>
       </Row>

@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext, createElement } from 'react';
 import { Row, Col, Overlay } from 'react-bootstrap';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { FaRegThumbsUp, FaRegCommentAlt, FaShare, FaRegHeart, FaRegGrinHearts, FaRegGrinSquint, FaRegSadTear, FaRegSurprise, FaRegAngry } from 'react-icons/fa';
 import PostButton from './PostButton';
+import { AppContext } from '../../app-context.js';
 
 const PostActionLikePopup = ({children, target, show, popupHoverIn, popupHoverOut}) => {
   return (
@@ -46,13 +47,44 @@ const PostActionLikeTooltip = ({children, text}) => {
   );
 };
 
-const PostActions = ({onLike, onShowComments}) => {
+const LikeTypes = {
+  'like': { text: 'Like', value: 1, tag: FaRegThumbsUp },
+  'love': { text: 'Love', value: 2, tag: FaRegHeart },
+  'care': { text: 'Care', value: 3, tag: FaRegGrinHearts },
+  'laugh': { text: 'Laugh', value: 4, tag: FaRegGrinSquint },
+  'sad': { text: 'Sad', value: 5, tag: FaRegSadTear },
+  'surprise': { text: 'Surprise', value: 6, tag: FaRegSurprise },
+  'angry': { text: 'Angry', value: 7, tag: FaRegAngry },
+};
+
+const LikeButton = ({ type, onClick }) => {
+  let data = LikeTypes[type];
+  const Tag = data.tag;
+  const text = data.text;
+  const handler = () => onClick(data.value);
+  const button = <Tag className={'post-action-icon cursor-pointer post-action-' + type} onClick={handler} />
+  return (
+    <OverlayTrigger
+        key={text}
+        placement='top'
+        overlay={
+          <Tooltip id={`tooltip-${text}`}>{text}</Tooltip>
+        }
+      >
+      <span className='d-inline-flex'>{button}</span>
+    </OverlayTrigger>
+  );
+};
+
+const PostActions = ({post, onLike, onShowComments}) => {
+  console.log('PostActions post', post);
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
   const hoverOnPopup = useRef(false);
   const hoverOnButton = useRef(false);
   const [show, setShow] = useState(false);
+  const [user] = useContext(AppContext);
   const DELAY = 1200;
 
   const handleHoverIn = () => {
@@ -104,6 +136,30 @@ const PostActions = ({onLike, onShowComments}) => {
     }, DELAY);
   };
 
+  const updateLike = async (post, user, payload) => {
+    console.log('updateLike', post, user, payload);
+    try {
+      const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/like`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await result.json();
+      return json;
+    }
+    catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onClickLike = async (value) => {
+    console.log('onClickLike', value, user);
+    const result = await updateLike(post, user, {like: value});
+  };
+
   return (
     <>
       <Row className='m-0 mt-1 mb-1'>
@@ -112,9 +168,9 @@ const PostActions = ({onLike, onShowComments}) => {
             <small><FaRegThumbsUp className='fs-4 pb-1' />Like</small>
           </PostButton>
         </Col>
-        <Col className='p-0 pt-1 pb-1'>
+        <Col className='p-0 pt-1 pb-3'>
           <PostButton>
-            <small><FaRegCommentAlt /> Comment</small>
+            <small><FaRegCommentAlt className='fs-6' /> Comment</small>
           </PostButton>
         </Col>
         <Col className='p-0 pt-1 pb-1'>
@@ -124,29 +180,14 @@ const PostActions = ({onLike, onShowComments}) => {
         </Col>
       </Row>
       <PostActionLikePopup show={show} target={target} popupHoverIn={popupHoverIn} popupHoverOut={popupHoverOut}>
-        <PostActionLikeTooltip text='Like'>
-          <FaRegThumbsUp className='post-action-icon post-action-like cursor-pointer' style={{color: 'blue'}} />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Love'>
-          <FaRegHeart className='post-action-icon post-action-heart cursor-pointer' style={{color: 'red'}} />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Care'>
-          <FaRegGrinHearts className='post-action-icon post-action-heart-eyes cursor-pointer' />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Laugh'>
-          <FaRegGrinSquint className='post-action-icon post-action-laugh cursor-pointer' />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Sad'>
-          <FaRegSadTear className='post-action-icon post-action-sad cursor-pointer' />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Surprise'>
-          <FaRegSurprise className='post-action-icon post-action-surprise cursor-pointer' />
-        </PostActionLikeTooltip>
-        <PostActionLikeTooltip text='Angry'>
-          <FaRegAngry className='post-action-icon post-action-angry cursor-pointer' />
-        </PostActionLikeTooltip>
+        <LikeButton type='like' onClick={onClickLike} />
+        <LikeButton type='love' onClick={onClickLike} />
+        <LikeButton type='care' onClick={onClickLike} />
+        <LikeButton type='laugh' onClick={onClickLike} />
+        <LikeButton type='sad' onClick={onClickLike} />
+        <LikeButton type='surprise' onClick={onClickLike} />
+        <LikeButton type='angry' onClick={onClickLike} />
       </PostActionLikePopup>
-      
     </>
   );
 };

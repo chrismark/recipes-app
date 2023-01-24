@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Route, Routes, useNavigate, Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -10,6 +10,7 @@ import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
 import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import MainContainer from './components/MainContainer';
 import PostFullscreen from './components/Post/PostFullscreen';
+import { AppContext } from './app-context.js';
 import './App.css';
 
 // TODO: Create AppContext to store the user object
@@ -19,6 +20,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [fetchedValue, setFetchedValue] = useState('');
   const [posts, setPosts] = useState([]);
+  const [currentUser, setCurrentUser] = useContext(AppContext);
 
   useEffect(() => {
     (async function() {
@@ -75,12 +77,14 @@ const App = () => {
 
   const onPostLogin = (data) => {
     setUser(data);
+    setCurrentUser(data);
     console.log('onPostLogin');
     navigate('/');
   };
 
   const onPostRegister = (data) => {
     setUser(data);
+    setCurrentUser(data);
     console.log('onPostRegister');
     navigate('/');
   };

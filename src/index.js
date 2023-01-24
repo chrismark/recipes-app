@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import { disableReactDevTools } from '@fvilers/disable-react-devtools';
+import { AppContextProvider } from './app-context.js';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,7 +22,9 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <AppContextProvider>
+          <App />
+        </AppContextProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>,

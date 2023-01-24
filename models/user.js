@@ -7,7 +7,7 @@ const PermsConfig = require('../middleware/permissions').PermissionsConfig;
 const RETURN_FIELDS = ['id', 'uuid', 'email', 'username', 'firstname', 'lastname'];
 const GENERATE_TOKEN_SCOPE = [
   PermsConfig.FetchAllPosts, PermsConfig.FetchTastyRecipes,
-  PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.FetchAllUserPosts, 
+  PermsConfig.CreatePost, PermsConfig.UpdatePost, PermsConfig.FetchPost, PermsConfig.LikePost, PermsConfig.UnlikePost, PermsConfig.FetchUserWhoLikedPost, PermsConfig.FetchAllUserPosts, 
   PermsConfig.CreateComment, PermsConfig.FetchAllComments, PermsConfig.UpdateComment,
   PermsConfig.FetchUser, PermsConfig.UpdateUser, 
   PermsConfig.CreateRecipe, PermsConfig.UpdateRecipe, PermsConfig.FetchAllRecipes,

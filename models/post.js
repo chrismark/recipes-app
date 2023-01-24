@@ -251,19 +251,23 @@ module.exports = {
   like: async function(userUuid, postId, like) {
     LIKE_SCHEMA.parse(like);
     let trx = null;
+    let postLike = null;
+    let updatedPostStat = null;
     try {
       trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       // create post_likes
-      let postLike = await this._createPostLike(trx, postId, user[0].id, like);
+      postLike = await this._createPostLike(trx, postId, user[0].id, like);
       console.log('new post like: ', postLike);
-      // update post stats count after
-      let updatedPostStat = await this._updateLike(trx, postId, like);
-      console.log('updated post stat: ', updatedPostStat);
+      if (postLike && postLike.length > 0) {
+        // update post stats count after
+        updatedPostStat = await this._updateLike(trx, postId, like);
+        console.log('updated post stat: ', updatedPostStat);
+      }
       if (!trx.isCompleted()) {
         await trx.commit();
       }
-
+      return (updatedPostStat && updatedPostStat[0]) || {};
     }
     catch (e) {
       if (trx) {
@@ -275,11 +279,15 @@ module.exports = {
   },
   _createPostLike: async function(trx, postId, userId, like) {
     try {
-      let query = trx('post_likes').insert({
-        post_id: postId,
-        user_id: userId,
-        type: like.like
-      });
+      let query = trx('post_likes')
+                  .insert({
+                    post_id: postId,
+                    user_id: userId,
+                    type: like.like
+                  })
+                  .onConflict(['post_id', 'user_id'])
+                  .ignore()
+                  .returning('*');
       console.log('query: ', query.toString());
       return await query;
     }

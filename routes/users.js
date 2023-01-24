@@ -142,7 +142,7 @@ router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), a
  * 
  * Like post under user
  */
-router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.PostPost), async function(req, res) {
+router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.LikePost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
@@ -162,7 +162,7 @@ router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.PostPost)
  * 
  * Unlike post under user.
  */
-router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.PostPost), async function(req, res) {
+router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.UnlikePost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
@@ -182,7 +182,7 @@ router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.PostPos
  * 
  * Fetch users who liked the post by like type
  */
-router.get('/:user_uuid/posts/:post_id/like/:like_type', checkPerms(PermsConfig.PostPost), async function(req, res) {
+router.get('/:user_uuid/posts/:post_id/like/:like_type', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  

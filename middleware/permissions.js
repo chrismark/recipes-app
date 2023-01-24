@@ -35,6 +35,7 @@ module.exports.PermissionsConfig = {
   DeletePost: 'delete:post',
   LikePost: 'like:post',
   UnlikePost: 'unlike:post',
+  FetchUserWhoLikedPost: 'fetch:users-who-liked-post',
   FetchTastyRecipes: 'fetch:tasty',
   FetchUserRecipes: 'fetch:user-recipes',
 }
