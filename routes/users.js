@@ -126,7 +126,7 @@ router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), a
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
-    const post = await Post.update(req.params.user_uuid, req.params.post_id, req.body);
+    const post = await Post.update(req.params.user_uuid, parseInt(req.params.post_id), req.body);
     res.status(200).json(post);
   }
   catch (e) {
@@ -146,7 +146,7 @@ router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.LikePost)
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
-    const post = await Post.like(req.params.user_uuid, req.params.post_id, req.body);
+    const post = await Post.like(req.params.user_uuid, parseInt(req.params.post_id), req.body);
     res.status(200).json(post);
   }
   catch (e) {
@@ -166,7 +166,7 @@ router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.UnlikeP
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
-    const post = await Post.unlike(req.params.user_uuid, req.params.post_id, req.body);
+    const post = await Post.unlike(req.params.user_uuid, parseInt(req.params.post_id), req.body);
     res.status(200).json(post);
   }
   catch (e) {
@@ -186,7 +186,7 @@ router.get('/:user_uuid/posts/:post_id/like/:like_type', checkPerms(PermsConfig.
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
-    const post = await Post.fetchUsersByLike(req.params.user_uuid, req.params.post_id, req.body);
+    const post = await Post.fetchUsersByLike(req.params.user_uuid, parseInt(req.params.post_id), req.body);
     res.status(200).json(post);
   }
   catch (e) {

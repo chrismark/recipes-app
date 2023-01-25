@@ -89,7 +89,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
     const { page } = req.query;
     console.log('req.query: ', req.query);
     console.log('req.params: ', req.params);
-    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id, -1, page);
+    let comments = await RecipeComment.fetch(req.user.sub, parseInt(req.params.recipe_id), -1, page);
     res.status(200).json(comments);
   }
   catch (e) {
@@ -109,7 +109,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
   try {
     await delay(3000);
     console.log('req.params: ', req.params);
-    let comments = await RecipeComment.fetch(req.user.sub, req.params.recipe_id, req.params.comment_id);
+    let comments = await RecipeComment.fetch(req.user.sub, parseInt(req.params.recipe_id), parseInt(req.params.comment_id));
     res.status(200).json(comments);
   }
   catch (e) {
@@ -129,7 +129,7 @@ router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment),
   try {
 
     console.log('req.body: ', req.body);
-    let comment = await RecipeComment.create(req.user.sub, req.params.recipe_id, req.body);
+    let comment = await RecipeComment.create(req.user.sub, parseInt(req.params.recipe_id), req.body);
     res.status(200).json(comment);
   }
   catch (e) {
@@ -169,7 +169,7 @@ router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRe
   try {
 
     console.log('req.body: ', req.body);
-    let comment = await RecipeComment.delete(req.user.sub, req.params.recipe_id, req.params.comment_id);
+    let comment = await RecipeComment.delete(req.user.sub, parseInt(req.params.recipe_id), parseInt(req.params.comment_id));
     res.status(200).json(comment);
   }
   catch (e) {
@@ -199,7 +199,7 @@ router.post('/:recipe_id/ratings', checkPerms(PermsConfig.CreateRating), async f
     await delay(3000);
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
-    let rating = await RecipeRating.create(req.user.sub, req.params.recipe_id, req.body.rating);
+    let rating = await RecipeRating.create(req.user.sub, parseInt(req.params.recipe_id), req.body.rating);
 
     if (rating) {
       res.status(200).json(rating);
@@ -237,7 +237,7 @@ router.post('/:recipe_id/ratings/:rating_id', checkPerms(PermsConfig.UpdateRatin
     await delay(3000);
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
-    let rating = await RecipeRating.update(req.params.rating_id, req.body.rating);
+    let rating = await RecipeRating.update(parseInt(req.params.rating_id), req.body.rating);
 
     if (rating) {
       res.status(200).json(rating);

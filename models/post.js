@@ -6,7 +6,8 @@ const FETCH_PAGINATION_LIMIT = 6;
 const LIKE_SCHEMA = z.object({
   like: z.number().gte(1).lte(7)
 });
-const LIKE_VAL_TO_COL = ['like', 'heart', 'care', 'laugh', 'sad', 'surprise', 'angry'];
+const LIKE_VAL_TO_COL = ['like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry'];
+const FETCH_POST_STATS_COUNT = ['like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry', db.raw('"like" + "love" + "care" + "laugh" + "sad" + "surprise" + "angry" as total_likes'), 'comments', 'shares'];
 
 /**
   * @typedef {object} Post
@@ -40,8 +41,27 @@ module.exports = {
    * @param {number} userUuid 
    * @param {string} [selectFields='*']
    */
-  fetch: async function(userUuid, offset = -1, selectFields = '*') {
-    let query = db('posts').select(selectFields);
+  fetch: async function(userUuid, offset = -1, selectFields = 'posts.*') {
+    const user = await db('users').select('id').where({uuid: userUuid});
+    let query = db('posts').select([
+      selectFields, 
+      db.raw('CASE WHEN post_likes.id IS NULL THEN false ELSE true END AS liked'),
+      db.raw(
+        'CASE ' +
+          'WHEN post_likes.type = 1 THEN \'like\' ' +
+          'WHEN post_likes.type = 2 THEN \'love\' ' +
+          'WHEN post_likes.type = 3 THEN \'care\' ' +
+          'WHEN post_likes.type = 4 THEN \'laugh\' ' +
+          'WHEN post_likes.type = 5 THEN \'sad\' ' +
+          'WHEN post_likes.type = 6 THEN \'surprise\' ' +
+          'WHEN post_likes.type = 7 THEN \'angry\' ' +
+        'END AS like_type'
+      )
+    ])
+    .leftJoin('post_likes', function() {
+      this.on('post_likes.post_id', '=', 'posts.id')
+          .andOn('post_likes.user_id', '=', user[0].id);
+    });
     if (offset != -1) {
       offset = Math.max(0, offset * FETCH_PAGINATION_LIMIT);
       query = query.limit(FETCH_PAGINATION_LIMIT).offset(offset);
@@ -52,6 +72,7 @@ module.exports = {
     // loop thru posts and fetch associated recipes
     for (let i = 0; i < posts.length; i++) {
       posts[i].recipes = await this._fetchRecipesPostByPostId(posts[i].id);
+      posts[i].stats = await this._fetchPostStatsCountByPostId(posts[i].id);
     }
     console.log('posts: ', posts);
     return posts;
@@ -67,6 +88,16 @@ module.exports = {
     console.log('query: ', query.toString());
     return await query;
   },
+  _fetchPostStatsCountByPostId: async function(postId, transaction = null) {
+    let query = db('post_stats_count').select(FETCH_POST_STATS_COUNT)
+      .where('post_id', postId);
+    if (transaction != null) {
+      query.transacting(transaction);
+    }
+    console.log('query: ', query.toString());
+    const result = await query;
+    return result[0];
+  },
   /**
    * Create new post and recipes_post entries
    * @param {string} userUuid 
@@ -75,6 +106,7 @@ module.exports = {
    */
   create: async function(userUuid, post) {
     try {
+      // TODO: Use transactions
       const user = await db('users').select('id').where({uuid: userUuid});
       console.log('user: ', user);
       // Create new 'post'
@@ -86,12 +118,14 @@ module.exports = {
       console.log('createdPost: ', createdPost);
       // Create new 'recipes_post'
       let recipesPost = await this._createRecipesPost(createdPost, post.recipes);
+      let postStatsCount = await this._createPostStatsCount(createdPost);
       return {
         id: createdPost.id,
         message: createdPost.message,
         user_id: createdPost.user_id,
         posted_on: createdPost.posted_on,
-        recipes: recipesPost
+        recipes: recipesPost,
+        stats: postStatsCount,
       };
     }
     catch (e) {
@@ -141,6 +175,19 @@ module.exports = {
       return [];
     }
   },
+  _createPostStatsCount: async function(post) {
+    try {
+      let query = db('post_stats_count')
+      .insert({post_id: post.id})
+      .returning(FETCH_POST_STATS_COUNT);
+      let result = await query;
+      return result[0];
+    }
+    catch (e) {
+      console.error(e);
+      return {};
+    }
+  },
   update: async function(userUuid, postId, post) {
     let trx = null;
     try {
@@ -169,6 +216,7 @@ module.exports = {
       }
 
       let recipes = await this._fetchRecipesPostByPostId(updatedPost.id, trx);
+      let stats = await this._fetchPostStatsCountByPostId(updatedPost.id, trx);
 
       if (!trx.isCompleted()) {
         await trx.commit();
@@ -177,7 +225,8 @@ module.exports = {
       return {
         id: updatedPost.id,
         message: updatedPost.message,
-        recipes: recipes
+        recipes: recipes,
+        stats: stats,
       };
     }
     catch (e) {
