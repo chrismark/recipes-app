@@ -3,10 +3,12 @@ import { Form, Button, Modal, Row, Col } from 'react-bootstrap';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import PostRecipesPreview from './PostRecipesPreview';
 
-const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onCreateSubmit, onUpdateSubmit, onClose, onAddARecipe, onEditCaption }) => {
+const CreateEditPostModal = ({ isSubmitting, show, postId, postMessage, setPostMessage, selectedRecipes, setSelectedRecipes, clearSelectedRecipes, onCreateSubmit, onUpdateSubmit, onClose, onAddARecipe, onEditCaption }) => {
   const onMessageChange = (e) => {
     setPostMessage(e.target.value);
   };
+
+  const noOp = () => {};
 
   return (
     <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
@@ -22,6 +24,7 @@ const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, select
               rows={4}
               onBlur={onMessageChange}
               defaultValue={postMessage}
+              disabled={isSubmitting}
               />
           </Form.Group>
           <PostRecipesPreview 
@@ -30,21 +33,27 @@ const CreateEditPostModal = ({ show, postId, postMessage, setPostMessage, select
             onClearRecipes={clearSelectedRecipes} 
             onEditCaption={onEditCaption}
             isFilterDeleted={postId != null}
+            disableEditButton={isSubmitting}
             />
-          <div className='mt-3 text-center' onClick={onAddARecipe}>
-            <span className='h5 cursor-pointer'>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
+          <div className='mt-3 text-center' onClick={isSubmitting ? noOp : onAddARecipe}>
+            <span className={'h5 cursor-pointer' + (isSubmitting ? ' text-muted' : '')}>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
           </div>
           <div className='d-grid mt-3'>
             <Button 
-              variant='primary' 
+              disabled={isSubmitting}
+              variant={isSubmitting ? 'secondary' : 'primary'}
               type='submit' 
               onClick={postId == null ? onCreateSubmit : onUpdateSubmit}
-              size='md'>{postId == null ? 'Post' : 'Update'}</Button>
+              size='md'>{isSubmitting ? 'Submitting...' : (postId == null ? 'Post' : 'Update')}</Button>
           </div>
         </Form>
       </Modal.Body>
     </Modal>
   );
+};
+
+CreateEditPostModal.defaultProps = {
+  isSubmitting: false,
 };
 
 export default CreateEditPostModal;

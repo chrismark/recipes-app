@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Form, Container, Row, Col, Card } from 'react-bootstrap';
+import { useQueryClient, useMutation } from 'react-query';
 import Paginate from './Paginate';
 import CreateEditPostModal from './CreateEditPostModal';
 import SelectRecipeModal from './SelectRecipeModal';
@@ -12,21 +13,19 @@ import CreatePostModalLauncher from './CreateEditPostModalLauncher';
 import { useUserPosts } from './postStore';
 
 const Posts = ({ user, byUser }) => {
-  console.log('Posts:', user);
+  console.log('Post rerender');
   const [selectedRecipes, setSelectedRecipes] = useState([]);
   const [postId, setPostId] = useState(null);
   const [postMessage, setPostMessage] = useState('');
-  // const [posts, setPosts] = useState([]);
   const [pageOffset, setPageOffset] = useState(0);
   const useUserPostsResult = useUserPosts(user?.uuid, user?.token, pageOffset);
-  console.log('useUserPostsResult: ', useUserPostsResult);
   const { data: posts, error, isFetching, isLoading } = useUserPostsResult;
   const [showForm, setShowForm] = useState(false);
   const [showCreateEditPostModal, setShowCreateEditPostModal] = useState(false);
   const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   const [postsByUser, setPostsByUser] = useState(true);
-  // const [isFetching, setIsFetching] = useState(false);
+  const queryClient = useQueryClient();
   const size = 20;
   const postCount = 300;
 
@@ -135,6 +134,24 @@ const Posts = ({ user, byUser }) => {
     }
   };
 
+  const createPostMutation = useMutation(
+    createPost,
+    {
+      onMutate: async post => {
+        console.log('createPostMutation');
+        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
+        return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
+      },
+      onSuccess: function (data, variables, previousValue) {
+        // add new post to cache
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [data, ...previousValue]);
+      },
+      onError: (err, variables, previousValue) => {
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
+      }
+    }
+  );
+
   const onCreatePostSubmit = async (e) => {
     e.preventDefault();
     console.log('POST: ', selectedRecipes);
@@ -147,15 +164,12 @@ const Posts = ({ user, byUser }) => {
       message: postMessage,
       recipes: recipes
     };
-    let post = await createPost(newPost);
+    const post = await createPostMutation.mutateAsync(newPost);
     console.log('New post: ', post);
     toast('New post added!');
     setShowCreateEditPostModal(false);
     setSelectedRecipes([]);
     setPostMessage('');
-    // setPosts([post, ...posts]);
-
-    // TODO: Do something if it fails
   };
 
   const onUpdatePostSubmit = async (e) => {
@@ -285,10 +299,10 @@ const Posts = ({ user, byUser }) => {
               </Col>
             ))}
           </Row>
-          {posts && posts.length > 0 && (<>
+          {/* {posts && posts.length > 0 && (<>
             <br/><br/>
             <Paginate totalCount={postCount} pageOffset={pageOffset} size={size} dataSource={posts} onPage={getPage} />
-          </>)}
+          </>)} */}
           </div>
         </Col>
         <Col className='right-sidebar'>
@@ -311,6 +325,7 @@ const Posts = ({ user, byUser }) => {
           selectedRecipes={selectedRecipes}
           setSelectedRecipes={setSelectedRecipes}
           clearSelectedRecipes={clearSelectedRecipes} 
+          isSubmitting={createPostMutation.isLoading}
           />
         <SelectRecipeModal 
           postId={postId} 

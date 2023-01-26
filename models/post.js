@@ -117,14 +117,17 @@ module.exports = {
       let createdPost = await this._createPost(postToCreate);
       console.log('createdPost: ', createdPost);
       // Create new 'recipes_post'
-      let recipesPost = await this._createRecipesPost(createdPost, post.recipes);
+      let recipesPost = null;
+      if (post.recipes && post.recipes.length > 0) {
+         recipesPost = await this._createRecipesPost(createdPost, post.recipes);
+      }
       let postStatsCount = await this._createPostStatsCount(createdPost);
       return {
         id: createdPost.id,
         message: createdPost.message,
         user_id: createdPost.user_id,
         posted_on: createdPost.posted_on,
-        recipes: recipesPost,
+        recipes: recipesPost || [],
         stats: postStatsCount,
       };
     }

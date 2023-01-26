@@ -40,22 +40,30 @@ const PostRecipesPreviewClear = ({ onClick }) => {
   );
 };
 
-const PostRecipesPreviewEditButton = ({ onClick }) => {
+const PostRecipesPreviewEditButton = ({ onClick, disabled }) => {
   return (
     <div style={{position: 'absolute', zIndex: 9999, display: 'block'}}>
-      <Button variant='primary' className='m-2' onClick={onClick}>Edit Captions</Button>
+      <Button variant={disabled ? 'secondary' : 'primary'} className='m-2' onClick={onClick} disabled={disabled}>Edit Captions</Button>
     </div>
   );
 };
 
-const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption }) => {
+PostRecipesPreviewEditButton.defaultProps = {
+  disabled: false,
+};
+
+const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption, disableEditButton }) => {
   return (
     <div style={{position: 'relative'}}>
-      <PostRecipesPreviewClear onClick={onClear} />
-      <PostRecipesPreviewEditButton onClick={onEditCaption} />
+      {!disableEditButton && <PostRecipesPreviewClear onClick={onClear} />}
+      <PostRecipesPreviewEditButton onClick={onEditCaption} disabled={disableEditButton}  />
       {children}
     </div>
   );
+};
+
+PostRecipesPreviewEditWrapper.defaultProps = {
+  disableEditButton: false,
 };
 
 const PostRecipesPreviewDisplayWrapper = ({ children }) => {
@@ -193,14 +201,14 @@ PostRecipesPreviewThumbnails.defaultProps = {
   isClickable: false,
 };
 
-const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
+const PostRecipesPreview = ({ disableEditButton, recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
   if (recipes.length >= 1) {
     if (isFilterDeleted) {
       recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
     }
     return (
       <div className='post-recipes-preview'>
-        <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption}>
+        <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption} disableEditButton={disableEditButton}>
           <PostRecipesPreviewThumbnails recipes={recipes} />
         </PostRecipesPreviewEditWrapper>
       </div>
@@ -213,6 +221,7 @@ const PostRecipesPreview = ({ recipes, onClearRecipes, onEditCaption, isFilterDe
 
 PostRecipesPreview.defaultProps = {
   isFilterDeleted: false,
+  disableEditButton: false,
 };
 
 const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
