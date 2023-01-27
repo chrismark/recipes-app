@@ -116,9 +116,9 @@ const Posts = ({ user, byUser }) => {
     }
   };
 
-  const updatePost = async (postId, payload) => {
+  const updatePost = async (payload) => {
     try {
-      const result = await fetch(`/api/users/${user.uuid}/posts/${postId}`, {
+      const result = await fetch(`/api/users/${user.uuid}/posts/${payload.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +147,35 @@ const Posts = ({ user, byUser }) => {
         queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [data, ...previousValue]);
       },
       onError: (err, variables, previousValue) => {
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
+        // TODO: do something on error
+        toast('Something happened while creating the post. Please try again later.');
+        // queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
+      }
+    }
+  );
+
+  const updatePostMutation = useMutation(
+    updatePost,
+    {
+      onMutate: async post => {
+        console.log('createPostMutation');
+        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
+        return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
+      },
+      onSuccess: function (data, variables, previousValue) {
+        // update post in cache
+        let index = previousValue.findIndex(p => p.id == data.id);
+        if (index != -1) {
+          previousValue[index].message = data.message;
+          previousValue[index].recipes = data.recipes;
+          previousValue[index].stats = data.stats;
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+        }
+      },
+      onError: (err, variables, previousValue) => {
+        // TODO: do something on error
+        toast('Something happened while updating the post. Please try again later.');
+        // queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
       }
     }
   );
@@ -188,22 +216,17 @@ const Posts = ({ user, byUser }) => {
         return {post_id, id, caption, deleted, order: order++};
       });
       let editPost = {
+        id: postId,
         message: postMessage,
         recipes: recipes
       };
       console.log('PATCH POST ', editPost);
-      let post = await updatePost(postId, editPost);
+      let post = await updatePostMutation.mutateAsync(editPost);
       console.log('Update post: ', post);
-      // find and update post
-      let index = posts.findIndex(p => p.id == postId);
-      posts[index].message = post.message;
-      posts[index].recipes = post.recipes;
       setShowCreateEditPostModal(false);
       setPostId(null);
       setPostMessage('');
       setSelectedRecipes([]);
-      // setPosts([...posts]);
-      
       toast('Updated post!');
       // TODO: Do something if it fails
     }
@@ -325,7 +348,7 @@ const Posts = ({ user, byUser }) => {
           selectedRecipes={selectedRecipes}
           setSelectedRecipes={setSelectedRecipes}
           clearSelectedRecipes={clearSelectedRecipes} 
-          isSubmitting={createPostMutation.isLoading}
+          isSubmitting={createPostMutation.isLoading || updatePostMutation.isLoading}
           />
         <SelectRecipeModal 
           postId={postId} 

@@ -1,13 +1,13 @@
 import { useState, useRef, useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
+import { useMutation } from 'react-query';
 import { FaRegThumbsUp, FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
-import { AppContext } from '../../app-context.js';
+import { AppContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
 import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
 
 const PostActions = ({post, onLike, onShowComments}) => {
-  console.log('PostActions post', post);
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
@@ -64,7 +64,7 @@ const PostActions = ({post, onLike, onShowComments}) => {
     }, DELAY);
   };
 
-  const updateLike = async (post, user, payload) => {
+  const updateLike = async ({ post, user, payload }) => {
     console.log('updateLike', post, user, payload);
     try {
       const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/like`, {
@@ -82,6 +82,30 @@ const PostActions = ({post, onLike, onShowComments}) => {
       console.error(e);
     }
   };
+
+  const updateLikeMutation = useMutation(
+    updateLike,
+    {
+      onMutate: async post => {
+        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
+        return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
+      },
+      onSuccess: function (data, variables, previousValue) {
+        // update post in cache
+        let index = previousValue.findIndex(p => p.id == data.id);
+        if (index != -1) {
+          previousValue[index].message = data.message;
+          previousValue[index].recipes = data.recipes;
+          previousValue[index].stats = data.stats;
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+        }
+      },
+      onError: (err, variables, previousValue) => {
+        // TODO: do something on error
+        toast('Something happened while liking the post. Please try again later.');
+      }
+    }
+  )
 
   const onClickLike = async (value) => {
     console.log('onClickLike', value, user);

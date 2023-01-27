@@ -5,7 +5,6 @@ import PostActions from './PostActions';
 import PostComments from './PostComments';
 
 const PostFooter = ({ post }) => {
-  console.log('PostFooter post', post);
   let [showComments, setShowComments] = useState(false);
 
   const doShowComments = () => {

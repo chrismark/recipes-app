@@ -10,7 +10,7 @@ import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
 import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import MainContainer from './components/MainContainer';
 import PostFullscreen from './components/Post/PostFullscreen';
-import { AppContext } from './app-context.js';
+import { AppContext } from './appContext.js';
 import './App.css';
 
 // TODO: Create AppContext to store the user object
