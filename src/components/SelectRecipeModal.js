@@ -84,7 +84,7 @@ const ActualSelectRecipeModal = ({ user, show, postId, onSelect, onClose, select
         delete localSelectedRecipes[index]['deleted'];
         console.log('Removing ' + recipe.name + ' from localDeleteMap.');
       }
-      else {
+      else { // add to selected list
         localSelectedRecipes.push(JSON.parse(JSON.stringify(recipe)));
       }
       setLocalSelectedRecipes([...localSelectedRecipes]);
@@ -101,7 +101,7 @@ const ActualSelectRecipeModal = ({ user, show, postId, onSelect, onClose, select
         localSelectedRecipesMap[recipe.id] = false;
         setLocalSelectedRecipes([...localSelectedRecipes]);
       }
-      else {
+      else {// remove from selected list
         let leftRecipes = localSelectedRecipes.slice(0, index);
         let rightRecipes = localSelectedRecipes.slice(index + 1);
         setLocalSelectedRecipes([...leftRecipes, ...rightRecipes]);

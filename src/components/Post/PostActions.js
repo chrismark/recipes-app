@@ -1,13 +1,13 @@
 import { useState, useRef, useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useMutation } from 'react-query';
-import { FaRegThumbsUp, FaRegCommentAlt, FaShare } from 'react-icons/fa';
+import { FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
 import { AppContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
 import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
+import { LikeTypes } from './LikeButton';
 
-const PostActions = ({post, onLike, onShowComments}) => {
+const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
@@ -64,52 +64,9 @@ const PostActions = ({post, onLike, onShowComments}) => {
     }, DELAY);
   };
 
-  const updateLike = async ({ post, user, payload }) => {
-    console.log('updateLike', post, user, payload);
-    try {
-      const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/like`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      const json = await result.json();
-      return json;
-    }
-    catch (e) {
-      console.error(e);
-    }
-  };
-
-  const updateLikeMutation = useMutation(
-    updateLike,
-    {
-      onMutate: async post => {
-        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
-        return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
-      },
-      onSuccess: function (data, variables, previousValue) {
-        // update post in cache
-        let index = previousValue.findIndex(p => p.id == data.id);
-        if (index != -1) {
-          previousValue[index].message = data.message;
-          previousValue[index].recipes = data.recipes;
-          previousValue[index].stats = data.stats;
-          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
-        }
-      },
-      onError: (err, variables, previousValue) => {
-        // TODO: do something on error
-        toast('Something happened while liking the post. Please try again later.');
-      }
-    }
-  )
-
   const onClickLike = async (value) => {
     console.log('onClickLike', value, user);
-    setShow(false);
+    setShow(s => false);
     if (hideTimeout.current) {
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
@@ -118,15 +75,27 @@ const PostActions = ({post, onLike, onShowComments}) => {
       clearTimeout(showTimeout.current);
       showTimeout.current = null;
     }
-    const result = await updateLike(post, user, {like: value});
+    const payload = {
+      like: value
+    };
+    if (post.like_type != null) {
+      payload.prev = LikeTypes[post.like_type].value;
+    }
+    console.log('payload', payload);
+    if (payload.like == payload.prev) {
+      delete payload.prev;
+      await onUnlike({post, user, payload});
+    }
+    else {
+      await onLike({post, user, payload});
+    }
   };
 
   return (
     <>
       <Row className='m-0 mt-1 mb-1'>
         <Col className='p-0'>
-          <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut} onClick={() => onClickLike(1)}>
-            {/* <small className={post.liked ? 'post-action-like' : ''}><FaRegThumbsUp className='fs-4 pb-1' />Like</small> */}
+          <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut} onClick={() => onClickLike(post.liked ? LikeTypes[post.like_type].value : 1)}>
             <LikeButtonIconText isLiked={post.liked} type={post.like_type} />
           </PostButton>
         </Col>

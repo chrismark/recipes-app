@@ -293,25 +293,29 @@ module.exports = {
     }
   },
   like: async function(userUuid, postId, like) {
-    LIKE_SCHEMA.parse(like);
     let trx = null;
     let postLike = null;
     let updatedPostStat = null;
     try {
+      LIKE_SCHEMA.parse(like);
       trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       // create post_likes
       postLike = await this._createUpdatePostLike(trx, postId, user[0].id, like);
       console.log('new post like: ', postLike);
-      if (postLike && postLike.length > 0) {
-        // update post stats count after
-        updatedPostStat = await this._incrementLikeStatsCount(trx, postId, like);
-        console.log('updated post stat: ', updatedPostStat);
-      }
+      // update post stats count after
+      updatedPostStat = await this._incrementLikeStatsCount(trx, postId, like);
+      console.log('updated post stat: ', updatedPostStat);
+
       if (!trx.isCompleted()) {
         await trx.commit();
       }
-      return (updatedPostStat && updatedPostStat[0]) || {};
+
+      return {
+        post_id: postId,
+        like_type: LIKE_VAL_TO_COL[like.like - 1],
+        stats: updatedPostStat[0]
+      }
     }
     catch (e) {
       if (trx) {
@@ -321,25 +325,28 @@ module.exports = {
       return null;
     }
   },
-  unlike: async function(userUuid, postId) {
+  unlike: async function(userUuid, postId, like) {
     let trx = null;
     let postLike = null;
     let updatedPostStat = null;
     try {
+      LIKE_SCHEMA.parse(like);
       trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       // removed post_likes
-      postLike = await this._removePostLike(trx, postId, user[0].id, like);
+      postLike = await this._removePostLike(trx, postId, user[0].id);
       console.log('deleted post like: ', postLike);
-      if (postLike && postLike.length > 0) {
-        // update post stats count after
-        updatedPostStat = await this._decrementLikeStatsCount(trx, postId, {like: postLike[0].type});
-        console.log('updated post stat: ', updatedPostStat);
-      }
+      // update post stats count after
+      updatedPostStat = await this._decrementLikeStatsCount(trx, postId, like);
+      console.log('updated post stat: ', updatedPostStat);
+
       if (!trx.isCompleted()) {
         await trx.commit();
       }
-      return (updatedPostStat && updatedPostStat[0]) || {};
+      return {
+        post_id: postId,
+        stats: updatedPostStat[0]
+      }
     }
     catch (e) {
       if (trx) {
@@ -387,7 +394,7 @@ module.exports = {
       let col = LIKE_VAL_TO_COL[like.like - 1];
       let query = trx('post_stats_count')
         .increment(col, 1);
-      let returnCols = ['id', 'post_id', col];
+      let returnCols = [col];
       if (like.prev) {
         // decrement previous like column
         let prev_col = LIKE_VAL_TO_COL[like.prev - 1];
@@ -410,7 +417,7 @@ module.exports = {
       let query = trx('post_stats_count')
         .decrement(col, 1)
         .where({post_id: postId})
-        .returning(['id', 'post_id', col]);
+        .returning([col]);
       console.log('_updateLike: ', query.toString());
       return await query;
     }

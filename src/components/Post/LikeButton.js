@@ -3,14 +3,16 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { FaRegThumbsUp, FaRegHeart, FaRegGrinHearts, FaRegGrinSquint, FaRegSadTear, FaRegSurprise, FaRegAngry } from 'react-icons/fa';
 
 const LikeTypes = {
-  'like': { text: 'Like', value: 1, tag: FaRegThumbsUp },
-  'love': { text: 'Love', value: 2, tag: FaRegHeart },
-  'care': { text: 'Care', value: 3, tag: FaRegGrinHearts },
-  'laugh': { text: 'Laugh', value: 4, tag: FaRegGrinSquint },
-  'sad': { text: 'Sad', value: 5, tag: FaRegSadTear },
-  'surprise': { text: 'Surprise', value: 6, tag: FaRegSurprise },
-  'angry': { text: 'Angry', value: 7, tag: FaRegAngry },
+  'like': { key: 'like', text: 'Like', value: 1, tag: FaRegThumbsUp },
+  'love': { key: 'love', text: 'Love', value: 2, tag: FaRegHeart },
+  'care': { key: 'care', text: 'Care', value: 3, tag: FaRegGrinHearts },
+  'laugh': { key: 'laugh', text: 'Laugh', value: 4, tag: FaRegGrinSquint },
+  'sad': { key: 'sad', text: 'Sad', value: 5, tag: FaRegSadTear },
+  'surprise': { key: 'surprise', text: 'Surprise', value: 6, tag: FaRegSurprise },
+  'angry': { key: 'angry', text: 'Angry', value: 7, tag: FaRegAngry },
 };
+
+const LikeTypesByZeroIndex = Object.values(LikeTypes);
 
 const LikeButtonPopupIcon = ({ type, onClick }) => {
   let data = LikeTypes[type];
@@ -41,4 +43,4 @@ const LikeButtonIconText = ({ isLiked, type, onClick }) => {
   );
 }
 
-export { LikeButtonPopupIcon, LikeButtonIconText, LikeTypes };
+export { LikeButtonPopupIcon, LikeButtonIconText, LikeTypes, LikeTypesByZeroIndex };

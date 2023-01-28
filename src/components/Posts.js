@@ -11,6 +11,7 @@ import Post from './Post/Post';
 import PostPlaceholder from './Post/PostPlaceholder';
 import CreatePostModalLauncher from './CreateEditPostModalLauncher';
 import { useUserPosts } from './postStore';
+import { LikeTypesByZeroIndex } from './Post/LikeButton';
 
 const Posts = ({ user, byUser }) => {
   console.log('Post rerender');
@@ -29,12 +30,8 @@ const Posts = ({ user, byUser }) => {
   const size = 20;
   const postCount = 300;
 
-  // useEffect(() => {
-  //   console.log('fetch Posts: run when pageOffset changes');
-  //   if (user) {
-  //     getPosts();
-  //   }
-  // }, [page]);
+  // TODO: Continuosly load more posts when user scrolls to bottom most
+  // TODO: Load posts made by user
 
   const getPage = (page) => {
     page = parseInt(page);
@@ -43,60 +40,6 @@ const Posts = ({ user, byUser }) => {
     }
     setPageOffset((page - 1) * size);
   };
-
-  // const getPosts = async () => {
-  //   console.log('getPosts: byUser=', postsByUser);
-  //   setIsFetching(true);
-  //   if (postsByUser) {
-  //     // Fetch posts
-  //     await fetchUserPosts(user);
-  //   }
-  //   else {
-  //     await fetchAllPosts(user);
-  //   }
-  //   setIsFetching(false);
-  // };
-
-  // const fetchAllPosts = async({token}) => {
-  //   try {
-  //     const result = await fetch(`/api/posts`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       }
-  //     });
-  //     let data = await result.json();
-  //     // TODO: Remove after testing
-  //     // Fill up posts with dummy objects
-  //     data = [];
-  //     for (let i = pageOffset, m = i + size; i < m && i < postCount; i++) {
-  //       data.push({id: i});
-  //     }
-  //     console.log('posts: ', data);
-  //     setPosts(data);
-  //   }
-  //   catch (e) {
-  //     console.error(e);
-  //   }
-  // };
-
-  // const fetchUserPosts = async ({uuid, token}) => {
-  //   try {
-  //     const result = await fetch(`/api/users/${uuid}/posts`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       }
-  //     });
-  //     const posts = await result.json();
-  //     setPosts(posts);
-  //   }
-  //   catch (e) {
-  //     console.error(e);
-  //   }
-  // };
 
   const createPost = async (payload) => {
     try {
@@ -149,7 +92,6 @@ const Posts = ({ user, byUser }) => {
       onError: (err, variables, previousValue) => {
         // TODO: do something on error
         toast('Something happened while creating the post. Please try again later.');
-        // queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
       }
     }
   );
@@ -175,7 +117,6 @@ const Posts = ({ user, byUser }) => {
       onError: (err, variables, previousValue) => {
         // TODO: do something on error
         toast('Something happened while updating the post. Please try again later.');
-        // queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
       }
     }
   );
@@ -228,12 +169,140 @@ const Posts = ({ user, byUser }) => {
       setPostMessage('');
       setSelectedRecipes([]);
       toast('Updated post!');
-      // TODO: Do something if it fails
     }
     catch (e) {
       console.log('Error updating: ', e);
     }
   };
+
+  const updateLike = async ({ post, user, payload }) => {
+    console.log('updateLike', post, user, payload);
+    try {
+      const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/like`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await result.json();
+      return json;
+    }
+    catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateLikeMutation = useMutation(
+    updateLike,
+    {
+      onMutate: async variables => {
+        console.log('onMutate variables', variables);
+        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset]);
+        const previousValue = queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset]);
+
+        // Do optimistic update on cached post
+        let index = previousValue.findIndex(p => p.id == variables.post.id);
+        if (index != -1) {
+          const post = previousValue[index];
+          post.liked = true;
+          post.like_type = LikeTypesByZeroIndex[variables.payload.like - 1].key;
+          post.stats[post.like_type]++;
+          if (variables.payload.prev) {
+            const prev_type = LikeTypesByZeroIndex[variables.payload.prev - 1].key;
+            post.stats[prev_type]--;
+          }
+          post.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + post.stats[c.key], 0);
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+          console.log('onMuate done with Optimistic Update');
+        }
+
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        // update post in cache
+        let index = previousValue.findIndex(p => p.id == variables.post.id);
+        if (index != -1) {
+          const post = previousValue[index];
+          post.liked = true;
+          post.like_type = data.like_type;
+          for (const p in data.stats) {
+            post.stats[p] = data.stats[p];  
+          }
+          post.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + post.stats[c.key], 0);
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+        }
+      },
+      onError: (err, variables, previousValue) => {
+        // TODO: do something on error
+        toast('Something happened while liking the post. Please try again later.');
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
+      }
+    }
+  );
+
+  const updateUnlike = async ({ post, user, payload }) => {
+    console.log('updateLike', post, user, payload);
+    try {
+      const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/unlike`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await result.json();
+      return json;
+    }
+    catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateUnlikeMutation = useMutation(
+    updateUnlike,
+    {
+      onMutate: async variables => {
+        console.log('onMutate variables', variables);
+        await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset]);
+        const previousValue = queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset]);
+        // Do optimistic update on cached post
+        let index = previousValue.findIndex(p => p.id == variables.post.id);
+        if (index != -1) {
+          const post = previousValue[index];
+          post.liked = false;
+          post.stats[post.like_type]--;
+          post.like_type = null;
+          post.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + post.stats[c.key], 0);
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+          console.log('onMuate done with Optimistic Update');
+        }
+        // return unchanged values in case we want to revert in onError()
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        // update post in cache
+        let index = previousValue.findIndex(p => p.id == variables.post.id);
+        if (index != -1) {
+          const post = previousValue[index];
+          post.liked = false;
+          post.like_type = null;
+          for (const p in data.stats) {
+            post.stats[p] = data.stats[p];  
+          }
+          post.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + post.stats[c.key], 0);
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+        }
+      },
+      onError: (err, variables, previousValue) => {
+        // TODO: do something on error
+        toast('Something happened while unliking the post. Please try again later.');
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
+      }
+    }
+  );
 
   const onCreateEditPostClose = () => {
     console.log('')
@@ -318,7 +387,7 @@ const Posts = ({ user, byUser }) => {
             </>)}
             {posts && posts.map(post => (
               <Col className='justify-content-md-center' key={post.id}>
-                <Post user={user} post={post} onEditPost={onEditPost} />
+                <Post user={user} post={post} onEditPost={onEditPost} onLike={updateLikeMutation.mutateAsync} onUnlike={updateUnlikeMutation.mutateAsync} />
               </Col>
             ))}
           </Row>
