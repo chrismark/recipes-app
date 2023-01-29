@@ -8,6 +8,8 @@ import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
 import { LikeTypes } from './LikeButton';
 
 const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
+  // TODO: Why does this rerender on all posts?
+  // console.log('PostActions rerender');
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
@@ -64,7 +66,7 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
     }, DELAY);
   };
 
-  const onClickLike = async (value) => {
+  const onClickLike = (value) => {
     console.log('onClickLike', value, user);
     setShow(s => false);
     if (hideTimeout.current) {
@@ -84,10 +86,10 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
     console.log('payload', payload);
     if (payload.like == payload.prev) {
       delete payload.prev;
-      await onUnlike({post, user, payload});
+      onUnlike({post, user, payload});
     }
     else {
-      await onLike({post, user, payload});
+      onLike({post, user, payload});
     }
   };
 

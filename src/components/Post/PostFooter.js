@@ -5,6 +5,8 @@ import PostActions from './PostActions';
 import PostComments from './PostComments';
 
 const PostFooter = ({ post, onLike, onUnlike }) => {
+  // TODO: Why does all PostFooter have to rerender?
+  // console.log('PostFooter rerender');
   let [showComments, setShowComments] = useState(false);
 
   const doShowComments = () => {

@@ -1,10 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useMemo } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
-import { PostRecipesPreviewDisplay } from '../PostRecipesPreview';
+import PostContent from './PostContent';
 
 const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
+  console.log('Post rerender');
   const navigate = useNavigate();
 
   const handleItemClick = (index) => {
@@ -17,8 +18,7 @@ const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
   <Card className='post'>
     <Card.Body style={{paddingTop: '.5rem', paddingBottom: '.1rem'}}>
       <PostHeader user={user} post={post} onClickEdit={onEditPost} />
-      <p>{post.message}</p>
-      <PostRecipesPreviewDisplay recipes={post.recipes} isClickable={true} onClick={handleItemClick} />
+      <PostContent post={post} onClickItem={handleItemClick} />
       <PostFooter user={user} post={post} onLike={onLike} onUnlike={onUnlike} />
     </Card.Body>
   </Card>
