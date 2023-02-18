@@ -82,13 +82,15 @@ module.exports = {
   },
   _fetchPostStatsCountByPostId: async function(postId, transaction = null) {
     let query = db('post_stats_count').select(FETCH_POST_STATS_COUNT)
-      .where('post_id', postId);
+      .where('post_id', postId)
+      // NULLS FIRST will mean stats for post is at index 0 of returned array of stats
+      .orderBy([{column: 'recipe_id', nulls: 'first'}]); 
     if (transaction != null) {
       query.transacting(transaction);
     }
     console.log('query: ', query.toString());
     const result = await query;
-    return result[0];
+    return result;
   },
   /**
    * Create new post and recipes_post entries
@@ -97,35 +99,45 @@ module.exports = {
    * @returns {object[]}
    */
   create: async function(userUuid, post) {
+    let trx = null;
     try {
-      // TODO: Use transactions
+      trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       console.log('user: ', user);
-      // Create new 'post'
+
       let postToCreate = {
         user_id: user[0].id,
         message: post.message
       };
-      let createdPost = await this._createPost(postToCreate);
+      let createdPost = await this._createPost(trx, postToCreate);
       console.log('createdPost: ', createdPost);
-      // Create new 'recipes_post'
-      let recipesPost = null;
+
+      let recipesPost = [];
       if (post.recipes && post.recipes.length > 0) {
-         recipesPost = await this._createRecipesPost(createdPost, post.recipes);
+         recipesPost = await this._createRecipesPost(trx, createdPost, post.recipes);
       }
-      let postStatsCount = await this._createPostStatsCount(createdPost);
+
+      let postStatsCount = await this._createPostStatsCount(trx, createdPost, recipesPost);
+
+      if (!trx.isCompleted()) {
+        await trx.commit();
+      }
+
       return {
         id: createdPost.id,
         message: createdPost.message,
         user_id: createdPost.user_id,
         posted_on: createdPost.posted_on,
-        recipes: recipesPost || [],
+        recipes: recipesPost,
         stats: postStatsCount,
       };
     }
     catch (e) {
+      if (trx != null) {
+        trx.rollback();
+      }
       console.error(e);
-      return [];
+      return {};
     }
   },
   /**
@@ -134,16 +146,16 @@ module.exports = {
   * @param {string[]} [returnFields=null]
   * @returns {object[]}
   */
-  _createPost: async function(post, returnFields = '*') {
+  _createPost: async function(trx, post, returnFields = '*') {
     try {
-      let newPost = await db('posts').insert(post).returning(
-        returnFields
-      );
+      let newPost = await trx('posts')
+      .insert(post)
+      .returning(returnFields);
       return newPost[0];
     }
     catch (e) {
       console.error(e);
-      return null;
+      throw e;
     }
   },
   /**
@@ -151,12 +163,12 @@ module.exports = {
    * @param {number} userId 
    * @param {object[]} recipes 
    */
-  _createRecipesPost: async function(post, recipes, returnFields = 'id, name, thumbnail_url, aspect_ratio') {
+  _createRecipesPost: async function(trx, post, recipes, returnFields = 'id, name, thumbnail_url, aspect_ratio') {
     try {
       // compose props array for insertion
       let recipePosts = recipes.map((recipe, index) => ({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption, order: index }));
-      let query = db.with('inserted_recipes_post', 
-          db('recipes_post').insert(recipePosts).returning(['post_id', 'order', 'recipe_id', 'caption'])
+      let query = trx.with('inserted_recipes_post', 
+          trx('recipes_post').insert(recipePosts).returning(['post_id', 'order', 'recipe_id', 'caption'])
         )
         .select(FETCH_RECIPES_POST_FIELDS_MINIMAL)
         .from('inserted_recipes_post as recipes_post')
@@ -167,20 +179,29 @@ module.exports = {
     }
     catch (e) {
       console.error(e);
-      return [];
+      throw e;
     }
   },
-  _createPostStatsCount: async function(post) {
+  _createPostStatsCount: async function(trx, post, recipes) {
     try {
-      let query = db('post_stats_count')
-        .insert({post_id: post.id})
-        .returning(FETCH_POST_STATS_COUNT);
-      let result = await query;
-      return result[0];
+      let values = [{post_id: post.id}];
+      for (let i = 0; i < recipes.length; i++) {
+        values.push({post_id: post.id, recipe_id: recipes[0].id})
+      }
+      let query = trx.with('create_post_stats_count', db => 
+        trx('post_stats_count')
+          .insert(values)
+          .returning(FETCH_POST_STATS_COUNT)
+      )
+      .select('*')
+      .from('create_post_stats_count')
+      // Sort in a way so stats for the post will be at index 0 of returned array
+      .orderBy({column: 'recipe_id', nulls: 'first'}); 
+      return await query;
     }
     catch (e) {
       console.error(e);
-      return {};
+      throw e;
     }
   },
   update: async function(userUuid, postId, post) {
@@ -199,16 +220,18 @@ module.exports = {
       for (let i = 0; i < updateRecipesPost.length; i++) {
         await this._updateRecipesPost(trx, updateRecipesPost[i]);
       }
-      // Delete existing recipes_post and matching recipes_post_comments
+      // Delete existing recipes_post
       let deleteRecipesPost = post.recipes.filter(rp => rp.deleted == true);
-      for (let i = 0; i < deleteRecipesPost.length; i++) {
-        await this._deleteRecipesPost(trx, deleteRecipesPost[i]);
-      }
+      await this._deleteRecipesPost(trx, postId, deleteRecipesPost);
+      // Delete matching recipes_post_comments
+      await this._deleteRecipesPostComments(trx, postId, deleteRecipesPost);
+      // Delete existing post_likes, post_shares, and post_stats_count
+      await this._deletePostLikes(trx, postId, deleteRecipesPost);
+      await this._deletePostShares(trx, postId, deleteRecipesPost);
+      await this._deletePostStatsCount(trx, postId, deleteRecipesPost);
       // Create recipes_post
       let createRecipesPost = post.recipes.filter(rp => rp.post_id == undefined);
-      for (let i = 0; i < createRecipesPost.length; i++) {
-        await this._createRecipesPostOnly(trx, updatedPost, createRecipesPost[i]);
-      }
+      await this._createRecipesPostOnly(trx, postId, createRecipesPost);
 
       let recipes = await this._fetchRecipesPostByPostId(updatedPost.id, trx);
       let stats = await this._fetchPostStatsCountByPostId(updatedPost.id, trx);
@@ -225,16 +248,19 @@ module.exports = {
       };
     }
     catch (e) {
-      trx.rollback();
+      if (trx != null) {
+        trx.rollback();
+      }
       console.log(e);
       return null;
     }
   },
   _updatePost: async function(trx, {id, message}, returnFields = '*') {
     try {
-      let updatedPost = await trx('posts').update({message}).where({id}).returning(
-        returnFields
-      );
+      let updatedPost = await trx('posts')
+      .update({message})
+      .where({id})
+      .returning(returnFields);
       return updatedPost[0];
     }
     catch (e) {
@@ -253,14 +279,63 @@ module.exports = {
     }
     catch (e) {
       console.error(e);
-      return [];
+      throw e;
     }
   },
-  _createRecipesPostOnly: async function(trx, post, recipe) {
+  _createRecipesPostOnly: async function(trx, postId, recipes) {
     try {
-      // compose props array for insertion
+      const values = recipes.map(recipe => ({
+        post_id: postId,
+        recipe_id: recipe.id, 
+        caption: recipe.caption, 
+        order: recipe.order
+      }));
+      let query = trx('recipes_post').insert(values);
+      console.log('query: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+  _deleteRecipesPost: async function(trx, postId, recipes) {
+    try {
+      const recipeIds = recipes.map(rp => rp.id);
       let query = trx('recipes_post')
-        .insert({ post_id: post.id, recipe_id: recipe.id, caption: recipe.caption, order: recipe.order });
+        .where('post_id', postId)
+        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .delete();
+      console.log('query: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+  _deleteRecipesPostComments: async function(trx, postId, recipes) {
+    try {
+      const recipeIds = recipes.map(rp => rp.id);
+      let query = trx('recipes_post_comments')
+        .where('post_id', postId)
+        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .delete();
+      console.log('query: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+  _deletePostLikes: async function(trx, postId, recipes) {
+    try {
+      const recipeIds = recipes.map(rp => rp.id);
+      let query = trx('post_likes')
+        .where('post_id', postId)
+        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .delete();
       console.log('query: ', query.toString());
       return await query;
     }
@@ -269,11 +344,27 @@ module.exports = {
       return [];
     }
   },
-  _deleteRecipesPost: async function(trx, recipe_post) {
+  _deletePostShares: async function(trx, postId, recipes) {
     try {
-      // compose props array for insertion
-      let query = trx('recipes_post')
-        .where({post_id: recipe_post.post_id, recipe_id: recipe_post.id})
+      const recipeIds = recipes.map(rp => rp.id);
+      let query = trx('post_shares')
+        .where('post_id', postId)
+        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .delete();
+      console.log('query: ', query.toString());
+      return await query;
+    }
+    catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+  _deletePostStatsCount: async function(trx, postId, recipes) {
+    try {
+      const recipeIds = recipes.map(rp => rp.id);
+      let query = trx('post_stats_count')
+        .where('post_id', postId)
+        .andWhere(() => this.whereIn('recipe_id', recipeIds))
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -285,7 +376,7 @@ module.exports = {
   },
   delete: async function(userUuid, post) {
     try {
-      // TODO: 
+      // TODO: Delete post
     }
     catch (e) {
       console.log(e);
