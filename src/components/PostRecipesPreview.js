@@ -77,8 +77,8 @@ const PostRecipesPreviewDisplayWrapper = ({ children }) => {
 const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
   let classNamesTopRow = recipes.length > 0 ? 'mt-3 g-0' : '';
   let classNamesBtmRow = recipes.length > 0 ? 'g-0' : '';
-  const createHandler = (handler, num) => {
-    return () => handler(num);
+  const createHandler = (handler, index) => {
+    return (recipe) => handler(index, recipe);
   };
 
   if (recipes.length == 1) {

@@ -8,18 +8,17 @@ const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
   console.log('Post rerender');
   const navigate = useNavigate();
 
-  const handleItemClick = (index) => {
-    console.log('Clicked ', index);
+  const handleItemClick = (index, recipe) => {
+    console.log('Clicked ', index, recipe);
     navigate('/posts/' + post.id +'/recipes/', {state: {post: post, index: index}});
   }
   
-
   return (
   <Card className='post'>
     <Card.Body style={{paddingTop: '.5rem', paddingBottom: '.1rem'}}>
       <PostHeader user={user} post={post} onClickEdit={onEditPost} />
       <PostContent post={post} onClickItem={handleItemClick} />
-      <PostFooter user={user} post={post} onLike={onLike} onUnlike={onUnlike} />
+      <PostFooter user={user} post={post} recipeIndex={0} onLike={onLike} onUnlike={onUnlike} />
     </Card.Body>
   </Card>
   );

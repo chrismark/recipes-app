@@ -11,6 +11,9 @@ const PostFullscreen = ({ user }) => {
   const { post: localPost, index } = location.state;
   const [post, setPost] = useState(localPost);
   const [activeIndex, setActiveIndex] = useState(index);
+  const [message, setMessage] = useState(post.recipes.length > 1 ? post.recipes[index].caption : post.message);
+
+  console.log('PostFullscreen', post.recipes[activeIndex]);
 
   // TODO: Fetch post from react-query using client provider ONLY if post isn't available
   const onClose = (e) => {
@@ -20,6 +23,7 @@ const PostFullscreen = ({ user }) => {
 
   const onSelect = (selectedIndex, e) => {
     setActiveIndex(selectedIndex);
+    setMessage(post.recipes[selectedIndex].caption);
   }
 
   return (
@@ -37,11 +41,11 @@ const PostFullscreen = ({ user }) => {
                 ))}
               </Carousel>
             </Col>
-            <Col style={{background: 'rgb(36, 37, 38)', color: 'rgb(238, 230, 235)'}} className='postfullscreen-comments'>
+            <Col className='postfullscreen-comments'>
               <div className='postfullscreen-header-spacer'></div>
               <PostHeader user={user} post={post} />
-              <p>{post.message}</p>
-              <PostFooter user={user} post={post} />
+              <p>{message}</p>
+              <PostFooter user={user} post={post} recipeIndex={activeIndex+1} />
             </Col>
           </Row>
         </Container>

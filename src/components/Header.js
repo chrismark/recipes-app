@@ -27,7 +27,6 @@ const Header = ({ user }) => {
               <NavDropdown
                 id='account-dropdown'
                 title={'Account (' + (user.username ? user.username : user.firstname) + ')'}
-                menuVariant='dark'
               >
                 <NavDropdown.Item as={Link} to='/profile'>Profile</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to='/your-posts'>Your Posts</NavDropdown.Item>
@@ -67,7 +66,7 @@ const HeaderMinimal = ({ user, style = {}, id='', className='', onClose }) => {
             <NavDropdown
               id='account-dropdown'
               title={'Account (' + (user.username ? user.username : user.firstname) + ')'}
-              menuVariant='dark'
+              variant='primary'
             >
               <NavDropdown.Item as={Link} to='/profile'>Profile</NavDropdown.Item>
               <NavDropdown.Item as={Link} to='/your-posts'>Your Posts</NavDropdown.Item>

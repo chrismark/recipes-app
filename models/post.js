@@ -8,7 +8,7 @@ const LIKE_SCHEMA = z.object({
   prev: z.number().gte(1).lte(7).optional()
 });
 const LIKE_VAL_TO_COL = ['like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry'];
-const FETCH_POST_STATS_COUNT = ['like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry', db.raw('"like" + "love" + "care" + "laugh" + "sad" + "surprise" + "angry" as total_likes'), 'comments', 'shares'];
+const FETCH_POST_STATS_COUNT = ['recipe_id', 'like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry', db.raw('"like" + "love" + "care" + "laugh" + "sad" + "surprise" + "angry" as total_likes'), 'comments', 'shares'];
 
 module.exports = {
   find: async function(fields, selectFields = '*') {
@@ -84,7 +84,7 @@ module.exports = {
     let query = db('post_stats_count').select(FETCH_POST_STATS_COUNT)
       .where('post_id', postId)
       // NULLS FIRST will mean stats for post is at index 0 of returned array of stats
-      .orderBy([{column: 'recipe_id', nulls: 'first'}]); 
+      .orderByRaw(`(select recipes_post."order" from recipes_post where recipes_post.post_id = ${postId} and recipes_post.recipe_id = post_stats_count.recipe_id) nulls first`); 
     if (transaction != null) {
       query.transacting(transaction);
     }
@@ -115,6 +115,10 @@ module.exports = {
       let recipesPost = [];
       if (post.recipes && post.recipes.length > 0) {
          recipesPost = await this._createRecipesPost(trx, createdPost, post.recipes);
+      }
+      if (recipesPost.length == 1) {
+        // if there's only one recipes_post then we only need one post_stats_count record for the post
+        recipesPost = [];
       }
 
       let postStatsCount = await this._createPostStatsCount(trx, createdPost, recipesPost);
@@ -182,13 +186,14 @@ module.exports = {
       throw e;
     }
   },
-  _createPostStatsCount: async function(trx, post, recipes) {
+  _createPostStatsCount: async function(trx, post, recipes, recipes_post_only = false) {
     try {
-      let values = [{post_id: post.id}];
-      for (let i = 0; i < recipes.length; i++) {
-        values.push({post_id: post.id, recipe_id: recipes[0].id})
+      // these are for the recipes_post
+      let values = recipes.map(recipe => ({post_id: post.id, recipe_id: recipe.id}));
+      if (!recipes_post_only) {
+        values.unshift({post_id: post.id}); 
       }
-      let query = trx.with('create_post_stats_count', db => 
+      let query = trx.with('create_post_stats_count', 
         trx('post_stats_count')
           .insert(values)
           .returning(FETCH_POST_STATS_COUNT)
@@ -196,7 +201,7 @@ module.exports = {
       .select('*')
       .from('create_post_stats_count')
       // Sort in a way so stats for the post will be at index 0 of returned array
-      .orderBy({column: 'recipe_id', nulls: 'first'}); 
+      .orderByRaw(`(select recipes_post."order" from recipes_post where recipes_post.post_id = ${postId} and recipes_post.recipe_id = post_stats_count.recipe_id) nulls first`);
       return await query;
     }
     catch (e) {
@@ -211,7 +216,8 @@ module.exports = {
       // Update post
       let editPost = {
         id: postId,
-        message: post.message
+        message: post.message,
+        updated_on: knex.fn.now()
       };
       let updatedPost = await this._updatePost(trx, editPost);
 
@@ -229,9 +235,13 @@ module.exports = {
       await this._deletePostLikes(trx, postId, deleteRecipesPost);
       await this._deletePostShares(trx, postId, deleteRecipesPost);
       await this._deletePostStatsCount(trx, postId, deleteRecipesPost);
-      // Create recipes_post
+      // Create recipes_post and post_stats_count
       let createRecipesPost = post.recipes.filter(rp => rp.post_id == undefined);
       await this._createRecipesPostOnly(trx, postId, createRecipesPost);
+      if ((updateRecipesPost.length + createRecipesPost.length) > 1) {
+        await this._createPostStatsCount(trx, {post_id: postId}, createRecipesPost, 
+          /*recipes_post_only:*/ true);
+      }
 
       let recipes = await this._fetchRecipesPostByPostId(updatedPost.id, trx);
       let stats = await this._fetchPostStatsCountByPostId(updatedPost.id, trx);
@@ -243,6 +253,7 @@ module.exports = {
       return {
         id: updatedPost.id,
         message: updatedPost.message,
+        updated_on: updatedPost.updated_on,
         recipes: recipes,
         stats: stats,
       };

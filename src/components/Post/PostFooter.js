@@ -4,10 +4,12 @@ import PostStats from './PostStats';
 import PostActions from './PostActions';
 import PostComments from './PostComments';
 
-const PostFooter = ({ post, onLike, onUnlike }) => {
+const PostFooter = ({ post, recipeIndex, onLike, onUnlike }) => {
   // TODO: Why does all PostFooter have to rerender?
   // console.log('PostFooter rerender');
   let [showComments, setShowComments] = useState(false);
+
+  console.log('PostFooter', recipeIndex, post.stats[recipeIndex]);
 
   const doShowComments = () => {
     setShowComments(true);
@@ -15,7 +17,7 @@ const PostFooter = ({ post, onLike, onUnlike }) => {
 
   return (
     <div className='post-footer'>
-      {(post.stats.total_likes > 0 || post.stats.comments > 0 || post.stats.shares > 0) && <PostStats post={post} />}
+      {(post.stats[recipeIndex]?.total_likes > 0 || post.stats[recipeIndex].comments > 0 || post.stats[recipeIndex].shares > 0) && <PostStats post={post} recipeIndex={recipeIndex} />}
       <PostActions 
         post={post}
         onLike={onLike}
@@ -25,6 +27,10 @@ const PostFooter = ({ post, onLike, onUnlike }) => {
       <PostComments show={showComments} post={post} />
     </div>
   );
+};
+
+PostFooter.defaultProps = {
+  recipeIndex: 0,
 };
 
 export default PostFooter;

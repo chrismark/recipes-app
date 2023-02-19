@@ -1,3 +1,8 @@
+:root {
+  --theme-dark-bg: rgb(36, 37, 38);
+  --theme-dark-text-color: rgb(238, 230, 235);
+}
+
 div.postfullscreen {
   height: 100vh;
   flex-flow: row;
@@ -10,6 +15,7 @@ div.postfullscreen-header-spacer {
   margin-right: calc(1.5rem * -.5);
   z-index: 1;
 }
+
 div.postfullscreen-viewer {
 
 }
@@ -35,6 +41,12 @@ div.postfullscreen-comments .post-header {
   .postfullscreen-header {
     --bs-bg-opacity: 0 !important;
     background: transparent !important;
+  }
+  #postfullscreen-header .navbar-nav .nav-link {
+    color: var(--bs-body-color);
+  }
+  div.postfullscreen-header-spacer {
+    border-color:  rgba(0,0,0,.125);
   }
 }
 
