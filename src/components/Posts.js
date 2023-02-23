@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Form, Container, Row, Col, Card } from 'react-bootstrap';
 import { useQueryClient, useMutation } from 'react-query';
 import Paginate from './Paginate';
+import { AppContext } from '../appContext.js';
 import CreateEditPostModal from './CreateEditPostModal';
 import SelectRecipeModal from './SelectRecipeModal';
 import AddRecipeCaptionModal from './AddRecipeCaptionModal';
@@ -12,87 +13,15 @@ import PostPlaceholder from './Post/PostPlaceholder';
 import CreatePostModalLauncher from './CreateEditPostModalLauncher';
 import { useUserPosts } from './postStore';
 import { LikeTypesByZeroIndex } from './Post/LikeButton';
-
-const createPost = async ({ user, payload }) => {
-  try {
-    const result = await fetch(`/api/users/${user.uuid}/posts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const post = await result.json();
-    return post;
-  }
-  catch (e) {
-    console.error(e);
-  }
-};
-
-const updatePost = async ({ user, payload }) => {
-  try {
-    const result = await fetch(`/api/users/${user.uuid}/posts/${payload.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const post = await result.json();
-    return post;
-  }
-  catch (e) {
-    console.error(e);
-  }
-};
-
-const updateLike = async ({ post, user, payload }) => {
-  console.log('updateLike', post, user, payload);
-  try {
-    const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/like`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const json = await result.json();
-    return json;
-  }
-  catch (e) {
-    console.error(e);
-  }
-};
-
-const updateUnlike = async ({ post, user, payload }) => {
-  console.log('updateLike', post, user, payload);
-  try {
-    const result = await fetch(`/api/users/${user.uuid}/posts/${post.id}/unlike`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify(payload)
-    });
-    const json = await result.json();
-    return json;
-  }
-  catch (e) {
-    console.error(e);
-  }
-};
+import { createPost, updatePost, doUpdateLike, doUpdateUnlike } from './postLib';
 
 const Posts = ({ user, byUser }) => {
-  console.log('Posts rerender');
+  // console.log('Posts rerender');
   const [selectedRecipes, setSelectedRecipes] = useState([]);
   const [postId, setPostId] = useState(null);
   const [postMessage, setPostMessage] = useState('');
-  const [pageOffset, setPageOffset] = useState(0);
+  // const [pageOffset, setPageOffset] = useState(0);
+  const [{ user: currentUser, pageOffset }, dispatch] = useContext(AppContext);
   const useUserPostsResult = useUserPosts(user?.uuid, user?.token, pageOffset);
   const { data: posts, error, isFetching, isLoading } = useUserPostsResult;
   const [showForm, setShowForm] = useState(false);
@@ -104,6 +33,8 @@ const Posts = ({ user, byUser }) => {
   const size = 20;
   const postCount = 300;
 
+  console.log('Posts', 'currentUser:', currentUser, 'pageOffset:', pageOffset);
+
   // TODO: Continuosly load more posts when user scrolls to bottom most
   // TODO: Load posts made by user
 
@@ -112,23 +43,29 @@ const Posts = ({ user, byUser }) => {
     if (isNaN(page) || page < 1) {
       page = 1;
     }
-    setPageOffset((page - 1) * size);
+    dispatch({ type: 'update_pageOffset', pageOffset: (page - 1) * size });
   };
 
   const createPostMutation = useMutation(
     createPost,
     {
       onMutate: async post => {
-        console.log('createPostMutation');
+        console.log('createPostMutation onMutate');
         await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
         return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
       },
       onSuccess: function (data, variables, previousValue) {
+        console.log('createPostMutation onSuccess:', data, variables);
+        if (data.errorMessage) {
+          return;
+        }
         // add new post to cache
         queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [data, ...previousValue]);
       },
       onError: (err, variables, previousValue) => {
+        console.log('createPostMutation onError:', err, variables);
         // TODO: do something on error
+        console.log(err, variables, previousValue);
         toast('Something happened while creating the post. Please try again later.');
       }
     }
@@ -138,11 +75,14 @@ const Posts = ({ user, byUser }) => {
     updatePost,
     {
       onMutate: async post => {
-        console.log('createPostMutation');
+        console.log('updatePostMutation');
         await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset])
         return queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset])
       },
       onSuccess: function (data, variables, previousValue) {
+        if (data.errorMessage) {
+          return;
+        }
         // update post in cache
         let index = previousValue.findIndex(p => p.id == data.id);
         if (index != -1) {
@@ -154,6 +94,7 @@ const Posts = ({ user, byUser }) => {
       },
       onError: (err, variables, previousValue) => {
         // TODO: do something on error
+        console.log(err, variables, previousValue);
         toast('Something happened while updating the post. Please try again later.');
       }
     }
@@ -171,135 +112,69 @@ const Posts = ({ user, byUser }) => {
       message: postMessage,
       recipes: recipes
     };
-    const post = await createPostMutation.mutateAsync({ user, newPost });
+    const post = await createPostMutation.mutateAsync({user, payload: newPost});
     console.log('New post: ', post);
-    toast('New post added!');
-    setShowCreateEditPostModal(false);
-    setSelectedRecipes([]);
-    setPostMessage('');
+    if (post.errorMessage) {
+      toast('Something happened while creating the post. Please try again later.');  
+    }
+    else {
+      toast('New post added!');
+      setShowCreateEditPostModal(false);
+      setSelectedRecipes([]);
+      setPostMessage('');
+    }
   };
 
   const onUpdatePostSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      console.log('Update POST: ', selectedRecipes);
-      console.log('Update Post Message: ', postMessage);
-      console.log('Update Post Id: ', postId);
-      // remove unneeded fields
-      let order = 0;
-      let recipes = selectedRecipes.map(r => {
-        let {post_id, id, caption, deleted} = r;
-        if (deleted) {
-          return {post_id, id, caption, deleted};
-        }
-        return {post_id, id, caption, deleted, order: order++};
-      });
-      let editPost = {
-        id: postId,
-        message: postMessage,
-        recipes: recipes
-      };
-      console.log('PATCH POST ', editPost);
-      let post = await updatePostMutation.mutateAsync({user, editPost});
-      console.log('Update post: ', post);
+    e.preventDefault();
+    console.log('Update POST: ', selectedRecipes);
+    console.log('Update Post Message: ', postMessage);
+    console.log('Update Post Id: ', postId);
+    // remove unneeded fields
+    let order = 0;
+    let recipes = selectedRecipes.map(r => {
+      let {post_id, id, caption, deleted} = r;
+      if (deleted) {
+        return {post_id, id, caption, deleted};
+      }
+      return {post_id, id, caption, deleted, order: order++};
+    });
+    let editPost = {
+      id: postId,
+      message: postMessage,
+      recipes: recipes
+    };
+    console.log('PATCH POST ', editPost);
+    let post = await updatePostMutation.mutateAsync({user, payload: editPost});
+    console.log('Update post: ', post);
+    if (post.errorMessage) {
+      toast('Something happened while updating the post. Please try again later.');
+    }
+    else {
       setShowCreateEditPostModal(false);
       setPostId(null);
       setPostMessage('');
       setSelectedRecipes([]);
       toast('Updated post!');
     }
-    catch (e) {
-      console.log('Error updating: ', e);
-    }
   };
   //
   // TODO: Make it so not all posts rerender when a single post is liked
   //
-  const handleUpdateLike = async ({post, user, payload}) => {
-    let previousValue = null;
-    try {
-      await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset]);
-      previousValue = queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset]);
-
-      // Do optimistic update on cached post
-      let index = previousValue.findIndex(p => p.id == post.id);
-      if (index != -1) {
-        const curPost = previousValue[index];
-        curPost.liked = true;
-        curPost.like_type = LikeTypesByZeroIndex[payload.like - 1].key;
-        curPost.stats[curPost.like_type]++;
-        curPost.stats.total_likes++;
-        if (payload.prev) {
-          const prev_type = LikeTypesByZeroIndex[payload.prev - 1].key;
-          curPost.stats[prev_type]--;
-          curPost.stats.total_likes--;
-        }
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-        console.log('handleUpdateUnlike Done doing optimistic update.');
-      }
-
-      // do call
-      const data = await updateLike({post, user, payload});
-      
-      // do onsuccess here
-      index = previousValue.findIndex(p => p.id == post.id);
-      if (index != -1) {
-        const curPost = previousValue[index];
-        curPost.liked = true;
-        curPost.like_type = data.like_type;
-        for (const p in data.stats) {
-          curPost.stats[p] = data.stats[p];  
-        }
-        curPost.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + curPost.stats[c.key], 0);
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-      }
-    }
-    catch (e) {
-      console.log('handleUpdateUnlike', e);
-      toast('Something happened while unliking the post. Please try again later.');
-      queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-    }
+  const onLikeError = (e) => {
+    toast('Something happened while liking the post. Please try again later.');
   };
 
-  const handleUpdateUnlike = async ({post, user, payload}) => {
-    let previousValue = null;
-    try {
-      await queryClient.cancelQueries(['user-posts', user?.uuid, user?.token, pageOffset]);
-      previousValue = queryClient.getQueryData(['user-posts', user?.uuid, user?.token, pageOffset]);
+  const onUnlikeError = (e) => {
+    toast('Something happened while unliking the post. Please try again later.');
+  };
 
-      // Do optimistic update on cached post
-      let index = previousValue.findIndex(p => p.id == post.id);
-      if (index != -1) {
-        const curPost = previousValue[index];
-        curPost.liked = false;
-        curPost.stats[curPost.like_type]--;
-        curPost.like_type = null;
-        curPost.stats.total_likes--;
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-        console.log('handleUpdateUnlike Done doing optimistic update.');
-      }
+  const handleUpdateLike = async (payload) => {
+    await doUpdateLike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], null, onLikeError);
+  };
 
-      // do call
-      const data = await updateUnlike({post, user, payload});
-      
-      // do onsuccess here
-      index = previousValue.findIndex(p => p.id == post.id);
-      if (index != -1) {
-        const curPost = previousValue[index];
-        curPost.liked = false;
-        post.like_type = null;
-        for (const p in data.stats) {
-          curPost.stats[p] = data.stats[p];  
-        }
-        curPost.stats.total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + curPost.stats[c.key], 0);
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-      }
-    }
-    catch (e) {
-      console.log('handleUpdateUnlike', e);
-      toast('Something happened while unliking the post. Please try again later.');
-      queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
-    }
+  const handleUpdateUnlike = async (payload) => {
+    await doUpdateUnlike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], null, onUnlikeError);
   };
 
   const onCreateEditPostClose = () => {

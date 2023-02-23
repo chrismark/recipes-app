@@ -20,7 +20,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [fetchedValue, setFetchedValue] = useState('');
   const [posts, setPosts] = useState([]);
-  const [currentUser, setCurrentUser] = useContext(AppContext);
+  const [state, dispatch] = useContext(AppContext);
 
   useEffect(() => {
     (async function() {
@@ -77,14 +77,14 @@ const App = () => {
 
   const onPostLogin = (data) => {
     setUser(data);
-    setCurrentUser(data);
+    dispatch({ type: 'update_user', user: data });
     console.log('onPostLogin');
     navigate('/');
   };
 
   const onPostRegister = (data) => {
     setUser(data);
-    setCurrentUser(data);
+    dispatch({ type: 'update_user', user: data });
     console.log('onPostRegister');
     navigate('/');
   };

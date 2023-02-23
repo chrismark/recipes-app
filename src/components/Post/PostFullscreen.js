@@ -1,19 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Modal, Container, Row, Col, Carousel, Image } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
+import { AppContext } from '../../appContext.js';
+import { toast } from '../Toaster';
 import { HeaderMinimal } from '../Header';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
+import { doUpdateLike, doUpdateUnlike } from '../postLib';
 
 const PostFullscreen = ({ user }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [{ pageOffset }] = useContext(AppContext);
   const { post: localPost, index } = location.state;
   const [post, setPost] = useState(localPost);
   const [activeIndex, setActiveIndex] = useState(index);
+  // if there is only one associated recipe, then take from post.message, else take from recipe.caption
   const [message, setMessage] = useState(post.recipes.length > 1 ? post.recipes[index].caption : post.message);
+  const queryClient = useQueryClient();
 
-  console.log('PostFullscreen', post.recipes[activeIndex]);
+  console.log('PostFullscreen', post, activeIndex);
+  console.log('pageOffset', pageOffset);
 
   // TODO: Fetch post from react-query using client provider ONLY if post isn't available
   const onClose = (e) => {
@@ -24,7 +32,23 @@ const PostFullscreen = ({ user }) => {
   const onSelect = (selectedIndex, e) => {
     setActiveIndex(selectedIndex);
     setMessage(post.recipes[selectedIndex].caption);
-  }
+  };
+
+  const onLikeError = (e) => {
+    toast('Something happened while liking the post. Please try again later.');
+  };
+
+  const onUnlikeError = (e) => {
+    toast('Something happened while unliking the post. Please try again later.');
+  };
+
+  const handleUpdateLike = async (payload) => {
+    await doUpdateLike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], setPost, onLikeError);
+  };
+
+  const handleUpdateUnlike = async (payload) => {
+    await doUpdateUnlike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], setPost, onUnlikeError);
+  };
 
   return (
     <Modal show={true} fullscreen={true}>
@@ -45,7 +69,7 @@ const PostFullscreen = ({ user }) => {
               <div className='postfullscreen-header-spacer'></div>
               <PostHeader user={user} post={post} />
               <p>{message}</p>
-              <PostFooter user={user} post={post} recipeIndex={activeIndex+1} />
+              <PostFooter user={user} post={post} recipeIndex={activeIndex} statIndex={activeIndex+1} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
             </Col>
           </Row>
         </Container>

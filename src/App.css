@@ -75,10 +75,14 @@ div.postfullscreen-comments .post-header {
     display: none;
   }
 }
-
-.post-recipes-preview-display .card-img-top, .selectable-recipe .card-img-top {
-  height: 100%;
+/* Make images with different width and height combination appear the same inside a square container */
+.post-recipes-preview .card-img-top, .post-recipes-preview-display .card-img-top, .selectable-recipe .card-img-top, div.tasty-recipes div.card img.card-img-top {
   object-fit: cover;
+  object-position: center;
+  aspect-ratio: 1 / 1;
+}
+.add-recipe-caption-modal .card-img-top {
+  align-self: center;
 }
 .post-action-like {
   color: blue;

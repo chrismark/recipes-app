@@ -22,9 +22,7 @@ const CardSelectableRecipe = ({recipe, onToggleClick, selectionMap}) => {
       onClick={onToggleClick}
       tooltip='test'
     >
-      <Card.Img variant='top' src={recipe.thumbnail_url} style={{
-        width: (recipe.aspect_ratio === '16:9' ? '177.5%' : '')
-      }} />
+      <Card.Img variant='top' src={recipe.thumbnail_url} />
       {selectionMap.hasOwnProperty(recipe.id) && (
       <>
         <Card.Body style={{position: 'absolute', width: '100%', height: '100%'}} className=''>

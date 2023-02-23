@@ -1,15 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
+import { BsReplyAll } from 'react-icons/bs';
 
 const QuickRecipe = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) => {
-  const style = {
-    // Make the images same size
-    width: (recipe.aspect_ratio === '16:9' ? '177.5%' : '')
-  };
   return (
     <Card style={{overflow: 'hidden'}} border={activeCardId === recipe.id ? 'warning' : ''}>
-      <Card.Img variant='top' src={recipe.thumbnail_url} style={style} />
+      <Card.Img variant='top' src={recipe.thumbnail_url} />
       {isNew && (<CardImgBadge type='danger'>new</CardImgBadge>)}
       <Card.Body>
         <Card.Title>{recipe.name}</Card.Title>

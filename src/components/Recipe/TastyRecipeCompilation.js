@@ -18,7 +18,6 @@ const QuickRecipeCompilation = ({ activeCardId, isNew, compilation, compilationI
     }
     return copyText;
   };
-
   return (
     <Card as={Accordion} flush key={compilation.id} border={activeCardId === compilation.id ? 'warning' : ''}>
       <Card.Img variant='top' src={compilation.thumbnail_url} />
