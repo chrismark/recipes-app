@@ -48,11 +48,16 @@ module.exports = {
           'WHEN post_likes.type = 6 THEN \'surprise\' ' +
           'WHEN post_likes.type = 7 THEN \'angry\' ' +
         'END AS like_type'
-      )
+      ),
+      db.raw('COALESCE(users.username, users.firstname || \' \' || users.lastname) AS name'),
     ])
+    .leftJoin('users', function() {
+      this.on('users.id', '=', 'posts.user_id')
+    })
     .leftJoin('post_likes', function() {
       this.on('post_likes.post_id', '=', 'posts.id')
-          .andOn('post_likes.user_id', '=', user[0].id);
+          .andOn('post_likes.user_id', '=', user[0].id)
+          .andOn(db.raw('post_likes.recipe_id is null'))
     });
     if (offset != -1) {
       offset = Math.max(0, offset * FETCH_PAGINATION_LIMIT);
@@ -63,15 +68,35 @@ module.exports = {
     let posts = await query;
     // loop thru posts and fetch associated recipes
     for (let i = 0; i < posts.length; i++) {
-      posts[i].recipes = await this._fetchRecipesPostByPostId(posts[i].id);
+      posts[i].recipes = await this._fetchRecipesPostByPostId(posts[i].id, user);
       posts[i].stats = await this._fetchPostStatsCountByPostId(posts[i].id);
     }
     console.log('posts: ', posts);
     return posts;
   },
-  _fetchRecipesPostByPostId: async function(postId, transaction = null) {
-    let query = db('recipes_post').select(FETCH_RECIPES_POST_FIELDS_MINIMAL)
+  _fetchRecipesPostByPostId: async function(postId, user, transaction = null) {
+    let query = db('recipes_post').select(
+        FETCH_RECIPES_POST_FIELDS_MINIMAL.concat([
+          db.raw('CASE WHEN post_likes.id IS NULL THEN false ELSE true END AS liked'),
+          db.raw(
+            'CASE ' +
+              'WHEN post_likes.type = 1 THEN \'like\' ' +
+              'WHEN post_likes.type = 2 THEN \'love\' ' +
+              'WHEN post_likes.type = 3 THEN \'care\' ' +
+              'WHEN post_likes.type = 4 THEN \'laugh\' ' +
+              'WHEN post_likes.type = 5 THEN \'sad\' ' +
+              'WHEN post_likes.type = 6 THEN \'surprise\' ' +
+              'WHEN post_likes.type = 7 THEN \'angry\' ' +
+            'END AS like_type'
+          )
+        ])
+      )
       .leftJoin('recipes', 'recipes.id', 'recipes_post.recipe_id')
+      .leftJoin('post_likes', function () {
+        this.on('post_likes.post_id', postId)
+            .andOn('post_likes.user_id', '=', user[0].id)
+            .andOn('post_likes.recipe_id', 'recipes_post.recipe_id')
+      })
       .where('recipes_post.post_id', postId)
       .orderBy('order', 'asc');
     if (transaction != null) {
@@ -102,7 +127,9 @@ module.exports = {
     let trx = null;
     try {
       trx = await db.transaction();
-      const user = await db('users').select('id').where({uuid: userUuid});
+      const user = await trx('users')
+        .select(['id', trx.raw('COALESCE(users.username, users.firstname || \' \' || users.lastname) AS name')])
+        .where({uuid: userUuid});
       console.log('user: ', user);
 
       let postToCreate = {
@@ -116,12 +143,11 @@ module.exports = {
       if (post.recipes && post.recipes.length > 0) {
          recipesPost = await this._createRecipesPost(trx, createdPost, post.recipes);
       }
-      if (recipesPost.length == 1) {
-        // if there's only one recipes_post then we only need one post_stats_count record for the post
-        recipesPost = [];
-      }
 
-      let postStatsCount = await this._createPostStatsCount(trx, createdPost, recipesPost);
+      let postStatsCount = await this._createPostStatsCount(trx, createdPost, 
+        // if there's only one recipes_post then we only need one post_stats_count record for the post
+        // so we pass an empty array
+        recipesPost.length == 1 ? [] : recipesPost);
 
       if (!trx.isCompleted()) {
         await trx.commit();
@@ -131,6 +157,7 @@ module.exports = {
         id: createdPost.id,
         message: createdPost.message,
         user_id: createdPost.user_id,
+        name: user[0].name,
         posted_on: createdPost.posted_on,
         recipes: recipesPost,
         stats: postStatsCount,
@@ -141,7 +168,7 @@ module.exports = {
         trx.rollback();
       }
       console.error(e);
-      return {};
+      throw e;
     }
   },
   /**
@@ -201,7 +228,9 @@ module.exports = {
       .select('*')
       .from('create_post_stats_count')
       // Sort in a way so stats for the post will be at index 0 of returned array
-      .orderByRaw(`(select recipes_post."order" from recipes_post where recipes_post.post_id = ${postId} and recipes_post.recipe_id = post_stats_count.recipe_id) nulls first`);
+      // while the rest are sorted by recipes_post.order (same as post.recipes in client)
+      .orderByRaw(trx.raw('(select recipes_post."order" from recipes_post where recipes_post.post_id = ? and recipes_post.recipe_id = create_post_stats_count.recipe_id) nulls first', post.id));
+      console.log(query.toString());
       return await query;
     }
     catch (e) {
@@ -213,11 +242,12 @@ module.exports = {
     let trx = null;
     try {
       trx = await db.transaction();
+      const user = await trx('users').select('id').where({uuid: userUuid});
       // Update post
       let editPost = {
         id: postId,
         message: post.message,
-        updated_on: knex.fn.now()
+        updated_on: db.fn.now()
       };
       let updatedPost = await this._updatePost(trx, editPost);
 
@@ -228,22 +258,27 @@ module.exports = {
       }
       // Delete existing recipes_post
       let deleteRecipesPost = post.recipes.filter(rp => rp.deleted == true);
-      await this._deleteRecipesPost(trx, postId, deleteRecipesPost);
-      // Delete matching recipes_post_comments
-      await this._deleteRecipesPostComments(trx, postId, deleteRecipesPost);
-      // Delete existing post_likes, post_shares, and post_stats_count
-      await this._deletePostLikes(trx, postId, deleteRecipesPost);
-      await this._deletePostShares(trx, postId, deleteRecipesPost);
-      await this._deletePostStatsCount(trx, postId, deleteRecipesPost);
+      if (deleteRecipesPost.length > 0) {
+        await this._deleteRecipesPost(trx, postId, deleteRecipesPost);
+        // Delete matching recipes_post_comments
+        await this._deleteRecipesPostComments(trx, postId, deleteRecipesPost);
+        // Delete existing post_likes, post_shares, and post_stats_count
+        await this._deletePostLikes(trx, postId, deleteRecipesPost);
+        await this._deletePostShares(trx, postId, deleteRecipesPost);
+        await this._deletePostStatsCount(trx, postId, deleteRecipesPost);
+      }
       // Create recipes_post and post_stats_count
       let createRecipesPost = post.recipes.filter(rp => rp.post_id == undefined);
-      await this._createRecipesPostOnly(trx, postId, createRecipesPost);
-      if ((updateRecipesPost.length + createRecipesPost.length) > 1) {
-        await this._createPostStatsCount(trx, {post_id: postId}, createRecipesPost, 
-          /*recipes_post_only:*/ true);
+      if (createRecipesPost.length > 0) {
+        await this._createRecipesPostOnly(trx, postId, createRecipesPost);
+        // create additional post_stats_count if sum of recipes_posts updated + created is more than 1
+        if ((updateRecipesPost.length + createRecipesPost.length) > 1) {
+          await this._createPostStatsCount(trx, {id: postId}, createRecipesPost, 
+            /*recipes_post_only:*/ true);
+        }
       }
-
-      let recipes = await this._fetchRecipesPostByPostId(updatedPost.id, trx);
+      
+      let recipes = await this._fetchRecipesPostByPostId(updatedPost.id, user, trx);
       let stats = await this._fetchPostStatsCountByPostId(updatedPost.id, trx);
 
       if (!trx.isCompleted()) {
@@ -263,7 +298,7 @@ module.exports = {
         trx.rollback();
       }
       console.log(e);
-      return null;
+      throw e;
     }
   },
   _updatePost: async function(trx, {id, message}, returnFields = '*') {
@@ -315,7 +350,7 @@ module.exports = {
       const recipeIds = recipes.map(rp => rp.id);
       let query = trx('recipes_post')
         .where('post_id', postId)
-        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .andWhere(function () { this.whereIn('recipe_id', recipeIds); })
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -330,7 +365,7 @@ module.exports = {
       const recipeIds = recipes.map(rp => rp.id);
       let query = trx('recipes_post_comments')
         .where('post_id', postId)
-        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .andWhere(function () { this.whereIn('recipe_id', recipeIds); })
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -345,7 +380,7 @@ module.exports = {
       const recipeIds = recipes.map(rp => rp.id);
       let query = trx('post_likes')
         .where('post_id', postId)
-        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .andWhere(function () { this.whereIn('recipe_id', recipeIds); })
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -360,7 +395,7 @@ module.exports = {
       const recipeIds = recipes.map(rp => rp.id);
       let query = trx('post_shares')
         .where('post_id', postId)
-        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .andWhere(function () { this.whereIn('recipe_id', recipeIds); })
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -375,7 +410,7 @@ module.exports = {
       const recipeIds = recipes.map(rp => rp.id);
       let query = trx('post_stats_count')
         .where('post_id', postId)
-        .andWhere(() => this.whereIn('recipe_id', recipeIds))
+        .andWhere(function () { this.whereIn('recipe_id', recipeIds); })
         .delete();
       console.log('query: ', query.toString());
       return await query;
@@ -394,7 +429,7 @@ module.exports = {
       return null;
     }
   },
-  like: async function(userUuid, postId, like) {
+  like: async function(userUuid, postId, recipeId, like) {
     let trx = null;
     let postLike = null;
     let updatedPostStat = null;
@@ -403,10 +438,10 @@ module.exports = {
       trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       // create post_likes
-      postLike = await this._createUpdatePostLike(trx, postId, user[0].id, like);
+      postLike = await this._createUpdatePostLike(trx, postId, user[0].id, recipeId, like);
       console.log('new post like: ', postLike);
       // update post stats count after
-      updatedPostStat = await this._incrementLikeStatsCount(trx, postId, like);
+      updatedPostStat = await this._incrementLikeStatsCount(trx, postId, recipeId, like);
       console.log('updated post stat: ', updatedPostStat);
 
       if (!trx.isCompleted()) {
@@ -427,7 +462,7 @@ module.exports = {
       return null;
     }
   },
-  unlike: async function(userUuid, postId, like) {
+  unlike: async function(userUuid, postId, recipeId, like) {
     let trx = null;
     let postLike = null;
     let updatedPostStat = null;
@@ -436,15 +471,16 @@ module.exports = {
       trx = await db.transaction();
       const user = await db('users').select('id').where({uuid: userUuid});
       // removed post_likes
-      postLike = await this._removePostLike(trx, postId, user[0].id);
+      postLike = await this._removePostLike(trx, postId, user[0].id, recipeId);
       console.log('deleted post like: ', postLike);
       // update post stats count after
-      updatedPostStat = await this._decrementLikeStatsCount(trx, postId, like);
+      updatedPostStat = await this._decrementLikeStatsCount(trx, postId, recipeId, like);
       console.log('updated post stat: ', updatedPostStat);
 
       if (!trx.isCompleted()) {
         await trx.commit();
       }
+
       return {
         post_id: postId,
         stats: updatedPostStat[0]
@@ -458,15 +494,16 @@ module.exports = {
       return null;
     }
   },
-  _createUpdatePostLike: async function(trx, postId, userId, like) {
+  _createUpdatePostLike: async function(trx, postId, userId, recipeId, like) {
     try {
       let query = trx('post_likes')
         .insert({
           post_id: postId,
           user_id: userId,
-          type: like.like
+          type: like.like,
+          recipe_id: recipeId,
         })
-        .onConflict(['post_id', 'user_id'])
+        .onConflict(['post_id', 'user_id', 'recipe_id'])
         .merge(['type'])
         .returning('*');
       console.log('query: ', query.toString());
@@ -477,10 +514,10 @@ module.exports = {
       throw e;
     }
   },
-  _removePostLike: async function(trx, postId, userId) {
+  _removePostLike: async function(trx, postId, userId, recipeId) {
     try {
       let query = trx('post_likes')
-        .where({ post_id: postId, user_id: userId})
+        .where({ post_id: postId, user_id: userId, recipe_id: recipeId })
         .delete()
         .returning('*');
       console.log('query: ', query.toString());
@@ -491,7 +528,7 @@ module.exports = {
       throw e;
     }
   },
-  _incrementLikeStatsCount: async function(trx, postId, like) {
+  _incrementLikeStatsCount: async function(trx, postId, recipeId, like) {
     try {
       let col = LIKE_VAL_TO_COL[like.like - 1];
       let query = trx('post_stats_count')
@@ -503,7 +540,7 @@ module.exports = {
         query = query.decrement(prev_col, 1);
         returnCols.push(prev_col);
       }
-      query = query.where({post_id: postId})
+      query = query.where({ post_id: postId, recipe_id: recipeId })
         .returning(returnCols);
       console.log('_updateLike: ', query.toString());
       return await query;
@@ -513,12 +550,12 @@ module.exports = {
       throw e;
     }
   },
-  _decrementLikeStatsCount: async function(trx, postId, like) {
+  _decrementLikeStatsCount: async function(trx, postId, recipeId, like) {
     try {
       let col = LIKE_VAL_TO_COL[like.like - 1];
       let query = trx('post_stats_count')
         .decrement(col, 1)
-        .where({post_id: postId})
+        .where({ post_id: postId, recipe_id: recipeId })
         .returning([col]);
       console.log('_updateLike: ', query.toString());
       return await query;

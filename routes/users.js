@@ -102,7 +102,7 @@ router.post('/:user_uuid/posts', checkPerms(PermsConfig.CreatePost), async funct
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem creating a new post. Please try again later.'
     });
   }
@@ -131,7 +131,7 @@ router.patch('/:user_uuid/posts/:post_id', checkPerms(PermsConfig.UpdatePost), a
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem updating the post. Please try again later.'
     });
   }
@@ -146,12 +146,12 @@ router.patch('/:user_uuid/posts/:post_id/like', checkPerms(PermsConfig.LikePost)
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
-    const post = await Post.like(req.params.user_uuid, parseInt(req.params.post_id), req.body);
+    const post = await Post.like(req.params.user_uuid, parseInt(req.params.post_id), null, req.body);
     res.status(200).json(post);
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem liking the post. Please try again later.'
     });
   }
@@ -166,13 +166,53 @@ router.patch('/:user_uuid/posts/:post_id/unlike', checkPerms(PermsConfig.UnlikeP
   try {
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);  
-    const post = await Post.unlike(req.params.user_uuid, parseInt(req.params.post_id), req.body);
+    const post = await Post.unlike(req.params.user_uuid, parseInt(req.params.post_id), null, req.body);
     res.status(200).json(post);
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem unliking the post. Please try again later.'
+    });
+  }
+});
+
+/**
+ * PATCH /users/user_uuid/posts/post_id/recipes/recipe_id/like
+ * 
+ * Like post/recipe under user
+ */
+router.patch('/:user_uuid/posts/:post_id/recipes/:recipe_id/like', checkPerms(PermsConfig.LikePost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);  
+    const post = await Post.like(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(500).send({
+      errorMessage: 'There was a problem liking the recipe under the post. Please try again later.'
+    });
+  }
+});
+
+/**
+ * PATCH /users/user_uuid/posts/post_id/recipes/recipe_id/unlike
+ * 
+ * Unlike post/recipe under user.
+ */
+router.patch('/:user_uuid/posts/:post_id/recipes/:recipe_id/unlike', checkPerms(PermsConfig.UnlikePost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    console.log('req.body: ', req.body);  
+    const post = await Post.unlike(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), req.body);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(500).send({
+      errorMessage: 'There was a problem unliking the recipe under the post. Please try again later.'
     });
   }
 });

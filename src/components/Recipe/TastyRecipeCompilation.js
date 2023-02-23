@@ -7,6 +7,7 @@ import { isStringNotNullOrEmpty } from '../../lib';
 
 
 const QuickRecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onView }) => {
+  console.log('QuickRecipeCompilation');
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
   const isDescriptionNotEmpty = isStringNotNullOrEmpty(compilation.description);
 
@@ -18,7 +19,6 @@ const QuickRecipeCompilation = ({ activeCardId, isNew, compilation, compilationI
     }
     return copyText;
   };
-
   return (
     <Card as={Accordion} flush key={compilation.id} border={activeCardId === compilation.id ? 'warning' : ''}>
       <Card.Img variant='top' src={compilation.thumbnail_url} />

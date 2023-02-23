@@ -21,7 +21,7 @@ const fetchUserPosts = async (uuid, token, page) => {
 };
 
 const useUserPosts = (uuid, token, page, mode) => {
-  console.log('react-query fetching');
+  console.log('useUserPosts react-query fetching');
   const queryData = useQuery(
     ['user-posts', uuid, token, page], 
     async () => fetchUserPosts(uuid, token, page),
@@ -29,8 +29,8 @@ const useUserPosts = (uuid, token, page, mode) => {
       keepPreviousData: true, 
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-      staleTime: (60 * 1000),
-      cacheTime: 60 * 1000,
+      staleTime: 60 * 1000 * 5,
+      cacheTime: 60 * 1000 * 60,
     },
   );
   return queryData;

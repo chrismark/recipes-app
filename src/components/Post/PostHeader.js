@@ -18,10 +18,14 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const PostHeader = ({ user, post, onClickEdit }) => {
+  const onClickHandler = () => {
+    console.log('PostHeader onClickHandler: ', post);
+    onClickEdit(post);
+  }
   return (
     <Row className='mb-2 post-header'>
       <Col>
-        <div className='post-user fw-bold pt-0'>{user.username || user.firstname}</div>
+        <div className='post-user fw-bold pt-0'>{post.name}</div>
         <div style={{marginTop: '-.5rem'}} className='post-timestamp'>
           <TimeAgo date={new Date(post.posted_on)} />
         </div>
@@ -32,7 +36,7 @@ const PostHeader = ({ user, post, onClickEdit }) => {
             <FaEllipsisH className='cursor-pointer fs-6 fw-normal'  />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => onClickEdit(post)} className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
+            <Dropdown.Item onClick={onClickHandler} className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item className='fw-bold'><FaRegTrashAlt className='fs-5 mb-1 me-2' />Move to trash</Dropdown.Item>
           </Dropdown.Menu>

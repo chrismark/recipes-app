@@ -11,7 +11,6 @@ const CardRecipeThumb = ({ recipe, count, isClickable, onClick }) => {
       onClick={() => isClickable ? onClick(recipe) : null}
     >
       <Card.Img variant='top' src={recipe.thumbnail_url} style={{
-        width: (recipe.aspect_ratio === '16:9' ? '177.5%' : ''),
         opacity: count > 0 ? '.6' : '1',
         borderRadius: 0
       }} />
@@ -52,11 +51,12 @@ PostRecipesPreviewEditButton.defaultProps = {
   disabled: false,
 };
 
-const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption, disableEditButton }) => {
+// Only allow edit caption if there's more than 1 selected recipe
+const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption, disableEditButton, hideEditButton }) => {
   return (
     <div style={{position: 'relative'}}>
       {!disableEditButton && <PostRecipesPreviewClear onClick={onClear} />}
-      <PostRecipesPreviewEditButton onClick={onEditCaption} disabled={disableEditButton}  />
+      {!hideEditButton && <PostRecipesPreviewEditButton onClick={onEditCaption} disabled={disableEditButton} />}
       {children}
     </div>
   );
@@ -64,6 +64,7 @@ const PostRecipesPreviewEditWrapper = ({ children, onClear, onEditCaption, disab
 
 PostRecipesPreviewEditWrapper.defaultProps = {
   disableEditButton: false,
+  hideEditButton: false,
 };
 
 const PostRecipesPreviewDisplayWrapper = ({ children }) => {
@@ -194,21 +195,24 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
         </Row>
       </>
     );
-  };
+  }
+  else {
+    return <></>;
+  }
 };
 
 PostRecipesPreviewThumbnails.defaultProps = {
   isClickable: false,
 };
 
-const PostRecipesPreview = ({ disableEditButton, recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
+const PostRecipesPreview = ({ recipes, disableEditButton, onClearRecipes, onEditCaption, isFilterDeleted }) => {
+  if (isFilterDeleted) {
+    recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
+  }
   if (recipes.length >= 1) {
-    if (isFilterDeleted) {
-      recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
-    }
     return (
       <div className='post-recipes-preview'>
-        <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption} disableEditButton={disableEditButton}>
+        <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption} disableEditButton={disableEditButton} hideEditButton={recipes.length == 1}>
           <PostRecipesPreviewThumbnails recipes={recipes} />
         </PostRecipesPreviewEditWrapper>
       </div>
@@ -224,7 +228,7 @@ PostRecipesPreview.defaultProps = {
   disableEditButton: false,
 };
 
-const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
+const PostRecipesPreviewDisplay = ({ post, recipes, onClick }) => {
   if (recipes.length >= 1) {
     return (
       <div className='post-recipes-preview-display'>

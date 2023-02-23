@@ -2,38 +2,33 @@ import { useState, useRef, useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
-import { AppContext } from '../../appContext.js';
+import { AppStateContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
 import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
 import { LikeTypes } from './LikeButton';
 
-const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
-  // TODO: Why does this rerender on all posts?
-  // console.log('PostActions rerender');
+const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
   const [show, setShow] = useState(false);
-  const [user] = useContext(AppContext);
+  const { user } = useContext(AppStateContext);
+  const source = recipeIndex == -1 ? post : post.recipes[recipeIndex];
   const DELAY = 1200;
 
   const handleHoverIn = () => {
-    console.log('handleHoverIn show=', show);
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
-      console.log('Cancelled hideTimeout.');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
     }
     showTimeout.current = setTimeout(() => {
-      console.log('hoverIn');
       setShow(true);
     }, DELAY);
   };
 
   const handleHoverOut = () => {
-    console.log('handleHoverOut show=', show);
     // In case user moves back in after moving out of button, we don't hide popup
     if (!show && showTimeout.current != null) {
       clearTimeout(showTimeout.current);
@@ -41,17 +36,13 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
       return;
     }
     hideTimeout.current = setTimeout(() => {
-      console.log('hoverOut');
       setShow(false);
     }, DELAY);
-    console.log('Started hideTimeout.'); 
   };
 
   const popupHoverIn = () => {
-    console.log('popupHoverIn');
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
-      console.log('Cancelled hideTimeout.');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
@@ -59,15 +50,13 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
   };
 
   const popupHoverOut = () => {
-    console.log('popupHoverOut');
     hideTimeout.current = setTimeout(() => {
-      console.log('hoverOut');
       setShow(false);
     }, DELAY);
   };
 
   const onClickLike = (value) => {
-    console.log('onClickLike', value, user);
+    console.log('onClickLike', source, value, user);
     setShow(s => false);
     if (hideTimeout.current) {
       clearTimeout(hideTimeout.current);
@@ -80,16 +69,17 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
     const payload = {
       like: value
     };
-    if (post.like_type != null) {
-      payload.prev = LikeTypes[post.like_type].value;
+    if (source.like_type != null) {
+      payload.prev = LikeTypes[source.like_type].value;
     }
     console.log('payload', payload);
+    console.log('param', {post, recipeIndex, user, payload});
     if (payload.like == payload.prev) {
       delete payload.prev;
-      onUnlike({post, user, payload});
+      onUnlike({post, recipeIndex, user, payload});
     }
     else {
-      onLike({post, user, payload});
+      onLike({post, recipeIndex, user, payload});
     }
   };
 
@@ -97,8 +87,8 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
     <>
       <Row className='m-0 mt-1 mb-1'>
         <Col className='p-0'>
-          <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut} onClick={() => onClickLike(post.liked ? LikeTypes[post.like_type].value : 1)}>
-            <LikeButtonIconText isLiked={post.liked} type={post.like_type} />
+          <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut} onClick={() => onClickLike(source.liked ? LikeTypes[source.like_type].value : 1)}>
+            <LikeButtonIconText isLiked={source.liked} type={source.like_type} />
           </PostButton>
         </Col>
         <Col className='p-0'>
@@ -123,6 +113,10 @@ const PostActions = ({post, onLike, onUnlike, onShowComments}) => {
       </PostActionLikePopup>
     </>
   );
+};
+
+PostActions.defaultProps = {
+  recipeIndex: -1,
 };
 
 export default PostActions;
