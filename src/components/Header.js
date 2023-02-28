@@ -1,8 +1,12 @@
+import { useContext } from 'react';
 import { Nav, Navbar, Container, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { BsXLg } from 'react-icons/bs';
+import { AppStateContext } from '../appContext.js';
 
 const Header = ({ user }) => {
+  // const { user } = useContext(AppStateContext);
+
   return (
     <Navbar expand='lg' bg='primary' variant='dark' className='app-header'>
       <Container fluid>
@@ -51,7 +55,9 @@ const Header = ({ user }) => {
 
 export default Header;
 
-const HeaderMinimal = ({ user, style = {}, id='', className='', onClose }) => {
+const HeaderMinimal = ({ style = {}, id='', className='', onClose }) => {
+  const { user } = useContext(AppStateContext);
+
   return (
     <Navbar id={id} fixed='top' bg='primary' expanded={true} variant='dark' className={'app-header' + (className ? ' ' + className: '')} style={style}>
       <Container fluid>

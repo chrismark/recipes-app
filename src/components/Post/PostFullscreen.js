@@ -2,26 +2,34 @@ import { useState, useEffect, useContext } from 'react';
 import { Modal, Container, Row, Col, Carousel, Image } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
-import { AppContext } from '../../appContext.js';
-import { toast } from '../Toaster';
+import { AppStateContext } from '../../appContext.js';
+import { useStore } from '../Toaster';
 import { HeaderMinimal } from '../Header';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import { doUpdateLike, doUpdateUnlike } from '../postLib';
 
 const PostFullscreen = ({ user }) => {
+  const { toast } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const [{ pageOffset }] = useContext(AppContext);
+  const { pageOffset } = useContext(AppStateContext);
   const { post: localPost, index } = location.state;
   const [post, setPost] = useState(localPost);
   const [activeIndex, setActiveIndex] = useState(index);
+  const isSingleRecipe = post.recipes.length == 1;
   // if there is only one associated recipe, then take from post.message, else take from recipe.caption
-  const [message, setMessage] = useState(post.recipes.length > 1 ? post.recipes[index].caption : post.message);
+  const [message, setMessage] = useState(!isSingleRecipe ? post.recipes[index].caption : post.message);
   const queryClient = useQueryClient();
+  
 
-  console.log('PostFullscreen', post, activeIndex);
-  console.log('pageOffset', pageOffset);
+  // console.log('PostFullscreen', 'isSingleRecipe=', isSingleRecipe, post, activeIndex);
+  // console.log('pageOffset', pageOffset);
+  // console.log('activeIndex', activeIndex);
+
+  useEffect(() => {
+    return console.log('PostFullscreen UNMOUNTING');
+  }, []);
 
   // TODO: Fetch post from react-query using client provider ONLY if post isn't available
   const onClose = (e) => {
@@ -51,13 +59,13 @@ const PostFullscreen = ({ user }) => {
   };
 
   return (
-    <Modal show={true} fullscreen={true}>
+    <Modal show={true} fullscreen={true} animation={false}>
       <Modal.Body>
         <HeaderMinimal user={user} id='postfullscreen-header' className='postfullscreen-header' onClose={onClose} />
         <Container className='g-0' fluid={true} style={{marginTop: '0'}}>
           <Row className='postfullscreen' style={{marginLeft: '-1rem', marginRight: '-1rem', marginTop: '-1rem', marginBottom: '-1rem' }}>
             <Col style={{background: 'black'}} className='postfullscreen-viewer'>
-              <Carousel interval={null} fade={true} slide={false} indicators={false} wrap={false} activeIndex={activeIndex} onSelect={onSelect}>
+              <Carousel interval={null} fade={true} slide={false} indicators={false} wrap={!isSingleRecipe} activeIndex={activeIndex} onSelect={onSelect}>
                 {post.recipes.map(recipe => (
                   <Carousel.Item key={recipe.id}>
                     <img src={recipe.thumbnail_url} />
@@ -69,7 +77,7 @@ const PostFullscreen = ({ user }) => {
               <div className='postfullscreen-header-spacer'></div>
               <PostHeader user={user} post={post} />
               <p>{message}</p>
-              <PostFooter user={user} post={post} recipeIndex={activeIndex} statIndex={activeIndex+1} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
+              <PostFooter user={user} post={post} recipeIndex={isSingleRecipe ? -1 : activeIndex} statIndex={isSingleRecipe ? 0 : activeIndex+1} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
             </Col>
           </Row>
         </Container>

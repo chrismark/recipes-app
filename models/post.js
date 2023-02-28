@@ -487,16 +487,18 @@ module.exports = {
   },
   _createUpdatePostLike: async function(trx, postId, userId, recipeId, like) {
     try {
-      let query = trx('post_likes')
-        .insert({
-          post_id: postId,
-          user_id: userId,
-          type: like.like,
-          recipe_id: recipeId,
-        })
-        .onConflict(['post_id', 'user_id', 'recipe_id'])
-        .merge(['type'])
-        .returning('*');
+      let query = trx('post_likes');
+      // if no prev then there is no record of this post_like yet
+      if (like.prev == null) { 
+        query = query
+          .insert({ post_id: postId, user_id: userId, type: like.like, recipe_id: recipeId });
+      }
+      else {
+        query = query
+          .update({ type: like.like })
+          .where({ post_id: postId, user_id: userId, recipe_id: recipeId });
+      }
+      query = query.returning('*');
       console.log('query: ', query.toString());
       return await query;
     }

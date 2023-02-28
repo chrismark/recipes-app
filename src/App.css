@@ -76,7 +76,7 @@ div.postfullscreen-comments .post-header {
   }
 }
 /* Make images with different width and height combination appear the same inside a square container */
-.post-recipes-preview .card-img-top, .post-recipes-preview-display .card-img-top, .selectable-recipe .card-img-top, div.tasty-recipes div.card img.card-img-top {
+.post-recipes-preview .card-img-top, .post-recipes-preview-display .card-img-top, .selectable-recipe .card-img-top, div.tasty-recipes div.card img.card-img-top, div.saved-recipes a.card img.card-img-top {
   object-fit: cover;
   object-position: center;
   aspect-ratio: 1 / 1;
@@ -119,8 +119,19 @@ span.my-btn-close-wrapper:hover svg.my-btn-close {
 
 div.postfullscreen-viewer > div.carousel > .carousel-control-next, div.postfullscreen-viewer > div.carousel > .carousel-control-prev {
   width: 8%;
+  background: #0000004b;
+  transition: all 0.2s ease-out;
 }
-
+div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover, div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover {
+  background: #00000041;
+  transition: all 0.2s ease-out;
+}
+div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover {
+  translate: 5%;
+}
+div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover {
+  translate: -5%;
+}
 div.mid-content {
   max-width: 700px;
   margin: 0 auto;

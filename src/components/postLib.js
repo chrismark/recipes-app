@@ -85,6 +85,7 @@ const updateUnlike = async ({ post, recipeId, user, payload }) => {
 
 const optimisticUpdateLikePost = (post, recipeIndex, payload) => {
   const statIndex = recipeIndex + 1;
+  console.log('optimisticUpdateLikePost: ', 'recipeIndex=', recipeIndex, 'statIndex=', statIndex);
   let like_type = null;
   if (recipeIndex >= 0) {
     post.recipes[recipeIndex].liked = true;

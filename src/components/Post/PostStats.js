@@ -6,7 +6,7 @@ const PostStats = ({ post, statIndex }) => {
   // console.log('PostStats', post.id, statIndex, post.stats[statIndex]);
 
   const onClickLikeStat = (type) => {
-    console.log(type, post.stats[statIndex][type]);
+    // console.log(type, post.stats[statIndex][type]);
   };
 
   return (

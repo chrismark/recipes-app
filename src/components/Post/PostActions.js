@@ -2,7 +2,7 @@ import { useState, useRef, useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
-import { AppContext } from '../../appContext.js';
+import { AppContext, AppStateContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
 import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
 import { LikeTypes } from './LikeButton';
@@ -13,9 +13,11 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
   const [show, setShow] = useState(false);
-  const [{ user }] = useContext(AppContext);
+  // const [{ user }] = useContext(AppContext);
+  const { user } = useContext(AppStateContext);
   const source = recipeIndex == -1 ? post : post.recipes[recipeIndex];
   const DELAY = 1200;
+  // console.log('PostActions', recipeIndex);
   // console.log('PostActions source', source);
 
   const handleHoverIn = () => {

@@ -18,6 +18,10 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 ));
 
 const PostHeader = ({ user, post, onClickEdit }) => {
+  const onClickHandler = () => {
+    console.log('PostHeader onClickHandler: ', post);
+    onClickEdit(post);
+  }
   return (
     <Row className='mb-2 post-header'>
       <Col>
@@ -32,7 +36,7 @@ const PostHeader = ({ user, post, onClickEdit }) => {
             <FaEllipsisH className='cursor-pointer fs-6 fw-normal'  />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={() => onClickEdit(post)} className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
+            <Dropdown.Item onClick={onClickHandler} className='fw-bold'><FaEdit className='fs-5 mb-1 me-2' />Edit post</Dropdown.Item>
             <Dropdown.Divider />
             <Dropdown.Item className='fw-bold'><FaRegTrashAlt className='fs-5 mb-1 me-2' />Move to trash</Dropdown.Item>
           </Dropdown.Menu>

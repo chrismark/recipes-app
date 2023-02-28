@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Form, Placeholder, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { toast } from '../Toaster';
+import { useStore } from '../Toaster';
 import { useIsMounted } from '../../lib';
 import SimplePaginate from '../SimplePaginate';
 
@@ -147,6 +147,7 @@ CommentForm.defaultProps = {
 };
 
 const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) => {
+  const { toast } = useStore();
   const repliesRef = useRef(null);
   const commentRef = useRef(null);
   const isMounted = useIsMounted('Comment');
@@ -384,6 +385,7 @@ const CommentPlaceholder = () => {
 };
 
 const RecipeComments = ({ user, recipe }) => {
+  const { toast } = useStore();
   const isMounted = useIsMounted('RecipeComments');
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);

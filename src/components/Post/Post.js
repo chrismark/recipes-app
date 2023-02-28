@@ -5,7 +5,7 @@ import PostFooter from './PostFooter';
 import PostContent from './PostContent';
 
 const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
-  // console.log('Post rerender');
+  console.log('Post rerender');
   const navigate = useNavigate();
 
   const handleItemClick = (index, recipe) => {

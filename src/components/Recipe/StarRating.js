@@ -50,7 +50,7 @@ const StarRating = ({ rating, onClick, disabled }) => {
 
   return (
 <div className='h2 mb-0' style={{marginTop: '-.2rem'}}>
-  <span ref={starDivRef} onOut={() => handleHover(0)}>
+  <span ref={starDivRef} onMouseLeave={() => handleHover(0)}>
   <Star fullIf={rating >= 1} halfIf={rating === 0.5} glow={glowVal >= 1} onHover={() => handleHover(1)} 
     onOut={() => handleHover(0)} onClick={() => onClick(1)} disabled={disabled} />
 <Star fullIf={rating >= 2} halfIf={rating === 1.5} glow={glowVal >= 2} onHover={() => handleHover(2)} 

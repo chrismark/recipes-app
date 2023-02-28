@@ -195,18 +195,21 @@ const PostRecipesPreviewThumbnails = ({ recipes, isClickable, onClick }) => {
         </Row>
       </>
     );
-  };
+  }
+  else {
+    return <></>;
+  }
 };
 
 PostRecipesPreviewThumbnails.defaultProps = {
   isClickable: false,
 };
 
-const PostRecipesPreview = ({ disableEditButton, recipes, onClearRecipes, onEditCaption, isFilterDeleted }) => {
+const PostRecipesPreview = ({ recipes, disableEditButton, onClearRecipes, onEditCaption, isFilterDeleted }) => {
+  if (isFilterDeleted) {
+    recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
+  }
   if (recipes.length >= 1) {
-    if (isFilterDeleted) {
-      recipes = recipes.filter(r => !r.hasOwnProperty('deleted') || r.deleted == false);
-    }
     return (
       <div className='post-recipes-preview'>
         <PostRecipesPreviewEditWrapper onClear={onClearRecipes} onEditCaption={onEditCaption} disableEditButton={disableEditButton} hideEditButton={recipes.length == 1}>
@@ -225,7 +228,7 @@ PostRecipesPreview.defaultProps = {
   disableEditButton: false,
 };
 
-const PostRecipesPreviewDisplay = ({ recipes, onClick }) => {
+const PostRecipesPreviewDisplay = ({ post, recipes, onClick }) => {
   if (recipes.length >= 1) {
     return (
       <div className='post-recipes-preview-display'>
