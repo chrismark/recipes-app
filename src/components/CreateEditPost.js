@@ -1,5 +1,6 @@
 import { useState, useReducer, useContext, useImperativeHandle, forwardRef, createContext } from 'react';
 import { useQueryClient, useMutation } from 'react-query';
+import { Row, Col } from 'react-bootstrap';
 import { useStore } from './Toaster';
 import CreateEditPostModal from './CreateEditPostModal';
 import SelectRecipeModal from './SelectRecipeModal';
@@ -231,6 +232,8 @@ const CreateEditPost = forwardRef(({}, ref) => {
   // };
 
   return (<>
+  <Row className='justify-content-md-center'>
+            <Col className='mb-5 mt-0'>
     <CreatePostModalLauncher
       text='What food are you craving right now?'
       onClick={() => { 
@@ -271,6 +274,8 @@ const CreateEditPost = forwardRef(({}, ref) => {
       selectedRecipes={selectedRecipes}
       setSelectedRecipes={setSelectedRecipes}
       />
+    </Col>
+  </Row>
   </>);
 });
 

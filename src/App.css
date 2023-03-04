@@ -147,6 +147,10 @@ div.mid-content {
   flex: 0 0 320px;
 }
 
+div.recipe-etc {
+  transition: opacity 0.2s ease-out;
+}
+
 @media (max-width: 1160px) {
   .col.left-sidebar {
     -ms-flex: 0 0 65px;

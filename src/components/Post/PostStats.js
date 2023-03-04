@@ -9,6 +9,10 @@ const PostStats = ({ post, statIndex }) => {
     // console.log(type, post.stats[statIndex][type]);
   };
 
+  if (!(post.stats[statIndex]?.total_likes > 0 || post.stats[statIndex]?.comments > 0 || post.stats[statIndex]?.shares > 0)) {
+    return <></>;
+  }
+
   return (
     <Row className='mt-2 pb-2 border-bottom border-light gx-0 text-muted'>
       <Col xs={6}>

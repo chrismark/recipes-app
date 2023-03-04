@@ -1,9 +1,11 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
 import CardImgBadge from './CardImgBadge';
 import { BsReplyAll } from 'react-icons/bs';
 
-const QuickRecipe = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) => {
+const QuickRecipe = React.memo(function QuickRecipe ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) {
+  console.log('QuickRecipe');
   return (
     <Card style={{overflow: 'hidden'}} border={activeCardId === recipe.id ? 'warning' : ''}>
       <Card.Img variant='top' src={recipe.thumbnail_url} />
@@ -18,7 +20,7 @@ const QuickRecipe = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave 
       </ListGroup>
     </Card>
   );
-};
+});
 
 QuickRecipe.defaultProps = {
   onSave: (recipe) => console.log('Saving recipe ' + recipe.name),

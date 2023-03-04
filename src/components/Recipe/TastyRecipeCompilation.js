@@ -7,6 +7,7 @@ import { isStringNotNullOrEmpty } from '../../lib';
 
 
 const QuickRecipeCompilation = ({ activeCardId, isNew, compilation, compilationIndex, onView }) => {
+  console.log('QuickRecipeCompilation');
   const regexLink = /<a href="([^"]+)">([^<]+)<\/a>/g;
   const isDescriptionNotEmpty = isStringNotNullOrEmpty(compilation.description);
 

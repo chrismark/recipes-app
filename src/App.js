@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { Route, Routes, useNavigate, Navigate  } from 'react-router-dom';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { Route, Routes, useNavigate, Navigate, Outlet  } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home';
@@ -12,11 +12,13 @@ import PostFullscreen from './components/Post/PostFullscreen';
 import { AppStateContext, AppDispatchContext } from './appContext.js';
 import './App.css';
 import Posts from './components/Posts';
+import CreateEditPost from './components/CreateEditPost';
 
 // TODO: Create AppContext to store the user object
 
 const App = () => {
   console.log('App rerender');
+  const createEditPostRef = useRef(null);
   const navigate = useNavigate();
   const state = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);

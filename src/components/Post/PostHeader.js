@@ -17,7 +17,8 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   </span>
 ));
 
-const PostHeader = ({ user, post, onClickEdit }) => {
+const PostHeader = React.memo(function PostHeader ({ user, post, onClickEdit }) {
+  // console.log('PostHeader');
   const onClickHandler = () => {
     console.log('PostHeader onClickHandler: ', post);
     onClickEdit(post);
@@ -25,7 +26,7 @@ const PostHeader = ({ user, post, onClickEdit }) => {
   return (
     <Row className='mb-2 post-header'>
       <Col>
-        <div className='post-user fw-bold pt-0'>{user.username || user.firstname}</div>
+        <div className='post-user fw-bold pt-0'>{post.name}</div>
         <div style={{marginTop: '-.5rem'}} className='post-timestamp'>
           <TimeAgo date={new Date(post.posted_on)} />
         </div>
@@ -44,6 +45,6 @@ const PostHeader = ({ user, post, onClickEdit }) => {
       </Col>
     </Row>
   );
-};
+});
 
 export default PostHeader;

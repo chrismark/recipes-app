@@ -48,8 +48,12 @@ module.exports = {
           'WHEN post_likes.type = 6 THEN \'surprise\' ' +
           'WHEN post_likes.type = 7 THEN \'angry\' ' +
         'END AS like_type'
-      )
+      ),
+      db.raw('COALESCE(users.username, users.firstname || \' \' || users.lastname) AS name'),
     ])
+    .leftJoin('users', function() {
+      this.on('users.id', '=', 'posts.user_id')
+    })
     .leftJoin('post_likes', function() {
       this.on('post_likes.post_id', '=', 'posts.id')
           .andOn('post_likes.user_id', '=', user[0].id)
@@ -64,13 +68,13 @@ module.exports = {
     let posts = await query;
     // loop thru posts and fetch associated recipes
     for (let i = 0; i < posts.length; i++) {
-      posts[i].recipes = await this._fetchRecipesPostByPostId(posts[i].id);
+      posts[i].recipes = await this._fetchRecipesPostByPostId(posts[i].id, user);
       posts[i].stats = await this._fetchPostStatsCountByPostId(posts[i].id);
     }
     console.log('posts: ', posts);
     return posts;
   },
-  _fetchRecipesPostByPostId: async function(postId, transaction = null) {
+  _fetchRecipesPostByPostId: async function(postId, user, transaction = null) {
     let query = db('recipes_post').select(
         FETCH_RECIPES_POST_FIELDS_MINIMAL.concat([
           db.raw('CASE WHEN post_likes.id IS NULL THEN false ELSE true END AS liked'),
@@ -90,6 +94,7 @@ module.exports = {
       .leftJoin('recipes', 'recipes.id', 'recipes_post.recipe_id')
       .leftJoin('post_likes', function () {
         this.on('post_likes.post_id', postId)
+            .andOn('post_likes.user_id', '=', user[0].id)
             .andOn('post_likes.recipe_id', 'recipes_post.recipe_id')
       })
       .where('recipes_post.post_id', postId)
@@ -487,18 +492,16 @@ module.exports = {
   },
   _createUpdatePostLike: async function(trx, postId, userId, recipeId, like) {
     try {
-      let query = trx('post_likes');
-      // if no prev then there is no record of this post_like yet
-      if (like.prev == null) { 
-        query = query
-          .insert({ post_id: postId, user_id: userId, type: like.like, recipe_id: recipeId });
-      }
-      else {
-        query = query
-          .update({ type: like.like })
-          .where({ post_id: postId, user_id: userId, recipe_id: recipeId });
-      }
-      query = query.returning('*');
+      let query = trx('post_likes')
+        .insert({
+          post_id: postId,
+          user_id: userId,
+          type: like.like,
+          recipe_id: recipeId,
+        })
+        .onConflict(['post_id', 'user_id', 'recipe_id'])
+        .merge(['type'])
+        .returning('*');
       console.log('query: ', query.toString());
       return await query;
     }

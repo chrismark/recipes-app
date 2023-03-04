@@ -1,4 +1,4 @@
-import { useState, useContext, useRef, useReducer } from 'react';
+import { useEffect, useState, useContext, useRef, useReducer } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
 import { useQueryClient, useMutation } from 'react-query';
@@ -25,6 +25,11 @@ const Home = ({ user, children }) => {
   // const [showSelectRecipeModal, setShowSelectRecipeModal] = useState(false);
   // const [showAddRecipeCaptionModal, setShowAddRecipeCaptionModal] = useState(false);
   // const queryClient = useQueryClient();
+
+  useEffect(() => {
+    console.log('Home MOUNTED');
+    return () => console.log('Home UNMOUNTED');
+  }, []);
 
   // const createPostMutation = useMutation(
   //   createPost,
@@ -182,17 +187,6 @@ const Home = ({ user, children }) => {
 
   const onEditPost = (post) => {
     console.log('Edit Post: ', post);
-    // setPostId(post.id);
-    // setPostMessage(post.message);
-    // setSelectedRecipes(JSON.parse(JSON.stringify(post.recipes)));
-    // setShowCreateEditPostModal(true);
-    // dispatch({ 
-    //   type: 'edit_post', 
-    //   postId: post.id, 
-    //   postMessage: post.message, 
-    //   selectedRecipes: JSON.parse(JSON.stringify(post.recipes)),
-    //   showEditModal: true,
-    // });
     createEditPostRef.current.onEditPost(post.id, post.message, JSON.parse(JSON.stringify(post.recipes)));
   };
 
@@ -204,53 +198,8 @@ const Home = ({ user, children }) => {
         </Col>
         <Col className='justify-content-md-center'>
           <div className='mid-content'>
-          <Row className='justify-content-md-center'>
-            <Col className='mb-5 mt-0'>
-              {/* <CreateEditPostStateContext.Provider value={state}> */}
-                <CreateEditPost ref={createEditPostRef} />
-              {/* </CreateEditPostStateContext.Provider> */}
-              {/* <CreatePostModalLauncher
-                text='What food are you craving right now?'
-                onClick={() => { 
-                    setShowCreateEditPostModal(true);
-                }}
-                />
-              <CreateEditPostModal 
-                show={showCreateEditPostModal} 
-                postId={postId} 
-                postMessage={postMessage}
-                onCreateSubmit={onCreatePostSubmit} 
-                onUpdateSubmit={onUpdatePostSubmit} 
-                onAddARecipe={onAddARecipe} 
-                onEditCaption={onAddRecipeCaption}
-                onClose={onCreateEditPostClose} 
-                setPostMessage={setPostMessage}
-                selectedRecipes={selectedRecipes}
-                setSelectedRecipes={setSelectedRecipes}
-                clearSelectedRecipes={clearSelectedRecipes} 
-                isSubmitting={createPostMutation.isLoading || updatePostMutation.isLoading}
-                />
-              <SelectRecipeModal 
-                postId={postId} 
-                user={user} 
-                show={showSelectRecipeModal} 
-                onSelect={onSelectRecipeSubmit} 
-                onClose={onSelectRecipeBack} 
-                selectedRecipes={selectedRecipes} 
-                setSelectedRecipes={setSelectedRecipes} 
-                />
-              <AddRecipeCaptionModal
-                postId={postId} 
-                show={showAddRecipeCaptionModal}
-                onDone={onAddRecipeCaptionDone}
-                onClose={onAddRecipeCaptionBack}
-                selectedRecipes={selectedRecipes}
-                setSelectedRecipes={setSelectedRecipes}
-                /> */}
-            </Col>
-          </Row>
+          <CreateEditPost ref={createEditPostRef} />
           <Posts onEditPost={onEditPost} />
-          {children}
           </div>
         </Col>
         <Col className='right-sidebar'>

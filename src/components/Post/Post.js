@@ -1,10 +1,11 @@
-import { useNavigate, useMemo } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import PostContent from './PostContent';
 
-const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
+const Post = React.memo(function Post ({ user, post, onEditPost, onLike, onUnlike }) {
   console.log('Post rerender');
   const navigate = useNavigate();
 
@@ -22,6 +23,6 @@ const Post = ({ user, post, onEditPost, onLike, onUnlike }) => {
     </Card.Body>
   </Card>
   );
-};
+});
 
 export default Post;

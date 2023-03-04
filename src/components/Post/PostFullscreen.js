@@ -23,12 +23,12 @@ const PostFullscreen = ({ user }) => {
   const queryClient = useQueryClient();
   
 
-  // console.log('PostFullscreen', 'isSingleRecipe=', isSingleRecipe, post, activeIndex);
+  console.log('PostFullscreen', 'isSingleRecipe=', isSingleRecipe, post, isSingleRecipe ? -1 : activeIndex, post.recipes[isSingleRecipe ? -1 : activeIndex], post.stats[(isSingleRecipe ? -1 : activeIndex)+1]);
   // console.log('pageOffset', pageOffset);
   // console.log('activeIndex', activeIndex);
 
   useEffect(() => {
-    return console.log('PostFullscreen UNMOUNTING');
+    return () => console.log('PostFullscreen UNMOUNTING');
   }, []);
 
   // TODO: Fetch post from react-query using client provider ONLY if post isn't available

@@ -67,6 +67,7 @@ const ViewSavedRecipe = ({ user }) => {
     await getRecipe();
     if (recipeEtc.current != null) {
       recipeEtc.current.style.display = 'block';
+      recipeEtc.current.style.opacity = 1;
     }
     return () => console.log('ViewSavedRecipe unmount');
   }, []); //
@@ -117,7 +118,7 @@ const ViewSavedRecipe = ({ user }) => {
           <RecipeImage src={recipe.thumbnail_url} maxHeight='60vh' />
         </Col>
       </Row>
-      <Row ref={recipeEtc} style={{display: 'none'}}>
+      <Row ref={recipeEtc} className='recipe-etc' style={{display: 'none', opacity: 0}}>
         <Col>
           <br/>
           <RecipeDescription recipe={recipe} />
