@@ -26,9 +26,11 @@ const PostStats = ({ post, statIndex }) => {
           {post.stats[statIndex].angry > 0 && <FaRegAngry className='post-action-icon post-action-angry cursor-pointer fs-5' onClick={() => onClickLikeStat('angry')} />}
         </span>
         {post.stats[statIndex].total_likes > 0 && (
-          <span className='post-stat small text-reset cursor-pointer user-select-none' onClick={() => console.log(post.stats[statIndex])}>{!post.liked ? post.stats[statIndex].total_likes : (
-            'You' + (post.stats[statIndex].total_likes > 1 ? ' and ' + (post.stats[statIndex].total_likes - 1) + ' other' : '')
-          )}</span>
+          <span className='post-stat small text-reset cursor-pointer user-select-none' onClick={() => console.log(post.stats[statIndex])}>
+            {!post.liked ? post.stats[statIndex].total_likes : 
+              ('You' + (post.stats[statIndex].total_likes > 1 ? ' and ' + (post.stats[statIndex].total_likes - 1) + ' other' : ''))
+            }
+          </span>
         )}
       </Col>
       <Col className='text-end'>
