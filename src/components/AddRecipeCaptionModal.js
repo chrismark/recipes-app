@@ -87,7 +87,7 @@ const AddRecipeCaptionModal = ({ show, postId, onDone, onClose, selectedRecipes,
   };
 
   return (
-    <Modal className='add-recipe-caption-modal' show={show} size='md' backdrop={false} scrollable>
+    <Modal className='add-recipe-caption-modal' show={show} size='lg' backdrop={false} scrollable>
       <Modal.Header>
         <Modal.Body className='m-0 p-0' style={{overflow: 'hidden'}}>
           <Row className=''>

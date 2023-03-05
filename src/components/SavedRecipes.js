@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link, Outlet } from 'react-router-dom';
-import { Container, Row, Col, Spinner } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import ListSavedRecipes from './recipe/ListSavedRecipes';
 import MainContainer from './MainContainer';
-import Paginate from './Paginate';
-import Recipe from './recipe/SavedRecipe';
-import RecipePlaceholder from './recipe/RecipePlaceholder';
-import Loading from './Loading';
 
 const SavedRecipes = ({ user }) => {
   const navigate = useNavigate();
@@ -28,6 +24,7 @@ const SavedRecipes = ({ user }) => {
   }, []);
 
   useEffect(() => {
+    console.log('SavedRecipes: useEffect:', 'user=', user);
     if (user) {
       getRecipes();
     }
@@ -65,9 +62,7 @@ const SavedRecipes = ({ user }) => {
   };
 
   return (
-    <>
-      <Outlet context={{ recipes, isFetchingRecipes, isInitialLoad, activeCardId }} />
-    </>
+    <ListSavedRecipes recipes={recipes} isFetchingRecipes={isFetchingRecipes} isInitialLoad={isInitialLoad} activeCardId={activeCardId} />
   );
 };
 

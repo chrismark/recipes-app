@@ -1,4 +1,4 @@
-import { useNavigate, useMemo } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';

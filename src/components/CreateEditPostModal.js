@@ -11,7 +11,7 @@ const CreateEditPostModal = ({ isSubmitting, show, postId, postMessage, setPostM
   const noOp = () => {};
 
   return (
-    <Modal show={show} onHide={onClose} size='md' xs={12} backdrop='static'>
+    <Modal show={show} onHide={onClose} xs={12} backdrop='static'>
       <Modal.Header closeButton>
         <Modal.Title><h5 className='m-0'>{postId == null ? 'Create' : 'Edit'} A Post</h5></Modal.Title>
       </Modal.Header>
@@ -29,13 +29,12 @@ const CreateEditPostModal = ({ isSubmitting, show, postId, postMessage, setPostM
           </Form.Group>
           <PostRecipesPreview 
             recipes={selectedRecipes} 
-            setRecipes={setSelectedRecipes}
             onClearRecipes={clearSelectedRecipes} 
             onEditCaption={onEditCaption}
             isFilterDeleted={postId != null}
             disableEditButton={isSubmitting}
             />
-          <div className='mt-3 text-center' onClick={isSubmitting ? noOp : onAddARecipe}>
+          <div role='button' className='mt-3 text-center' onClick={isSubmitting ? noOp : onAddARecipe}>
             <span className={'h5 cursor-pointer' + (isSubmitting ? ' text-muted' : '')}>Add A Recipe <FaLongArrowAltRight className='fs-3' /></span>
           </div>
           <div className='d-grid mt-3'>

@@ -2,39 +2,34 @@ import { useState, useRef, useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
-import { AppContext } from '../../appContext.js';
+import { AppStateContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
 import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
 import { LikeTypes } from './LikeButton';
 
 const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
-  // TODO: Why does this rerender on all posts?
   const target = useRef(null);
   const showTimeout = useRef(null);
   const hideTimeout = useRef(null);
   const [show, setShow] = useState(false);
-  const [{ user }] = useContext(AppContext);
+  const { user } = useContext(AppStateContext);
   const source = recipeIndex == -1 ? post : post.recipes[recipeIndex];
   const DELAY = 1200;
   // console.log('PostActions source', source);
 
   const handleHoverIn = () => {
-    // console.log('handleHoverIn show=', show);
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
-      // console.log('Cancelled hideTimeout.');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
     }
     showTimeout.current = setTimeout(() => {
-      // console.log('hoverIn');
       setShow(true);
     }, DELAY);
   };
 
   const handleHoverOut = () => {
-    // console.log('handleHoverOut show=', show);
     // In case user moves back in after moving out of button, we don't hide popup
     if (!show && showTimeout.current != null) {
       clearTimeout(showTimeout.current);
@@ -42,17 +37,13 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
       return;
     }
     hideTimeout.current = setTimeout(() => {
-      // console.log('hoverOut');
       setShow(false);
     }, DELAY);
-    // console.log('Started hideTimeout.'); 
   };
 
   const popupHoverIn = () => {
-    // console.log('popupHoverIn');
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
-      // console.log('Cancelled hideTimeout.');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
@@ -60,9 +51,7 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
   };
 
   const popupHoverOut = () => {
-    // console.log('popupHoverOut');
     hideTimeout.current = setTimeout(() => {
-      // console.log('hoverOut');
       setShow(false);
     }, DELAY);
   };

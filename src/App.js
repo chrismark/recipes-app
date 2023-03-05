@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { Route, Routes, useNavigate, Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { Route, Routes, useNavigate, Navigate, Outlet  } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home';
@@ -7,20 +7,23 @@ import YourPosts from './components/YourPosts';
 import TastyRecipes from './components/TastyRecipes';
 import SavedRecipes from './components/SavedRecipes';
 import ViewSavedRecipe from './components/recipe/ViewSavedRecipe';
-import ListSavedRecipes from './components/recipe/ListSavedRecipes';
 import MainContainer from './components/MainContainer';
 import PostFullscreen from './components/Post/PostFullscreen';
-import { AppContext } from './appContext.js';
+import { AppStateContext, AppDispatchContext } from './appContext.js';
 import './App.css';
+import Posts from './components/Posts';
+import CreateEditPost from './components/CreateEditPost';
 
 // TODO: Create AppContext to store the user object
 
 const App = () => {
+  console.log('App rerender');
+  const createEditPostRef = useRef(null);
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [fetchedValue, setFetchedValue] = useState('');
-  const [posts, setPosts] = useState([]);
-  const [state, dispatch] = useContext(AppContext);
+  const state = useContext(AppStateContext);
+  const dispatch = useContext(AppDispatchContext);
+
+  console.log('App:', 'state=', state);
 
   useEffect(() => {
     (async function() {
@@ -76,14 +79,12 @@ const App = () => {
   };
 
   const onPostLogin = (data) => {
-    setUser(data);
     dispatch({ type: 'update_user', user: data });
     console.log('onPostLogin');
     navigate('/');
   };
 
   const onPostRegister = (data) => {
-    setUser(data);
     dispatch({ type: 'update_user', user: data });
     console.log('onPostRegister');
     navigate('/');
@@ -92,25 +93,38 @@ const App = () => {
   return (
     <Routes>
       <Route path='*' element={<Navigate to='/' />} />
-      <Route exact path='/' element={<MainContainer user={user} />}>
-        <Route index element={<Home user={user} />} />
-        {user ? (<>
-          <Route path='/your-posts' element={<YourPosts user={user} />} />
-          <Route path='/tasty-recipes' element={<TastyRecipes user={user} />} />
-          <Route path='/saved-recipes' element={<SavedRecipes user={user} />}>
-            <Route index element={<ListSavedRecipes />} />
-            <Route path=':recipe' element={<ViewSavedRecipe user={user} />} />
-          </Route>
+      {state.user ? (<>
+        <Route path='/' 
+          element={
+            <MainContainer user={state.user}>
+              <Home user={state.user} />
+            </MainContainer>
+          }>
+          <Route path='posts/:post/recipes' element={<PostFullscreen user={state.user} />} />
+        </Route>
+        <Route path='/saved-recipes' 
+          element={
+            <MainContainer user={state.user}>
+              <SavedRecipes user={state.user} />
+            </MainContainer>
+          }>
+          <Route path=':recipe' element={<ViewSavedRecipe user={state.user} />} />
+        </Route>
+        <Route element={<MainContainer user={state.user} />}>
+          <Route path='/your-posts' element={<YourPosts user={state.user} />} />
+          <Route path='/tasty-recipes' element={<TastyRecipes user={state.user} />} />
           <Route path='/recipes' element={<></>}>
             <Route index element={<Navigate to='/tasty-recipes' />} />
           </Route>
-          <Route path='/posts' element={<Outlet />}>
-            <Route path=':post/recipes' element={<PostFullscreen user={user} />} />
-          </Route>
-        </>) : <></>}
-        <Route exact path='/login' element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />
-        <Route exact path='/register' element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />} />
-      </Route>
+        </Route>
+      </>) : <>
+        <Route exact path='/' element={<MainContainer user={state.user} />}>
+          <Route exact path='/login' 
+            element={<Login onLogin={onLogin} onPostLogin={onPostLogin} />} />
+          <Route exact path='/register' 
+            element={<Register onRegister={onRegister} onPostRegister={onPostRegister} />} />
+        </Route>
+      </>}
     </Routes>
   );
 };

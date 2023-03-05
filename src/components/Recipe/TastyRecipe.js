@@ -4,6 +4,7 @@ import CardImgBadge from './CardImgBadge';
 import { BsReplyAll } from 'react-icons/bs';
 
 const QuickRecipe = ({ activeCardId, isNew, recipe, recipeIndex, onView, onSave }) => {
+  console.log('QuickRecipe');
   return (
     <Card style={{overflow: 'hidden'}} border={activeCardId === recipe.id ? 'warning' : ''}>
       <Card.Img variant='top' src={recipe.thumbnail_url} />

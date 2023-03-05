@@ -32,14 +32,18 @@ export const toast = (message) => {
 export const useStore = () => {
   const [toasts, dispatch] = useReducer(toastReducer, { visible: 0, toasts: [] });
 
-  useEffect(() => {
-    console.log('Toaster useStore');
-    if (dispatchPointer.call == undefined) {
-      dispatchPointer.call = dispatch;
-    }
-  }, [toasts]);
+  // useEffect(() => {
+  //   console.log('Toaster useStore');
+  //   // if (dispatchPointer.call == undefined) {
+  //   //   dispatchPointer.call = dispatch;
+  //   // }
+  // }, [toasts]);
 
-  return toasts;
+  const toast = (message) => {
+    dispatch({type: 'enqueue', payload: message});
+  };
+
+  return { toasts, toast };
 };
 
 const AutoHideToast = ({ children, delay, onClose }) => {
@@ -57,7 +61,7 @@ AutoHideToast.defaultProps = {
 
 export const Toaster = ({ delay }) => {
   console.log('render Toaster');
-  const store = useStore();
+  const { toasts: store } = useStore();
   useEffect(() => {
     console.log('Toaster mount');
     return () => console.log('Toaster unmount');

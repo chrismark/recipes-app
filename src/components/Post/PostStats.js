@@ -3,11 +3,13 @@ import { FaRegThumbsUp, FaRegHeart, FaRegGrinHearts, FaRegGrinSquint, FaRegSadTe
 import { LikeTypes } from './LikeButton';
 
 const PostStats = ({ post, statIndex }) => {
-  // console.log('PostStats', post.id, statIndex, post.stats[statIndex]);
-
   const onClickLikeStat = (type) => {
     console.log(type, post.stats[statIndex][type]);
   };
+
+  if (!(post.stats[statIndex]?.total_likes > 0 || post.stats[statIndex]?.comments > 0 || post.stats[statIndex]?.shares > 0)) {
+    return <></>;
+  }
 
   return (
     <Row className='mt-2 pb-2 border-bottom border-light gx-0 text-muted'>
@@ -22,9 +24,11 @@ const PostStats = ({ post, statIndex }) => {
           {post.stats[statIndex].angry > 0 && <FaRegAngry className='post-action-icon post-action-angry cursor-pointer fs-5' onClick={() => onClickLikeStat('angry')} />}
         </span>
         {post.stats[statIndex].total_likes > 0 && (
-          <span className='post-stat small text-reset cursor-pointer user-select-none' onClick={() => console.log(post.stats[statIndex])}>{!post.liked ? post.stats[statIndex].total_likes : (
-            'You' + (post.stats[statIndex].total_likes > 1 ? ' and ' + (post.stats[statIndex].total_likes - 1) + ' other' : '')
-          )}</span>
+          <span className='post-stat small text-reset cursor-pointer user-select-none' onClick={() => console.log(post.stats[statIndex])}>
+            {!post.liked ? post.stats[statIndex].total_likes : 
+              ('You' + (post.stats[statIndex].total_likes > 1 ? ' and ' + (post.stats[statIndex].total_likes - 1) + ' other' : ''))
+            }
+          </span>
         )}
       </Col>
       <Col className='text-end'>

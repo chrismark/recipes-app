@@ -25,8 +25,8 @@ const useRecipes = (uuid, token, page, mode) => {
     { 
       refetchOnWindowFocus: false,
       refetchOnMount: true,
-      staleTime: (60 * 1000),
-      cacheTime: 60 * 1000,
+      staleTime: 60 * 1000 * 5,
+      cacheTime: 60 * 1000 * 60,
     },
   );
   return queryData;

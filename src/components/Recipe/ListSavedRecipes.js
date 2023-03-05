@@ -5,10 +5,11 @@ import Recipe from './SavedRecipe';
 import Paginate from '../Paginate';
 import RecipePlaceholder from './RecipePlaceholder';
 
-const ListSavedRecipes = () => {
-  const { recipes, isFetchingRecipes, isInitialLoad, activeCardId, selectRecipe } = useOutletContext();
+const ListSavedRecipes = ({ recipes, isFetchingRecipes, isInitialLoad, activeCardId, selectRecipe }) => {
+  // console.log('ListSavedRecipes:', recipes);
+  // const { recipes, isFetchingRecipes, isInitialLoad, activeCardId, selectRecipe } = useOutletContext();
   return (
-    <Container className='justify-content-sm-center justify-content-md-center'>
+    <Container className='saved-recipes justify-content-sm-center justify-content-md-center'>
       <h2>List of Saved Recipes</h2>
       <br/>
       {recipes.length > 0 && (<>

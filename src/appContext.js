@@ -17,11 +17,16 @@ const reducer = (state, action) => {
   }
 };
 
-export const AppContext = createContext(null);
+export const AppStateContext = createContext(null);
+export const AppDispatchContext = createContext(null);
+
 export const AppContextProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, {user: null, pageOffset: 0});
   return (
-    <AppContext.Provider value={useReducer(reducer, {user: null, pageOffset: 0})}>
-      {children}
-    </AppContext.Provider>
+    <AppStateContext.Provider value={state}>
+      <AppDispatchContext.Provider value={dispatch}>
+        {children}
+      </AppDispatchContext.Provider>
+    </AppStateContext.Provider>
   );
 };
