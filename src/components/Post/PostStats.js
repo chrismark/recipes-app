@@ -1,8 +1,31 @@
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Overlay, OverlayTrigger } from 'react-bootstrap';
 import { FaRegThumbsUp, FaRegHeart, FaRegGrinHearts, FaRegGrinSquint, FaRegSadTear, FaRegSurprise, FaRegAngry } from 'react-icons/fa';
 import { LikeTypes } from './LikeButton';
 
-const PostStats = ({ post, statIndex }) => {
+const PostStatUserList = ({ users, target, show }) => {
+  return <Overlay target={target.current} show={show} placement="top-start">
+    {({ placement, arrowProps, show: _show, popper, ...props }) => (
+      <div
+        {...props}
+        style={{
+          position: 'absolute',
+          paddingBottom: '.1rem',
+          background: '#ffffff05',
+          borderRadius: 3,
+          cursor: 'pointer',
+          zIndex: 999999,
+          ...props.style,
+        }}
+      >
+        <span className='fs-1 bg-white d-inline-flex'>
+          
+        </span>
+      </div>
+    )}
+  </Overlay>
+};
+
+const PostStats = ({ post, recipeIndex, statIndex }) => {
   const onClickLikeStat = (type) => {
     console.log(type, post.stats[statIndex][type]);
   };
@@ -14,7 +37,7 @@ const PostStats = ({ post, statIndex }) => {
   return (
     <Row className='mt-2 pb-2 border-bottom border-light gx-0 text-muted'>
       <Col xs={6}>
-        <span className='post-stat-emojis me-2'>
+        <span className='post-stat-emojis me-2 ps-1'>
           {post.stats[statIndex].like > 0 && <FaRegThumbsUp className='post-action-icon post-action-like cursor-pointer fs-5' onClick={() => onClickLikeStat('like')} />}
           {post.stats[statIndex].love > 0 && <FaRegHeart className='post-action-icon post-action-love cursor-pointer fs-5' onClick={() => onClickLikeStat('love')} />}
           {post.stats[statIndex].care > 0 && <FaRegGrinHearts className='post-action-icon post-action-care cursor-pointer fs-5' onClick={() => onClickLikeStat('care')} />}
@@ -25,7 +48,7 @@ const PostStats = ({ post, statIndex }) => {
         </span>
         {post.stats[statIndex].total_likes > 0 && (
           <span className='post-stat small text-reset cursor-pointer user-select-none' onClick={() => console.log(post.stats[statIndex])}>
-            {!post.liked ? post.stats[statIndex].total_likes : 
+            {!(recipeIndex == -1 ? post : post.recipes[recipeIndex]).liked ? post.stats[statIndex].total_likes : 
               ('You' + (post.stats[statIndex].total_likes > 1 ? ' and ' + (post.stats[statIndex].total_likes - 1) + ' other' : ''))
             }
           </span>

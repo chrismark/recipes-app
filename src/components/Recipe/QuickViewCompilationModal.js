@@ -28,7 +28,7 @@ const QuickViewCompilationModal = ({ compilation, show, onClose, onSave }) => {
         <Modal.Title><h2>Compilation: {compilation.name} <Button variant='secondary' onClick={() => onSave(compilation.recipes)}>Save All</Button></h2></Modal.Title>
       </Modal.Header>
       <Row className='justify-content-md-center' style={{background: 'black', marginBottom: '0em', marginLeft: '0em', marginRight: '0em', marginTop: '0em'}}>
-        <Col md='auto text-center'>
+        <Col md='auto' className='quick-view-compilation text-center'>
           <Carousel interval={null} onSelect={onSelectRecipe} fade={true} slide={false}>
             <Carousel.Item>
               <RecipeImage src={compilation.thumbnail_url} />

@@ -5,7 +5,7 @@ import PostComments from './PostComments';
 const PostFooter = ({ post, recipeIndex, statIndex, onLike, onUnlike }) => {
   return (
     <div className='post-footer'>
-      <PostStats post={post} statIndex={statIndex} />
+      <PostStats post={post} recipeIndex={recipeIndex} statIndex={statIndex} />
       <PostActions 
         post={post}
         recipeIndex={recipeIndex}

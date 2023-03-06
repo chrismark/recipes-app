@@ -119,19 +119,26 @@ span.my-btn-close-wrapper:hover svg.my-btn-close {
 
 div.postfullscreen-viewer > div.carousel > .carousel-control-next, div.postfullscreen-viewer > div.carousel > .carousel-control-prev {
   width: 8%;
+}
+div.postfullscreen-viewer > div.carousel > .carousel-control-next, div.postfullscreen-viewer > div.carousel > .carousel-control-prev,
+div.quick-view-compilation > div.carousel > a.carousel-control-next, div.quick-view-compilation > div.carousel > a.carousel-control-prev {
   background: #0000004b;
   transition: all 0.2s ease-out;
 }
-div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover, div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover {
+div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover, div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover,
+div.quick-view-compilation > div.carousel > a.carousel-control-next:hover, div.quick-view-compilation > div.carousel > a.carousel-control-prev:hover {
   background: #00000041;
   transition: all 0.2s ease-out;
 }
-div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover {
+div.postfullscreen-viewer > div.carousel > .carousel-control-next:hover, 
+div.quick-view-compilation > div.carousel > a.carousel-control-next:hover {
   translate: 5%;
 }
-div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover {
+div.postfullscreen-viewer > div.carousel > .carousel-control-prev:hover, 
+div.quick-view-compilation > div.carousel > a.carousel-control-prev:hover {
   translate: -5%;
 }
+
 div.mid-content {
   max-width: 700px;
   margin: 0 auto;
