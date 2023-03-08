@@ -130,31 +130,12 @@ const doUpdateLike = async ({post, recipeIndex, user, payload}, queryClient, que
     console.log('doUpdateLike:', 'value=', value);
     previousValue = JSON.parse(JSON.stringify(value));
 
-    // const statIndex = recipeIndex + 1;
     // Do optimistic update on cached post
     let index = value.findIndex(p => p.id == post.id);
     if (index != -1) {
       const curPost = value[index];
-      /*
-      if (recipeIndex >= 0) {
-        curPost.recipes[recipeIndex].liked = true;
-        curPost.recipes[recipeIndex].like_type = LikeTypesByZeroIndex[payload.like - 1].key;
-      }
-      else {
-        curPost.liked = true;
-        curPost.like_type = LikeTypesByZeroIndex[payload.like - 1].key;
-      }
-      curPost.stats[statIndex][curPost.like_type]++;
-      curPost.stats[statIndex].total_likes++;
-      if (payload.prev) {
-        const prev_type = LikeTypesByZeroIndex[payload.prev - 1].key;
-        curPost.stats[statIndex][prev_type]--;
-        curPost.stats[statIndex].total_likes--;
-      }
-      */
       optimisticUpdateLikePost(curPost, recipeIndex, payload);
       if (updateLocalPost) {
-        // optimisticUpdateLikePost(localPost, recipeIndex, payload);
         updateLocalPost({...curPost});
       }
       queryClient.setQueryData(queryKey, value);
@@ -170,23 +151,8 @@ const doUpdateLike = async ({post, recipeIndex, user, payload}, queryClient, que
     index = value.findIndex(p => p.id == post.id);
     if (index != -1) {
       const curPost = value[index];
-      /*
-      if (recipeIndex >= 0) {
-        curPost.recipes[recipeIndex].liked = true;
-        curPost.recipes[recipeIndex].like_type = data.like_type;
-      }
-      else {
-        curPost.liked = true;
-        curPost.like_type = data.like_type;
-      }
-      for (const p in data.stats) {
-        curPost.stats[statIndex][p] = data.stats[p];  
-      }
-      curPost.stats[statIndex].total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + curPost.stats[statIndex][c.key], 0);
-      */
       successUpdateLikePost(curPost, data, recipeIndex);
       if (updateLocalPost) {
-        // successUpdateLikePost(localPost, data, recipeIndex);
         updateLocalPost({...curPost});
       }
       queryClient.setQueryData(queryKey, value);
@@ -247,26 +213,12 @@ const doUpdateUnlike = async ({post, recipeIndex, user, payload}, queryClient, q
     console.log('recipe:', post.recipes[recipeIndex]);
     previousValue = JSON.parse(JSON.stringify(value));
 
-    // const statIndex = recipeIndex + 1;
     // Do optimistic update on cached post
     let index = value.findIndex(p => p.id == post.id);
     if (index != -1) {
       const curPost = value[index];
-      /*
-      curPost.stats[statIndex][curPost.like_type]--;
-      curPost.stats[statIndex].total_likes--;
-      if (recipeIndex >= 0) {
-        curPost.recipes[recipeIndex].liked = false;
-        curPost.recipes[recipeIndex].like_type = null;
-      }
-      else {
-        curPost.liked = false;
-        curPost.like_type = null;
-      }
-      */
       optimisticUpdateUnlikePost(curPost, recipeIndex);
       if (updateLocalPost) {
-        // optimisticUpdateUnlikePost(localPost, recipeIndex);
         updateLocalPost({...curPost});
       }
       queryClient.setQueryData(queryKey, value);
@@ -281,23 +233,8 @@ const doUpdateUnlike = async ({post, recipeIndex, user, payload}, queryClient, q
     index = value.findIndex(p => p.id == post.id);
     if (index != -1) {
       const curPost = value[index];
-      /*
-      if (recipeIndex >= 0) {
-        curPost.recipes[recipeIndex].liked = false;
-        curPost.recipes[recipeIndex].like_type = null;
-      }
-      else {
-        curPost.liked = false;
-        curPost.like_type = null;
-      }
-      for (const p in data.stats) {
-        curPost.stats[statIndex][p] = data.stats[p];  
-      }
-      curPost.stats[statIndex].total_likes = LikeTypesByZeroIndex.reduce((p,c) => p + curPost.stats[statIndex][c.key], 0);
-      */
       successUpdateUnlikePost(curPost, data, recipeIndex);
       if (updateLocalPost) {
-        // successUpdateUnlikePost(post, data, recipeIndex);
         updateLocalPost({...curPost});
       }
       queryClient.setQueryData(queryKey, value);
