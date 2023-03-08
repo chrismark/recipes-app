@@ -55,7 +55,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
   useEffect(() => {
     console.log('CommentForm useEffect: ', ref);
     if (ref.current) {
-      ref.current.focus();
+      // ref.current.focus();
     }
 
     return () => console.log('CommentForm unmount');

@@ -147,15 +147,30 @@ div.mid-content {
 .col.right-sidebar {
   -ms-flex: 0 0 300px;
   flex: 0 0 300px;
+  background:rgb(212, 225, 238);
+}
+.col.right-sidebar.hide {
+  display: none;
 }
 
 .col.left-sidebar {
   -ms-flex: 0 0 320px;
   flex: 0 0 320px;
+  background:rgb(212, 225, 238);
+}
+.col.left-sidebar.shrink {
+  -ms-flex: 0 0 65px;
+  flex: 0 0 65px;
 }
 
 div.recipe-etc {
-  transition: opacity 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  display: block;
+  opacity: 1;
+}
+div.recipe-etc.hide {
+  display: none;
+  opacity: 0;
 }
 
 @media (max-width: 1160px) {

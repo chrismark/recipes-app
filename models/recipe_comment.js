@@ -77,7 +77,7 @@ module.exports = {
     }
     catch (e) {
       console.log(e);
-      return null;
+      throw e;
     }
   },
   update: async function(editComment) {
@@ -93,7 +93,7 @@ module.exports = {
     }
     catch (e) {
       console.log(e);
-      return null;
+      throw e;
     }
   },
   delete: async function(userUuid, recipe_id, comment_id) {
@@ -112,7 +112,7 @@ module.exports = {
     }
     catch (e) {
       console.log(e);
-      return null;
+      throw e;
     }
   }
 }

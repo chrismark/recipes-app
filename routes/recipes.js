@@ -16,7 +16,7 @@ router.get('/', checkPerms(PermsConfig.FetchAllRecipes), async function(req, res
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching saved recipes. Please try again later.'
     });
   }
@@ -29,19 +29,11 @@ router.post('/', checkPerms(PermsConfig.CreateRecipe), async function(req, res) 
   try {
     console.log('req.body: ', req.body);
     let recipes = await Recipe.create(req.user.sub, req.body);
-
-    if (recipes) {
-      res.status(recipes.length > 0 ? 201 : 200).json(recipes);
-    }
-    else {
-      res.status(200).send({
-        errorMessage: 'There was a problem saving the recipe. Please try again later.'
-      });
-    }
+    res.status(recipes.length > 0 ? 201 : 200).json(recipes);
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem saving the recipe. Please try again later.'
     });
   }
@@ -58,7 +50,7 @@ router.get('/:recipe_id', checkPerms(PermsConfig.FetchRecipe), async function(re
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching the recipe. Please try again later.'
     });
   }
@@ -94,7 +86,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching the recipe comments. Please try again later.'
     });
   }
@@ -114,7 +106,7 @@ router.get('/:recipe_id/comments', checkPerms(PermsConfig.FetchAllRecipeComments
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching the recipe comments. Please try again later.'
     });
   }
@@ -134,7 +126,7 @@ router.post('/:recipe_id/comments', checkPerms(PermsConfig.CreateRecipeComment),
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem creating a comment. Please try again later.'
     });
   }
@@ -154,7 +146,7 @@ router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRe
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem creating a comment. Please try again later.'
     });
   }
@@ -174,7 +166,7 @@ router.patch('/:recipe_id/comments/:comment_id', checkPerms(PermsConfig.UpdateRe
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem deleting a recipe comment. Please try again later.'
     });
   }
@@ -200,19 +192,11 @@ router.post('/:recipe_id/ratings', checkPerms(PermsConfig.CreateRating), async f
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
     let rating = await RecipeRating.create(req.user.sub, parseInt(req.params.recipe_id), req.body.rating);
-
-    if (rating) {
-      res.status(200).json(rating);
-    }
-    else {
-      res.status(200).send({
-        errorMessage: 'There was a problem adding the rating. Please try again later.'
-      });
-    }
+    res.status(200).json(rating);
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem adding the rating. Please try again later.'
     });
   }
@@ -238,19 +222,11 @@ router.post('/:recipe_id/ratings/:rating_id', checkPerms(PermsConfig.UpdateRatin
     console.log('req.params: ', req.params);
     console.log('req.body: ', req.body);
     let rating = await RecipeRating.update(parseInt(req.params.rating_id), req.body.rating);
-
-    if (rating) {
-      res.status(200).json(rating);
-    }
-    else {
-      res.status(200).send({
-        errorMessage: 'There was a problem updating the rating. Please try again later.'
-      });
-    }
+    res.status(200).json(rating);
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem updating the rating. Please try again later.'
     });
   }

@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Collapse, Modal } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { IoIosArrowDropdown, IoIosArrowDropup } from 'react-icons/io';
+import { useQueryClient, useMutation } from 'react-query';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';
 import RecipeCredits from './RecipeCredits';
 import RecipeDescription from './RecipeDescription';
@@ -12,110 +13,68 @@ import RecipeImage from './RecipeImage';
 import StarRating from './StarRating';
 import RecipeComments from './RecipeComments';
 import { useStore } from '../Toaster';
-
-const fetchRecipe = async (token, user_uuid, recipe_id) => {
-  const url = `/api/users/${user_uuid}/recipes/${recipe_id}`;
-  console.log('fetchRecipes url: ', url);
-  const result = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  const data = await result.json();
-  return [data, result.status];
-};
-
-const submitRating = async (token, recipe_id, rating_id, rating) => {
-  try {
-    const url = `/api/recipes/${recipe_id}/ratings` + (rating_id != null ? `/${rating_id}` : '');
-    const result = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({rating})
-    });
-    const data = await result.json();
-    if (data.errorMessage) {
-      return [null, data.errorMessage];
-    }
-    return [data, null];
-  }
-  catch (e) {
-    console.error(e);
-    return [null, null];
-  }
-};
+import { useRecipe, submitRating } from '../recipeStore';
 
 const ViewSavedRecipe = ({ user }) => {
   const { toast } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
   const { recipe: localRecipe } = location.state;
-  const [recipe, setRecipe] = useState(localRecipe);
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [disableRating, setDisableRating] = useState(false);
-  const recipeEtc = useRef(null);
-  
-  useEffect(async () => {
-    console.log('ViewSavedRecipe useEffect() run');
-    await getRecipe();
-    if (recipeEtc.current != null) {
-      recipeEtc.current.style.display = 'block';
-      recipeEtc.current.style.opacity = 1;
-    }
-    return () => console.log('ViewSavedRecipe unmount');
-  }, []); //
+  const [open, setOpen] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: recipe, error, isFetching } = useRecipe(user?.uuid, user?.token, localRecipe.id, localRecipe);
 
-  const getRecipe = async () => {
-    setLoading(true);
-    setDisableRating(true);
-    const [data, status] = await fetchRecipe(user.token, user.uuid, recipe.id);
-    if (status !== 200) { 
-      console.log('navigating to /login');
-      return setTimeout(() => navigate('/login'), 500);
+  console.log('ViewSavedRecipe:: recipe=', recipe);
+
+  const updateRecipeRatingMutation = useMutation(
+    submitRating,
+    {
+      onMutate: async (variables) => {
+        console.log('updateRecipeRatingMutation: onMutate variables=', variables);
+        await queryClient.cancelQueries(['recipe', user?.uuid, user?.token, variables.recipe_id]);
+        const previousValue = queryClient.getQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id]);
+        console.log('updateRecipeRatingMutation: onMutate previousValue=', previousValue);
+        // optimistic update
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], {...previousValue, rating: variables.rating });
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        console.log('updateRecipeRatingMutation: onSuccess data=', data, 'variables=', variables, 'previousValue=', previousValue);
+        if (data.errorMessage) {
+          return;
+        }
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], {...previousValue, ...data});
+      },
+      onError: (err, variables, previousValue) => {
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], previousValue);
+        // toast('Something happened while updating the post. Please try again later.');
+      }
     }
-    setLoading(false);
-    let {id, ...others} = recipe;
-    let {id: newDataId, ...otherData} = data[0];
-    setRecipe(recipe => ({...others, id, ...otherData}));
-    setDisableRating(false);
-  }
+  );
 
   const handleClick = async (rating) => {
-    console.log('rating: ', rating);
-    setDisableRating(true);
-    setRecipe(recipe => ({...recipe, rating}));
-    const [data, error] = await submitRating(user.token, recipe.id, recipe.rating_id, rating);
-    setRecipe(recipe => ({...recipe, rating_id: data.id}));
-    setDisableRating(false);
-    toast('Rating updated');
-  }
-
-  const onClose = (e) => {
-    e.preventDefault();
-    navigate(-1); // Back to Posts
+    console.log('rating=', rating);
+    console.log('recipe.id=', recipe.id);
+    await updateRecipeRatingMutation.mutateAsync({ 
+      token: user.token, recipe_id: recipe.id, rating_id: recipe.rating_id, rating 
+    });
   };
 
-  return (<>
+  return (
   <Modal show={true} fullscreen={true}>
     <Modal.Body>
       <Container className='justify-content-sm-center justify-content-md-center' style={{zIndex: 2, height: '100vh'}}>
         <h5><Link to='/saved-recipes' style={{textDecoration: 'none'}} onClick={(e) => { e.stopPropagation(); navigate(-1); }}>Back</Link></h5>
         <br/>
-        <h2 className='mb-0'>{recipe.name}</h2>
-        <StarRating disabled={disableRating} rating={(recipe && recipe.rating)} onClick={handleClick} />
+        <h2 className='mb-0'>{recipe?.name}</h2>
+        <StarRating disabled={isFetching || updateRecipeRatingMutation.isLoading} rating={recipe?.rating} onClick={handleClick} />
         <br/>
         <Row className='justify-content-md-center' style={{background: 'black', marginBottom: '0em', marginLeft: '0em', marginRight: '0em', marginTop: '0em'}}>
           <Col md='auto text-center'>
-            <RecipeImage src={recipe.thumbnail_url} maxHeight='60vh' />
+            <RecipeImage src={recipe?.thumbnail_url} maxHeight='60vh' />
           </Col>
         </Row>
-        <Row ref={recipeEtc} className='recipe-etc' style={{display: 'none', opacity: 0}}>
+        {!isFetching && <Row className='recipe-etc'>
           <Col>
             <br/>
             <RecipeDescription recipe={recipe} />
@@ -140,11 +99,11 @@ const ViewSavedRecipe = ({ user }) => {
             </div>
             <RecipeComments recipe={recipe} user={user} />
           </Col>     
-        </Row>
+        </Row>}
       </Container>
     </Modal.Body>
   </Modal>
-  </>);
+  );
 };
 
 export default ViewSavedRecipe;

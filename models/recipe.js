@@ -118,7 +118,7 @@ module.exports = {
     }
     catch (e) {
       console.error(e);
-      return [];
+      throw e;
     }
   },
   /**
@@ -135,7 +135,7 @@ module.exports = {
     }
     catch (e) {
       console.error(e);
-      return [];
+      throw e;
     }
   },
   /**
@@ -151,6 +151,7 @@ module.exports = {
     }
     catch (e) {
       console.error(e);
+      throw e;
     }
   },
   /**

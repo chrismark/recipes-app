@@ -23,14 +23,7 @@ const App = () => {
   const state = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);
 
-  console.log('App:', 'state=', state);
-
-  useEffect(() => {
-    (async function() {
-      // Fetch posts
-      
-    })();
-  }, [/** dependencies */]);
+  // console.log('App:', 'state=', state);
 
   const onLogin = async (payload) => {
     try {
@@ -102,6 +95,18 @@ const App = () => {
           }>
           <Route path='posts/:post/recipes' element={<PostFullscreen user={state.user} />} />
         </Route>
+        <Route path='/:username/posts/:post' 
+          element={
+            <MainContainer user={state.user}>
+              <Home user={state.user} />
+            </MainContainer>
+          }>
+          <Route path='/:username/posts/:post/recipes' element={<PostFullscreen user={state.user} />} />
+        </Route>
+        {/* 
+        TODO: Add path=':username/posts/:post/recipes element={<SinglePost />}
+        <SinglePost> will display the post on its own page
+        */}
         <Route path='/saved-recipes' 
           element={
             <MainContainer user={state.user}>

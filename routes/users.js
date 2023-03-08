@@ -44,7 +44,7 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching saved recipes. Please try again later.'
     });
   }
@@ -60,7 +60,7 @@ router.patch('/:user_id', checkPerms(PermsConfig.UpdateUser), function(req, res)
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching saved recipe. Please try again later.'
     });
   }
@@ -82,7 +82,7 @@ router.get('/:user_uuid/posts', checkPerms(PermsConfig.FetchAllUserPosts), async
   }
   catch (e) {
     console.error(e);
-    res.status(200).send({
+    res.status(500).send({
       errorMessage: 'There was a problem fetching posts. Please try again later.'
     });
   }

@@ -131,7 +131,8 @@ module.exports = {
       .where('users.uuid', userUuid)
       .andWhere('recipes.id', parseInt(recipe_id, 10));
     console.log('query: ', query.toString());
-    return await query;
+    const result = await query;
+    return result[0];
   },
   fetchPosts: async function(userUuid, page = 1) {
 

@@ -12,10 +12,10 @@ const ListSavedRecipes = ({ recipes, isFetchingRecipes, isInitialLoad, activeCar
     <Container className='saved-recipes justify-content-sm-center justify-content-md-center'>
       <h2>List of Saved Recipes</h2>
       <br/>
-      {recipes.length > 0 && (<>
-        {/* <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
+      {/* {!isFetchingRecipes && recipes.length > 0 && (<>
+        <Paginate totalCount={recipes.length} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
         <br />
-      </>)}
+      </>)} */}
       <Row xs={1} sm={2} md={3} lg={3} xl={4} xxl={4} className='gy-4'>
         {isFetchingRecipes && isInitialLoad && (<>
           <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
@@ -27,16 +27,16 @@ const ListSavedRecipes = ({ recipes, isFetchingRecipes, isInitialLoad, activeCar
           <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
           <Col sm={6}><RecipePlaceholder showLinkSection={false} /></Col>
         </>)}
-        {recipes.length > 0 && recipes.map((recipe, recipeIndex) => (
+        {!isFetchingRecipes && recipes && recipes.map((recipe, recipeIndex) => (
           <Col sm={6} key={recipe.id}>
             <Recipe activeCardId={activeCardId} recipe={recipe} recipeIndex={recipeIndex} onSelect={selectRecipe} />
           </Col>
         ))}
       </Row>
-      {recipes.length > 0 && (<>
+      {/* {!isFetchingRecipes && recipes.length > 0 && (<>
         <br /><br />
-        {/* <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} /> */}
-      </>)}
+        <Paginate totalCount={recipeCount} pageOffset={pageOffset} size={size} dataSource={recipes} onPage={getPage} />
+      </>)} */}
     </Container>
   );
 };
