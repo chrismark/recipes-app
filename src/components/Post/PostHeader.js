@@ -17,7 +17,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   </span>
 ));
 
-const PostHeader = ({ user, post, onClickEdit }) => {
+const PostHeader = ({ user, post, onClickEdit, hideActionButtons }) => {
   const onClickHandler = () => {
     console.log('PostHeader onClickHandler: ', post);
     onClickEdit(post);
@@ -31,6 +31,7 @@ const PostHeader = ({ user, post, onClickEdit }) => {
         </div>
       </Col>
       <Col className='text-end pt-1'>
+        {!hideActionButtons &&
         <Dropdown align='end'>
           <Dropdown.Toggle as={CustomToggle} variant='link'>
             <FaEllipsisH className='cursor-pointer fs-6 fw-normal'  />
@@ -41,9 +42,14 @@ const PostHeader = ({ user, post, onClickEdit }) => {
             <Dropdown.Item className='fw-bold'><FaRegTrashAlt className='fs-5 mb-1 me-2' />Move to trash</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
+        }
       </Col>
     </Row>
   );
+};
+
+PostHeader.defaultProps = {
+  hideActionButtons: false,
 };
 
 export default PostHeader;

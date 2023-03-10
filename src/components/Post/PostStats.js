@@ -35,7 +35,7 @@ const PostStats = ({ post, recipeIndex, statIndex }) => {
   }
 
   return (
-    <Row className='mt-2 pb-2 border-bottom border-light gx-0 text-muted'>
+    <Row className='mt-2 mb-1 pb-2 gx-0 text-muted'>
       <Col xs={6}>
         <span className='post-stat-emojis me-2 ps-1'>
           {post.stats[statIndex].like > 0 && <FaRegThumbsUp className='post-action-icon post-action-like cursor-pointer fs-5' onClick={() => onClickLikeStat('like')} />}

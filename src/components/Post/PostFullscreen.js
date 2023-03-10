@@ -75,7 +75,7 @@ const PostFullscreen = ({ user }) => {
             </Col>
             <Col className='postfullscreen-comments'>
               <div className='postfullscreen-header-spacer'></div>
-              <PostHeader user={user} post={post} />
+              <PostHeader user={user} post={post} hideActionButtons={true} />
               <p>{message}</p>
               <PostFooter user={user} post={post} recipeIndex={isSingleRecipe ? -1 : activeIndex} statIndex={isSingleRecipe ? 0 : activeIndex+1} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
             </Col>

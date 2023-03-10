@@ -3,45 +3,11 @@ import { Link } from 'react-router-dom';
 import { Form, Placeholder, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { useQueryClient, useMutation } from 'react-query';
 import { useStore } from '../Toaster';
 import { useIsMounted } from '../../lib';
 import SimplePaginate from '../SimplePaginate';
-
-const fetchComments = async (token, recipe_id, comment_id, page = 0) => {
-  const url = `/api/recipes/${recipe_id}/comments` + (comment_id ? `/${comment_id}` : `?page=${page}`);
-  console.log('url: ', url);
-  const result = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  });
-  const data = await result.json();
-  console.log('result: ', result);
-  console.log('data: ', data);
-  if (data.errorMessage) {
-    return [null, data.errorMessage];
-  }
-  return [data, null];
-};
-
-const submitComment = async (token, recipe_id, id, parent_id, message) => {
-  const url = `/api/recipes/${recipe_id}/comments` + (id != -1 ? `/${id}` : '');
-  console.log('url: ', url);
-  const result = await fetch(url, {
-    method: id != -1 ? 'PATCH' : 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(id != -1 ? { id, message } : { parent_id, message })
-  });
-  const data = await result.json();
-  console.log('result: ', result);
-  console.log('data: ', data);
-  return data;
-};
+import { useRecipeComments, useSubmitComment, useDeleteComment } from '../recipeStore';
 
 const schema = Yup.object().shape({
   message: Yup.string().required(),
@@ -154,36 +120,40 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   const [comment, setComment] = useState(data);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [replies, setReplies] = useState([]);
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [commentId, setCommentId] = useState(null);
   const [initialValues, setInitialValues] = useState({
     id: -1,
     message: '',
     parent_id: data.id
   });
+  const { data: replies, error, isFetching } = useRecipeComments(user?.token, recipe.id, commentId, page, 
+    /* keepPreviousData: */ true);
+  const queryClient = useQueryClient();
+  const submitCommentMut = useSubmitComment(queryClient, page);
+  const deleteCommentMut = useDeleteComment(queryClient, page);
 
-  const doDelete = async (token, recipe_id, id) => {
-    const url = `/api/recipes/${recipe_id}/comments/${id}`;
-    const result = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    const data = await result.json();
-    console.log('result: ', result);
-    console.log('data: ', data);
-    return data;
-  };
+  useEffect(() => {
+    if (repliesRef.current) {
+      if (!isMounted.current) { return; }
+      repliesRef.current.scrollIntoView();
+    }
+  }, [replies]);
 
   const onSubmit = async (values, actions) => {
     setShowSubmitError(false);
     setSubmitError('');
 
-    const data = await submitComment(user.token, recipe.id, values.id, values.parent_id, values.message);
+    // const data = await submitComment(user.token, recipe.id, values.id, values.parent_id, values.message);
+    const data = await submitCommentMut.mutateAsync({
+      token: user.token, 
+      recipe_id: recipe.id, 
+      id: values.id, 
+      parent_id: values.parent_id, 
+      message: values.message
+    });
 
     if (!isMounted.current) { return; }
 
@@ -198,8 +168,6 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
         toast('Reply updated');
       }
       else {
-        replies.unshift(data);
-        setReplies([...replies]);
         toast('Reply added');
       }
     }
@@ -226,7 +194,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   const onDeleteYes = async (e) => {
     e.preventDefault();
 
-    const data = doDelete(user.token, recipe.id, comment.id);
+    // const data = doDelete(user.token, recipe.id, comment.id);
+    const data = await deleteCommentMut.mutateAsync({
+      token: user.token,
+      recipe_id: recipe.id,
+      comment_id: comment.id
+    });
 
     if (!isMounted.current) { return; }
 
@@ -260,15 +233,14 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
 
   const onViewReplies = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    // setIsLoading(true);
 
-    const [replies, error] = await fetchComments(user.token, recipe.id, data.id, page);
+    // const [replies, error] = await fetchComments(user.token, recipe.id, data.id, page);
+    setCommentId(data.id);
 
-    if (!isMounted.current) { return; }
-
-    setIsLoading(false);
-    setReplies(replies);
-    repliesRef.current.scrollIntoView();
+    // setIsLoading(false);
+    // setReplies(replies);
+    // repliesRef.current.scrollIntoView();
   };
 
   return (
@@ -316,7 +288,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
       {!comment.deleted && <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>}
     </div>
     <Row ref={repliesRef} xs={1} className='ms-4 gy-3'>
-      {isLoading && (
+      {isFetching && (
       <Col className='text-muted text-center'>
         <Spinner
             as='span'
@@ -345,7 +317,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
           />
         )}
       </Col>
-      {!isLoading && replies.length > 0 && replies.map(reply => (
+      {!isFetching && replies.length > 0 && replies.map(reply => (
         <Col key={reply.id}>
           <Comment recipe={recipe} user={user} data={reply} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
         </Col>
@@ -390,7 +362,7 @@ const RecipeComments = ({ user, recipe }) => {
   const [submitting, setSubmitting] = useState(false);
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [comments, setComments] = useState([]);
+  // const [comments, setComments] = useState([]);
   const [page, setPage] = useState(0);
   const [showReplyFormId, setShowReplyFormId] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
@@ -400,23 +372,9 @@ const RecipeComments = ({ user, recipe }) => {
     message: '',
     parent_id: -1
   };
-
-  useEffect(() => {
-    getComments();
-
-    return () => console.log('RecipeComments unmount');
-  }, [page]);
-
-  const getComments = async () => {
-    setIsLoading(true);
-
-    const [comments, error] = await fetchComments(user.token, recipe.id, null, page);
-
-    if (!isMounted.current) { return; }
-
-    setIsLoading(false);
-    setComments(comments);
-  };
+  const { data: comments, error, isFetching } = useRecipeComments(user?.token, recipe.id, null, page);
+  const queryClient = useQueryClient();
+  const submitCommentMut = useSubmitComment(queryClient, page);
 
   const onSubmit = async (values, actions) => {
     console.log('values: ', values);
@@ -424,7 +382,14 @@ const RecipeComments = ({ user, recipe }) => {
     setSubmitError('');
     setSubmitting(true);
 
-    const data = await submitComment(user.token, recipe.id, -1, values.parent_id, values.message);
+    // const data = await submitComment(user.token, recipe.id, -1, values.parent_id, values.message);
+    const data = await submitCommentMut.mutateAsync({
+      token: user.token, 
+      recipe_id: recipe.id, 
+      id: -1, 
+      parent_id: values.parent_id, 
+      message: values.message
+    });
 
     if (!isMounted.current) { return; }
 
@@ -436,7 +401,7 @@ const RecipeComments = ({ user, recipe }) => {
     else {
       comments.unshift(data);
       commentsRef.current.scrollIntoView();
-      setComments([...comments]);
+      // setComments([...comments]);
       toast('Comment added');
     }
   };
@@ -466,7 +431,7 @@ const RecipeComments = ({ user, recipe }) => {
       <span className='m-0' ref={commentsRef}></span>
       <SimplePaginate onPage={onPage} page={page} />
     </Col>
-    {isLoading && (<>
+    {isFetching && (<>
       <Col><CommentPlaceholder /></Col>
       <Col><CommentPlaceholder /></Col>
       <Col><CommentPlaceholder /></Col>
@@ -474,7 +439,7 @@ const RecipeComments = ({ user, recipe }) => {
       <Col><CommentPlaceholder /></Col>
       <Col><CommentPlaceholder /></Col>
     </>)}
-    {!isLoading && comments.length > 0 && comments.map(comment => (
+    {!isFetching && comments.length > 0 && comments.map(comment => (
     <Col key={comment.id}>
         <Comment recipe={recipe} user={user} data={comment} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
     </Col>

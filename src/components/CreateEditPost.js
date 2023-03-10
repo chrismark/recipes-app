@@ -43,8 +43,6 @@ export const useCreateEditPost = () => {
 };
 
 const CreateEditPost = forwardRef(({}, ref) => {
-  // const state = useContext(CreateEditPostStateContext);
-  // const dispatch = useContext(CreateEditPostDispatchContext);
   const [selectedRecipes, setSelectedRecipes] = useState([]);
   const [postId, setPostId] = useState(null);
   const [postMessage, setPostMessage] = useState('');
@@ -80,12 +78,14 @@ const CreateEditPost = forwardRef(({}, ref) => {
           return;
         }
         // add new post to cache
-        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [data, ...previousValue]);
+        previousValue.unshift(data);
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
       },
       onError: (err, variables, previousValue) => {
         console.log('createPostMutation onError:', err, variables);
         console.log(err, variables, previousValue);
         toast('Something happened while creating the post. Please try again later.');
+        queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
       }
     }
   );
@@ -108,7 +108,7 @@ const CreateEditPost = forwardRef(({}, ref) => {
           previousValue[index].message = data.message;
           previousValue[index].recipes = data.recipes;
           previousValue[index].stats = data.stats;
-          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], [...previousValue]);
+          queryClient.setQueryData(['user-posts', user?.uuid, user?.token, pageOffset], previousValue);
         }
       },
       onError: (err, variables, previousValue) => {
@@ -138,7 +138,6 @@ const CreateEditPost = forwardRef(({}, ref) => {
     else {
       toast('New post added!');
       setShowCreateEditPostModal(false);
-      // dispatch({ type: 'hide_modal'});
       setSelectedRecipes([]);
       setPostMessage('');
     }
@@ -171,7 +170,6 @@ const CreateEditPost = forwardRef(({}, ref) => {
     }
     else {
       setShowCreateEditPostModal(false);
-      // dispatch({ type: 'hide_modal'});
       setPostId(null);
       setPostMessage('');
       setSelectedRecipes([]);
@@ -182,7 +180,6 @@ const CreateEditPost = forwardRef(({}, ref) => {
   const onCreateEditPostClose = () => {
     console.log('')
     setShowCreateEditPostModal(false);
-    // dispatch({ type: 'hide_modal'});
     if (postId != null) {
       setPostId(null);
       setPostMessage('');
@@ -223,14 +220,6 @@ const CreateEditPost = forwardRef(({}, ref) => {
     setShowAddRecipeCaptionModal(false);
   }
 
-  // const onEditPost = (post) => {
-  //   console.log('Edit Post: ', post);
-  //   setPostId(post.id);
-  //   setPostMessage(post.message);
-  //   setSelectedRecipes(JSON.parse(JSON.stringify(post.recipes)));
-  //   setShowCreateEditPostModal(true);
-  // };
-
   return (<>
   <Row className='justify-content-md-center'>
             <Col className='mb-5 mt-0'>
@@ -238,12 +227,10 @@ const CreateEditPost = forwardRef(({}, ref) => {
       text='What food are you craving right now?'
       onClick={() => { 
           setShowCreateEditPostModal(true);
-          // dispatch({ type: 'show_modal' });
       }}
       />
     <CreateEditPostModal 
       show={showCreateEditPostModal} 
-      // show={state.showModal}
       postId={postId} 
       postMessage={postMessage}
       onCreateSubmit={onCreatePostSubmit} 

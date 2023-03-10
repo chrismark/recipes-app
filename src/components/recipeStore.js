@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 
 const fetchRecipe = async (uuid, token, recipe_id) => {
   const url = `/api/users/${uuid}/recipes/${recipe_id}`;
@@ -49,6 +49,56 @@ const fetchRecipes = async (uuid, token, page, mode) => {
   return await result.json();
 };
 
+/* RecipeComments */
+const fetchComments = async (token, recipe_id, comment_id, page = 0) => {
+  const url = `/api/recipes/${recipe_id}/comments` + (comment_id ? `/${comment_id}` : `?page=${page}`);
+  console.log('url: ', url);
+  const result = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await result.json();
+  console.log('result: ', result);
+  console.log('data: ', data);
+  return data;
+};
+
+const submitComment = async ({token, recipe_id, id, parent_id, message}) => {
+  const url = `/api/recipes/${recipe_id}/comments` + (id != -1 ? `/${id}` : '');
+  console.log('url: ', url);
+  const result = await fetch(url, {
+    method: id != -1 ? 'PATCH' : 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(id != -1 ? { id, message } : { parent_id, message })
+  });
+  const data = await result.json();
+  console.log('result: ', result);
+  console.log('data: ', data);
+  return data;
+};
+
+const deleteComment = async ({token, recipe_id, comment_id}) => {
+  const url = `/api/recipes/${recipe_id}/comments/${comment_id}`;
+  const result = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await result.json();
+  console.log('result: ', result);
+  console.log('data: ', data);
+  return data;
+};
+/* */
+
 const useRecipes = (uuid, token, page, mode) => {
   console.log('useRecipes::react-query fetching');
   const queryData = useQuery(
@@ -84,4 +134,102 @@ const useRecipe = (uuid, token, recipe_id, initialData) => {
   return queryData;
 };
 
-export { useRecipes, useRecipe, submitRating };
+const useSubmitRating = (queryClient, user) => {
+  return useMutation(
+    submitRating,
+    {
+      onMutate: async (variables) => {
+        console.log('updateRecipeRatingMutation: onMutate variables=', variables);
+        await queryClient.cancelQueries(['recipe', user?.uuid, user?.token, variables.recipe_id]);
+        const previousValue = queryClient.getQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id]);
+        console.log('updateRecipeRatingMutation: onMutate previousValue=', previousValue);
+        // optimistic update
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], {...previousValue, rating: variables.rating });
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        console.log('updateRecipeRatingMutation: onSuccess data=', data, 'variables=', variables, 'previousValue=', previousValue);
+        if (data.errorMessage) {
+          return;
+        }
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], {...previousValue, ...data});
+      },
+      onError: (err, variables, previousValue) => {
+        queryClient.setQueryData(['recipe', user?.uuid, user?.token, variables.recipe_id], previousValue);
+        // toast('Something happened while updating the post. Please try again later.');
+      }
+    }
+  );
+};
+
+const useRecipeComments = (token, recipe_id, comment_id, page, keepPreviousData = false) => {
+  console.log('useRecipeComments::react-query fetching');
+  const queryData = useQuery(
+    ['recipe-comments', token, recipe_id, comment_id, page], 
+    async () => fetchComments(token, recipe_id, comment_id, page),
+    { 
+      keepPreviousData,
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      staleTime: 60 * 1000 * 5,
+      cacheTime: 60 * 1000 * 60,
+    },
+  );
+  return queryData;
+};
+
+const useSubmitComment = (queryClient, page) => {
+  return useMutation(
+    submitComment,
+    {
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page]);
+        const previousValue = queryClient.getQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page]);
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        console.log('useSubmitComment: onSuccess data=', data, 'variables=', variables, 'previousValue=', previousValue);
+        if (data.errorMessage) {
+          return;
+        }
+        previousValue.unshift(data);
+        queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page], previousValue);
+      },
+      onError: (err, variables, previousValue) => {
+        console.log('useSubmitComment: onError err=', err);
+        queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page], previousValue);
+        // toast('Something happened while updating the post. Please try again later.');
+      }
+    }
+  );
+};
+
+const useDeleteComment = (queryClient, page) => {
+  return useMutation(
+    deleteComment,
+    {
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page]);
+        const previousValue = queryClient.getQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page]);
+        return previousValue;
+      },
+      onSuccess: function (data, variables, previousValue) {
+        console.log('useSubmitComment: onSuccess data=', data, 'variables=', variables, 'previousValue=', previousValue);
+        if (data.errorMessage) {
+          return;
+        }
+        const index = previousValue.findIndex(c => c.id == variables.comment_id);
+        previousValue[index].deleted = true;
+        queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page], previousValue);
+      },
+      onError: (err, variables, previousValue) => {
+        console.log('useSubmitComment: onError err=', err);
+        queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.comment_id, page], previousValue);
+        // toast('Something happened while updating the post. Please try again later.');
+      }
+    }
+  );
+};
+
+
+export { useRecipes, useRecipe, useSubmitRating, useSubmitComment, useRecipeComments, useDeleteComment };

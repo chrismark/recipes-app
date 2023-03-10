@@ -86,7 +86,7 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
 
   return (
     <>
-      <Row className='m-0 mt-1 mb-1'>
+      <Row className='m-0 mt-0 mb-1 border-top border-light-gray pt-1'>
         <Col className='p-0'>
           <PostButton myRef={target} onHoverIn={handleHoverIn} onHoverOut={handleHoverOut} onClick={() => onClickLike(source.liked ? LikeTypes[source.like_type].value : 1)}>
             <LikeButtonIconText isLiked={source.liked} type={source.like_type} />
