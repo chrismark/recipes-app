@@ -1,5 +1,7 @@
 import { useQuery } from 'react-query';
 
+// TODO: Handle auto-request new Token inside functions that uses fetch()
+
 const fetchUserPosts = async (uuid, token, page) => {
   const url = `/api/users/${uuid}/posts?page=${page}`;
   console.log('fetchUserPosts url: ', url);

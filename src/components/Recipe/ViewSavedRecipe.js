@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Container, Row, Col, Collapse, Modal } from 'react-bootstrap';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { IoIosArrowDropdown, IoIosArrowDropup } from 'react-icons/io';
 import { useQueryClient, useMutation } from 'react-query';
 import RecipeTimeInMinutes from './RecipeTimeInMinutes';

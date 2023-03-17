@@ -66,9 +66,7 @@ module.exports = {
         user_id: user[0].id,
         message: newComment.message
       };
-      if (newComment.parent_id > 0) {
-        payload['parent_id'] = newComment.parent_id;
-      }
+      payload['parent_id'] = newComment.parent_id;
       const [comment] = await db('recipe_comments').insert(payload).returning(RETURN_FIELDS);
       comment.uuid = userUuid;
       comment.name = user[0].name;

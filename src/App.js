@@ -72,12 +72,14 @@ const App = () => {
   };
 
   const onPostLogin = (data) => {
+    // TODO: Store user data inside browser cache, etc
     dispatch({ type: 'update_user', user: data });
     console.log('onPostLogin');
     navigate('/');
   };
 
   const onPostRegister = (data) => {
+    // TODO: Store user data inside browser cache, etc
     dispatch({ type: 'update_user', user: data });
     console.log('onPostRegister');
     navigate('/');

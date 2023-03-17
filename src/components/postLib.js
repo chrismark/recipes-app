@@ -1,5 +1,7 @@
 import { LikeTypesByZeroIndex } from './Post/LikeButton';
 
+// TODO: Handle auto-request new Token inside functions that uses fetch()
+
 // createPost and updatePost is sent by createPostMutation and updatePostMutation a single object
 const createPost = async ({user, payload}) => {
   try {

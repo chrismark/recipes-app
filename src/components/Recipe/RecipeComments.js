@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Form, Placeholder, Col, Row, Alert, Button, Spinner, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
@@ -7,7 +7,7 @@ import { useQueryClient, useMutation } from 'react-query';
 import { useStore } from '../Toaster';
 import { useIsMounted } from '../../lib';
 import SimplePaginate from '../SimplePaginate';
-import { useRecipeComments, useSubmitComment, useDeleteComment } from '../recipeStore';
+import { useRecipeComments, useRecipeCommentReplies, useSubmitComment, useDeleteComment } from '../recipeStore';
 
 const schema = Yup.object().shape({
   message: Yup.string().required(),
@@ -17,15 +17,6 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
   console.log('re-render CommentForm');
   const ref = useRef(null);
   const isMounted = useIsMounted('CommentForm');
-
-  useEffect(() => {
-    console.log('CommentForm useEffect: ', ref);
-    if (ref.current) {
-      // ref.current.focus();
-    }
-
-    return () => console.log('CommentForm unmount');
-  }, [ref])
   
   return (
     <Formik
@@ -44,11 +35,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
       {({
         handleSubmit,
         handleChange,
-        handleBlur,
         values,
-        touched,
-        isValid,
-        errors,
         isSubmitting
       }) => (
         <Form onSubmit={handleSubmit}>
@@ -66,7 +53,6 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
             />
           <Form.Group className='mb-3' controlId='validationFormik1'>
             <Form.Control
-              ref={ref}
               disabled={isLoading || isSubmitting}
               as='textarea'
               name='message'
@@ -76,7 +62,7 @@ const CommentForm = ({ title, initialValues, onSubmit, onCancel, placeholder, er
               rows={5}
               />
           </Form.Group>
-          <div className='text-right'>
+          <div className='text-right' ref={ref}>
           {!isSubmitting ? 
             (<>
               <Button variant={submitButtonVariant} type='submit' disabled={isLoading}>{submitButtonText}</Button>{' '}
@@ -112,25 +98,47 @@ CommentForm.defaultProps = {
   submitButtonVariant: 'primary'
 };
 
+const ListCommentReplies = ({ recipe, user, commentId, showReplyFormId, setShowReplyFormId }) => {
+  const { data: replies, error, isFetching, isIdle } = useRecipeCommentReplies(user?.token, recipe.id, commentId, 0);
+  console.log('Comment query key=', [user?.token, recipe.id, commentId, 0]);
+
+  return (<>
+    {isFetching && (
+    <Col className='text-muted text-center'>
+      <Spinner
+          as='span'
+          animation='border'
+          size='sm'
+          role='status'
+          aria-hidden='true'
+        />
+        {' '}Loading
+    </Col>
+    )}
+    {!isIdle && !isFetching && replies && replies.length > 0 && replies.map(reply => (
+      <Col key={reply.id}>
+        <Comment recipe={recipe} user={user} data={reply} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
+      </Col>
+    ))}
+  </>);
+};
+
 const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) => {
+  console.log('Comment recipe=', recipe.id, ' comment=', data.id);
   const { toast } = useStore();
   const repliesRef = useRef(null);
   const commentRef = useRef(null);
   const isMounted = useIsMounted('Comment');
   const [comment, setComment] = useState(data);
-  const [showSubmitError, setShowSubmitError] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [page, setPage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [isConfirmDelete, setIsConfirmDelete] = useState(false);
-  const [commentId, setCommentId] = useState(null);
+  const [commentId, setCommentId] = useState(false);
   const [initialValues, setInitialValues] = useState({
     id: -1,
     message: '',
     parent_id: data.id
   });
-  const { data: replies, error, isFetching } = useRecipeComments(user?.token, recipe.id, commentId, page, 
-    /* keepPreviousData: */ true);
   const queryClient = useQueryClient();
   const submitCommentMut = useSubmitComment(queryClient, page);
   const deleteCommentMut = useDeleteComment(queryClient, page);
@@ -140,18 +148,16 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
       if (!isMounted.current) { return; }
       repliesRef.current.scrollIntoView();
     }
-  }, [replies]);
+  }, [commentId]);
 
   const onSubmit = async (values, actions) => {
-    setShowSubmitError(false);
-    setSubmitError('');
+    setSubmitError(null);
 
-    // const data = await submitComment(user.token, recipe.id, values.id, values.parent_id, values.message);
     const data = await submitCommentMut.mutateAsync({
       token: user.token, 
       recipe_id: recipe.id, 
       id: values.id, 
-      parent_id: values.parent_id, 
+      parent_id: values.parent_id == -1 ? null : values.parent_id, 
       message: values.message
     });
 
@@ -159,12 +165,11 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
 
     if (data.errorMessage) {
       setSubmitError(data.errorMessage);
-      setShowSubmitError(true);
     }
     else {
       setShowReplyFormId(-1);
+      setCommentId(values.parent_id);
       if (values.id != -1) {
-        setComment({...comment, message: data.message, updated_on: data.updated_on});
         toast('Reply updated');
       }
       else {
@@ -194,7 +199,6 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   const onDeleteYes = async (e) => {
     e.preventDefault();
 
-    // const data = doDelete(user.token, recipe.id, comment.id);
     const data = await deleteCommentMut.mutateAsync({
       token: user.token,
       recipe_id: recipe.id,
@@ -233,14 +237,8 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
 
   const onViewReplies = async (e) => {
     e.preventDefault();
-    // setIsLoading(true);
-
-    // const [replies, error] = await fetchComments(user.token, recipe.id, data.id, page);
+    console.log('view replies for', data.id);
     setCommentId(data.id);
-
-    // setIsLoading(false);
-    // setReplies(replies);
-    // repliesRef.current.scrollIntoView();
   };
 
   return (
@@ -267,7 +265,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
                 </span>
                 )}
               </>)}
-              {new Date(data.posted_on).toLocaleString('en-US', {timezone: user.timezone })}
+              {new Date(data.posted_on).toLocaleString('en-US', {timezone: user.timezone})}
               <Link to={`#${data.id}`} className='text-decoration-none ms-3'>#{data.id}</Link>
             </Col>
           </Row>
@@ -277,38 +275,26 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
         </Card.Body>
         <Card.Body className='small text-muted pb-2 text-end'>
           {comment.updated_on ? (
-          <span>Updated on {new Date(comment.updated_on).toLocaleString('en-US', {timezone: user.timezone })}
+          <span>Updated on {new Date(comment.updated_on).toLocaleString('en-US', {timezone: user.timezone})}
           </span>) : ''}
         </Card.Body>
       </>
       )}
     </Card>
     <div className='text-start text-muted ms-3'>
-      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>View Replies ({data.replies_count})</Link>
+      <Link to='#' onClick={onViewReplies} className='text-decoration-none'>View Replies</Link>
       {!comment.deleted && <Link to='#' onClick={onReply} className='text-decoration-none ms-3'>Reply</Link>}
     </div>
     <Row ref={repliesRef} xs={1} className='ms-4 gy-3'>
-      {isFetching && (
-      <Col className='text-muted text-center'>
-        <Spinner
-            as='span'
-            animation='border'
-            size='sm'
-            role='status'
-            aria-hidden='true'
-          />
-          {' '}Loading
-      </Col>
-      )}
       <Col>
         {(showReplyFormId == data.id) && (
         <CommentForm 
           initialValues={initialValues}
           onSubmit={onSubmit}
           onCancel={onCancel}
-          showSubmitError={showSubmitError}
+          showSubmitError={!!submitError}
           errorDisplay={
-          <Alert show={showSubmitError} variant='danger'>
+          <Alert show={!!submitError} variant='danger'>
             {(submitError ? submitError : '')}
           </Alert>
           }
@@ -317,11 +303,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
           />
         )}
       </Col>
-      {!isFetching && replies.length > 0 && replies.map(reply => (
-        <Col key={reply.id}>
-          <Comment recipe={recipe} user={user} data={reply} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
-        </Col>
-      ))}
+      <ListCommentReplies recipe={recipe} user={user} commentId={commentId} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
     </Row>
   </>
   );
@@ -356,81 +338,12 @@ const CommentPlaceholder = () => {
   );
 };
 
-const RecipeComments = ({ user, recipe }) => {
-  const { toast } = useStore();
-  const isMounted = useIsMounted('RecipeComments');
-  const [submitting, setSubmitting] = useState(false);
-  const [showSubmitError, setShowSubmitError] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  // const [comments, setComments] = useState([]);
-  const [page, setPage] = useState(0);
+const ListComments = memo(({ recipe, user, page }) => {
   const [showReplyFormId, setShowReplyFormId] = useState(-1);
-  const [isLoading, setIsLoading] = useState(false);
-  const commentsRef = useRef(null);
-  const initialValues = {
-    id: -1,
-    message: '',
-    parent_id: -1
-  };
   const { data: comments, error, isFetching } = useRecipeComments(user?.token, recipe.id, null, page);
-  const queryClient = useQueryClient();
-  const submitCommentMut = useSubmitComment(queryClient, page);
+  console.log('ListComments query key=', [user?.token, recipe.id, null, page])
 
-  const onSubmit = async (values, actions) => {
-    console.log('values: ', values);
-    setShowSubmitError(false);
-    setSubmitError('');
-    setSubmitting(true);
-
-    // const data = await submitComment(user.token, recipe.id, -1, values.parent_id, values.message);
-    const data = await submitCommentMut.mutateAsync({
-      token: user.token, 
-      recipe_id: recipe.id, 
-      id: -1, 
-      parent_id: values.parent_id, 
-      message: values.message
-    });
-
-    if (!isMounted.current) { return; }
-
-    setSubmitting(false);
-    if (data.errorMessage) {
-      setSubmitError(data.errorMessage);
-      setShowSubmitError(true);
-    }
-    else {
-      comments.unshift(data);
-      commentsRef.current.scrollIntoView();
-      // setComments([...comments]);
-      toast('Comment added');
-    }
-  };
-
-  const onPage = (page) => {
-    console.log('onPage: ', page);
-    setPage(page);
-  };
-
-  return (
-  <Row xs={1} className='gy-3'>
-    <Col>
-      <CommentForm 
-        isLoading={isLoading}
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        showSubmitError={showSubmitError}
-        title={<h2>Comments</h2>}
-        errorDisplay={
-        <Alert show={showSubmitError} variant='danger'>
-          {(submitError ? submitError : '')}
-        </Alert>
-        }
-        />
-    </Col>
-    <Col>
-      <span className='m-0' ref={commentsRef}></span>
-      <SimplePaginate onPage={onPage} page={page} />
-    </Col>
+  return (<>
     {isFetching && (<>
       <Col><CommentPlaceholder /></Col>
       <Col><CommentPlaceholder /></Col>
@@ -444,6 +357,74 @@ const RecipeComments = ({ user, recipe }) => {
         <Comment recipe={recipe} user={user} data={comment} showReplyFormId={showReplyFormId} setShowReplyFormId={setShowReplyFormId} />
     </Col>
     ))}
+  </>);
+});
+
+const RecipeComments = ({ user, recipe }) => {
+  console.log('RecipeComments ', recipe.id);
+  const { toast } = useStore();
+  const isMounted = useIsMounted('RecipeComments');
+  const [submitError, setSubmitError] = useState(null);
+  const [page, setPage] = useState(0);
+  const commentsRef = useRef(null);
+  const initialValues = {
+    id: -1,
+    message: '',
+    parent_id: -1
+  };
+  const { isFetching } = useRecipeComments(user?.token, recipe.id, null, page);
+  const queryClient = useQueryClient();
+  const submitCommentMut = useSubmitComment(queryClient, page);
+
+  const onSubmit = async (values, actions) => {
+    console.log('values: ', values);
+    setSubmitError(null);
+
+    const data = await submitCommentMut.mutateAsync({
+      token: user.token, 
+      recipe_id: recipe.id, 
+      id: -1, 
+      parent_id: values.parent_id == -1 ? null : values.parent_id, 
+      message: values.message
+    });
+
+    if (!isMounted.current) { return; }
+
+    if (data.errorMessage) {
+      setSubmitError(data.errorMessage);
+    }
+    else {
+      commentsRef.current.scrollIntoView();
+      toast('Comment added');
+    }
+  };
+
+  const onPage = (page) => {
+    console.log('onPage: ', page);
+    setPage(page);
+  };
+
+  return (
+  <Row xs={1} className='gy-3'>
+    <Col>
+      <CommentForm 
+        isLoading={isFetching}
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        showSubmitError={!!submitError}
+        title={<h2>Comments</h2>}
+        errorDisplay={
+        <Alert show={!!submitError} variant='danger'>
+          {(submitError ? submitError : '')}
+        </Alert>
+        }
+        />
+    </Col>
+    <Col>
+      <span className='m-0' ref={commentsRef}></span>
+      <SimplePaginate onPage={onPage} page={page} />
+    </Col>
+    <ListComments recipe={recipe} user={user} page={page} />
   </Row>
   );
 };
