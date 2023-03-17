@@ -168,11 +168,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     }
     else {
       setShowReplyFormId(-1);
-      setCommentId(values.parent_id);
       if (values.id != -1) {
+        setComment(c => ({...c, ...data}));
         toast('Reply updated');
       }
       else {
+        setCommentId(values.parent_id);
         toast('Reply added');
       }
     }

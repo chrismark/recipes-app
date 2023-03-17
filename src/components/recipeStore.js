@@ -211,7 +211,15 @@ const useSubmitComment = (queryClient, page) => {
           return;
         }
         if (Array.isArray(previousValue)) {
-          previousValue.unshift(data);
+          if (data.updated_on) { // update
+            const index = previousValue.findIndex(c => c.id == data.id);
+            if (index != -1) {
+              previousValue[index] = {...previousValue[index], ...data};
+            }
+          }
+          else { // create
+            previousValue.unshift(data);
+          }
         }
         console.log('Update query key=', ['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page]);
         queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page], previousValue);
@@ -239,8 +247,10 @@ const useDeleteComment = (queryClient, page) => {
         if (data.errorMessage) {
           return;
         }
-        const index = previousValue.findIndex(c => c.id == variables.id);
-        previousValue[index].deleted = true;
+        const index = previousValue.findIndex(c => c.id == data.id);
+        if (index != -1) {
+          previousValue[index].deleted = true;
+        }
         queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page], previousValue);
       },
       onError: (err, variables, previousValue) => {

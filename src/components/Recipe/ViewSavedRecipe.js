@@ -48,7 +48,8 @@ const ViewSavedRecipe = ({ user }) => {
             <RecipeImage src={recipe?.thumbnail_url} maxHeight='60vh' />
           </Col>
         </Row>
-        {!isFetching && <Row className='recipe-etc'>
+        {!isFetching && 
+        <Row className='recipe-etc'>
           <Col>
             <br/>
             <RecipeDescription recipe={recipe} />
@@ -74,6 +75,7 @@ const ViewSavedRecipe = ({ user }) => {
             <RecipeComments recipe={recipe} user={user} />
           </Col>     
         </Row>}
+        <br/>
       </Container>
     </Modal.Body>
   </Modal>
