@@ -164,7 +164,7 @@ const useSubmitRating = (queryClient, user) => {
   );
 };
 
-const useRecipeComments = (token, recipe_id, comment_id, page ) => {
+const useRecipeComments = (token, recipe_id, comment_id, page) => {
   console.log('useRecipeComments::react-query fetching');
   const queryData = useQuery(
     ['recipe-comments', token, recipe_id, comment_id, page], 
@@ -179,7 +179,7 @@ const useRecipeComments = (token, recipe_id, comment_id, page ) => {
   return queryData;
 };
 
-const useRecipeCommentReplies = (token, recipe_id, comment_id, page ) => {
+const useRecipeCommentReplies = (token, recipe_id, comment_id, page, onSuccess = () => {}) => {
   console.log('useRecipeCommentReplies::react-query fetching');
   const queryData = useQuery(
     ['recipe-comments', token, recipe_id, comment_id, page], 
@@ -190,6 +190,7 @@ const useRecipeCommentReplies = (token, recipe_id, comment_id, page ) => {
       enabled: !!comment_id,
       staleTime: 0,
       cacheTime: 60 * 1000 * 5,
+      onSuccess,
     },
   );
   return queryData;
@@ -202,7 +203,6 @@ const useSubmitComment = (queryClient, page) => {
       onMutate: async (variables) => {
         console.log('useSubmitComment: variables=', variables);
         await queryClient.cancelQueries(['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page]);
-        console.log('Fetch query key=', ['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page]);
         return queryClient.getQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page]);
       },
       onSuccess: function (data, variables, previousValue) {
@@ -211,15 +211,19 @@ const useSubmitComment = (queryClient, page) => {
           return;
         }
         if (Array.isArray(previousValue)) {
-          if (data.updated_on) { // update
+          if (data.updated_on) { // on update
             const index = previousValue.findIndex(c => c.id == data.id);
             if (index != -1) {
               previousValue[index] = {...previousValue[index], ...data};
             }
           }
-          else { // create
+          else { // on create
             previousValue.unshift(data);
           }
+        }
+        else if (previousValue == null) {
+          // no previousValue yet
+          previousValue = [data];
         }
         console.log('Update query key=', ['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page]);
         queryClient.setQueryData(['recipe-comments', variables.token, variables.recipe_id, variables.parent_id, page], previousValue);

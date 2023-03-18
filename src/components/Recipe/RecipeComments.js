@@ -139,16 +139,12 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
     message: '',
     parent_id: data.id
   });
+  useRecipeCommentReplies(user?.token, recipe.id, commentId, 0, 
+    // we only want to pass this here so it scrolls into the replies
+    () => repliesRef.current && repliesRef.current.scrollIntoView());
   const queryClient = useQueryClient();
   const submitCommentMut = useSubmitComment(queryClient, page);
   const deleteCommentMut = useDeleteComment(queryClient, page);
-
-  useEffect(() => {
-    if (repliesRef.current) {
-      if (!isMounted.current) { return; }
-      repliesRef.current.scrollIntoView();
-    }
-  }, [commentId]);
 
   const onSubmit = async (values, actions) => {
     setSubmitError(null);
@@ -239,6 +235,7 @@ const Comment = ({ recipe, user, data, showReplyFormId, setShowReplyFormId }) =>
   const onViewReplies = async (e) => {
     e.preventDefault();
     console.log('view replies for', data.id);
+    setTimeout(() => commentRef.current.scrollIntoView(), 100);
     setCommentId(data.id);
   };
 
