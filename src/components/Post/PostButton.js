@@ -8,7 +8,7 @@ const PostButton = ({children, myRef, onClick, onHoverIn, onHoverOut}) => {
       onClick={onClick || dummy}
       onMouseEnter={onHoverIn || dummy} 
       onMouseLeave={onHoverOut || dummy}>
-      <small>{children}</small>
+      {children}
     </div>
   );
 };

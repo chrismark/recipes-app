@@ -19,6 +19,7 @@ import CreateEditPost from './components/CreateEditPost';
 const App = () => {
   console.log('App rerender');
   const createEditPostRef = useRef(null);
+  const postFullscreenRef = useRef(null);
   const navigate = useNavigate();
   const state = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);
@@ -91,11 +92,11 @@ const App = () => {
       {state.user ? (<>
         <Route path='/' 
           element={
-            <MainContainer user={state.user}>
+            <MainContainer user={state.user} ref={postFullscreenRef}>
               <Home user={state.user} />
             </MainContainer>
           }>
-          <Route path='posts/:post/recipes' element={<PostFullscreen user={state.user} />} />
+          <Route path='posts/:post/recipes' element={<PostFullscreen user={state.user} ref={postFullscreenRef} />} />
         </Route>
         <Route path='/:username/posts/:post' 
           element={

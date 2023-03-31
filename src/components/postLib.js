@@ -138,7 +138,7 @@ const doUpdateLike = async ({post, recipeIndex, user, payload}, queryClient, que
       const curPost = value[index];
       optimisticUpdateLikePost(curPost, recipeIndex, payload);
       if (updateLocalPost) {
-        updateLocalPost({...curPost});
+        updateLocalPost(p => ({...p, ...curPost}));
       }
       queryClient.setQueryData(queryKey, value);
       console.log('handleUpdateLike Done doing optimistic update.');
@@ -221,7 +221,7 @@ const doUpdateUnlike = async ({post, recipeIndex, user, payload}, queryClient, q
       const curPost = value[index];
       optimisticUpdateUnlikePost(curPost, recipeIndex);
       if (updateLocalPost) {
-        updateLocalPost({...curPost});
+        updateLocalPost(p => ({...p, ...curPost}));
       }
       queryClient.setQueryData(queryKey, value);
       console.log('handleUpdateUnlike Done doing optimistic update.');

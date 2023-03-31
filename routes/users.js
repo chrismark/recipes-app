@@ -218,15 +218,71 @@ router.patch('/:user_uuid/posts/:post_id/recipes/:recipe_id/unlike', checkPerms(
 });
 
 /**
- * GET /users/user_uuid/posts/post_id/like/like_type
+ * GET /users/user_uuid/posts/post_id/likes
  * 
  * Fetch users who liked the post by like type
  */
-router.get('/:user_uuid/posts/:post_id/like/:like_type', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
+router.get('/:user_uuid/posts/:post_id/likes', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
-    console.log('req.body: ', req.body);  
-    const post = await Post.fetchUsersByLike(req.params.user_uuid, parseInt(req.params.post_id), req.body);
+    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), null, null);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching users by like. Please try again later.'
+    });
+  }
+});
+
+/**
+ * GET /users/user_uuid/posts/post_id/likes/like
+ * 
+ * Fetch users who liked the post by like type
+ */
+router.get('/:user_uuid/posts/:post_id/likes/:like', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), null, parseInt(req.params.like));
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching users by like. Please try again later.'
+    });
+  }
+});
+
+/**
+ * GET /users/user_uuid/posts/post_id/recipes/recipe_id/likes
+ * 
+ * Fetch users who liked the post's recipe by like type
+ */
+router.get('/:user_uuid/posts/:post_id/recipes/:recipe_id/likes', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), null);
+    res.status(200).json(post);
+  }
+  catch (e) {
+    console.error(e);
+    res.status(200).send({
+      errorMessage: 'There was a problem fetching users by like. Please try again later.'
+    });
+  }
+});
+
+/**
+ * GET /users/user_uuid/posts/post_id/recipes/recipe_id/likes/like
+ * 
+ * Fetch users who liked the post's recipe by like type
+ */
+router.get('/:user_uuid/posts/:post_id/recipes/:recipe_id/likes/:like', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
+  try {
+    console.log('req.params: ', req.params);
+    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), parseInt(req.params.like));
     res.status(200).json(post);
   }
   catch (e) {

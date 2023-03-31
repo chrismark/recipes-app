@@ -37,10 +37,17 @@ const LikeButtonIconText = ({ isLiked, type, onClick }) => {
   let data = LikeTypes[type || 'like'];
   const Tag = data.tag;
   const text = data.text;
-  const button = <Tag className={'fs-4 pb-1 post-action-icon cursor-pointer post-action-' + type} />
+  const button = <Tag className={'fs-4 pb-1 me-1 post-action-icon cursor-pointer post-action-' + type} />
   return (
-    <small className={isLiked ? 'post-action-' + type : ''}>{button}{text}</small>
+    <small className={'fs-8 ' + (isLiked ? 'post-action-' + type : '')}>{button}{text}</small>
   );
-}
+};
 
-export { LikeButtonPopupIcon, LikeButtonIconText, LikeTypes, LikeTypesByZeroIndex };
+const ButtonIconText = ({ children, Tag, type }) => {
+  const button = <Tag className={'fs-4 pb-1 me-1 post-action-icon cursor-pointer post-action-' + type} />
+  return (
+    <small className='fs-8'>{button}{children}</small>
+  );
+};
+
+export { LikeButtonPopupIcon, LikeButtonIconText, ButtonIconText, LikeTypes, LikeTypesByZeroIndex };

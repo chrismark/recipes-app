@@ -4,7 +4,7 @@ import { FaRegCommentAlt, FaShare } from 'react-icons/fa';
 import PostButton from './PostButton';
 import { AppStateContext } from '../../appContext.js';
 import PostActionLikePopup from './PostActionLikePopup';
-import { LikeButtonPopupIcon, LikeButtonIconText } from './LikeButton';
+import { LikeButtonPopupIcon, LikeButtonIconText, ButtonIconText } from './LikeButton';
 import { LikeTypes } from './LikeButton';
 
 const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
@@ -18,40 +18,50 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
   // console.log('PostActions source', source);
 
   const handleHoverIn = () => {
+    console.log('handleHoverIn');
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
+      console.log('cancel hiding');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
     }
     showTimeout.current = setTimeout(() => {
+      console.log('showing');
       setShow(true);
     }, DELAY);
   };
 
   const handleHoverOut = () => {
+    console.log('handleHoverOut');
     // In case user moves back in after moving out of button, we don't hide popup
     if (!show && showTimeout.current != null) {
+      console.log('cancel showing');
       clearTimeout(showTimeout.current);
       showTimeout.current = null;
       return;
     }
     hideTimeout.current = setTimeout(() => {
+      console.log('hiding');
       setShow(false);
     }, DELAY);
   };
 
   const popupHoverIn = () => {
+    console.log('popupHoverIn');
     // In case user moves out after moving inside the button, we don't show popup
     if (show && hideTimeout.current != null) {
+      console.log('cancel hiding');
       clearTimeout(hideTimeout.current);
       hideTimeout.current = null;
       return;
     }
   };
-
+  
   const popupHoverOut = () => {
+    console.log('popupHoverOut');
     hideTimeout.current = setTimeout(() => {
+      console.log('hiding');
       setShow(false);
     }, DELAY);
   };
@@ -94,12 +104,12 @@ const PostActions = ({post, recipeIndex, onLike, onUnlike, onShowComments}) => {
         </Col>
         <Col className='p-0'>
           <PostButton>
-            <small><FaRegCommentAlt className='fs-6' /> Comment</small>
+            <ButtonIconText Tag={FaRegCommentAlt} type='comment'>Comment</ButtonIconText>
           </PostButton>
         </Col>
         <Col className='p-0'>
           <PostButton>
-            <small><FaShare className='fs-5 pb-1' /> Share</small>
+            <ButtonIconText Tag={FaShare} type='share'>Share</ButtonIconText>
           </PostButton>
         </Col>
       </Row>

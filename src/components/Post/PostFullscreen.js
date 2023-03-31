@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, forwardRef } from 'react';
 import { Modal, Container, Row, Col, Carousel, Image } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
@@ -6,10 +6,11 @@ import { AppStateContext } from '../../appContext.js';
 import { useStore } from '../Toaster';
 import { HeaderMinimal } from '../Header';
 import PostHeader from './PostHeader';
+import { PostContentFullscreen } from './PostContent.js';
 import PostFooter from './PostFooter';
 import { doUpdateLike, doUpdateUnlike } from '../postLib';
 
-const PostFullscreen = ({ user }) => {
+const PostFullscreen = forwardRef(({ user }, ref) => {
   const { toast } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,9 +22,9 @@ const PostFullscreen = ({ user }) => {
   // if there is only one associated recipe, then take from post.message, else take from recipe.caption
   const [message, setMessage] = useState(!isSingleRecipe ? post.recipes[index].caption : post.message);
   const queryClient = useQueryClient();
-  
 
-  console.log('PostFullscreen', 'isSingleRecipe=', isSingleRecipe, post, isSingleRecipe ? -1 : activeIndex, post.recipes[isSingleRecipe ? -1 : activeIndex], post.stats[(isSingleRecipe ? -1 : activeIndex)+1]);
+  console.log('PostFullscreen message=', message);
+  console.log('PostFullscreen', 'isSingleRecipe=', isSingleRecipe, 'post=', post, 'activeIndex=', isSingleRecipe ? -1 : activeIndex, 'recipe=', post.recipes[isSingleRecipe ? -1 : activeIndex], 'stats=', post.stats[(isSingleRecipe ? -1 : activeIndex)+1]);
   // console.log('pageOffset', pageOffset);
   // console.log('activeIndex', activeIndex);
 
@@ -59,7 +60,7 @@ const PostFullscreen = ({ user }) => {
   };
 
   return (
-    <Modal show={true} fullscreen={true} animation={false}>
+    <Modal show={true} fullscreen={true} animation={false} container={ref}>
       <Modal.Body>
         <HeaderMinimal user={user} id='postfullscreen-header' className='postfullscreen-header' onClose={onClose} />
         <Container className='g-0' fluid={true} style={{marginTop: '0'}}>
@@ -76,7 +77,7 @@ const PostFullscreen = ({ user }) => {
             <Col className='postfullscreen-comments'>
               <div className='postfullscreen-header-spacer'></div>
               <PostHeader user={user} post={post} hideActionButtons={true} />
-              <p>{message}</p>
+              <PostContentFullscreen post={post} message={message} />
               <PostFooter user={user} post={post} recipeIndex={isSingleRecipe ? -1 : activeIndex} statIndex={isSingleRecipe ? 0 : activeIndex+1} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
             </Col>
           </Row>
@@ -84,6 +85,6 @@ const PostFullscreen = ({ user }) => {
       </Modal.Body>
     </Modal>
   );
-};
+});
 
 export default PostFullscreen;

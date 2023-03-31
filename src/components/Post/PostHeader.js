@@ -21,7 +21,7 @@ const PostHeader = ({ user, post, onClickEdit, hideActionButtons }) => {
   const onClickHandler = () => {
     console.log('PostHeader onClickHandler: ', post);
     onClickEdit(post);
-  }
+  };
   return (
     <Row className='mb-2 post-header'>
       <Col>
@@ -31,7 +31,7 @@ const PostHeader = ({ user, post, onClickEdit, hideActionButtons }) => {
         </div>
       </Col>
       <Col className='text-end pt-1'>
-        {!hideActionButtons &&
+        {!hideActionButtons && post.uuid == user.uuid &&
         <Dropdown align='end'>
           <Dropdown.Toggle as={CustomToggle} variant='link'>
             <FaEllipsisH className='cursor-pointer fs-6 fw-normal'  />

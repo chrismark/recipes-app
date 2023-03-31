@@ -144,6 +144,10 @@ div.mid-content {
   margin: 0 auto;
 }
 
+.tooltip-poststats {
+  opacity: .8;
+}
+
 .col.right-sidebar {
   -ms-flex: 0 0 300px;
   flex: 0 0 300px;

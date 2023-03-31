@@ -7,6 +7,7 @@ const LIKE_SCHEMA = z.object({
   like: z.number().gte(1).lte(7),
   prev: z.number().gte(1).lte(7).optional()
 });
+const LIKE_VALUE_SCHEMA = z.number().gte(1).lte(7);
 const LIKE_VAL_TO_COL = ['like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry'];
 const FETCH_POST_STATS_COUNT = ['recipe_id', 'like', 'love', 'care', 'laugh', 'sad', 'surprise', 'angry', db.raw('"like" + "love" + "care" + "laugh" + "sad" + "surprise" + "angry" as total_likes'), 'comments', 'shares'];
 
@@ -36,7 +37,12 @@ module.exports = {
   fetch: async function(userUuid, offset = -1, selectFields = 'posts.*') {
     const user = await db('users').select('id').where({uuid: userUuid});
     let query = db('posts').select([
-      selectFields, 
+      'posts.id',
+      'users.uuid',
+      'posts.message',
+      'posts.posted_on',
+      'posts.updated_on',
+      'posts.deleted',
       db.raw('CASE WHEN post_likes.id IS NULL THEN false ELSE true END AS liked'),
       db.raw(
         'CASE ' +
@@ -116,6 +122,58 @@ module.exports = {
     console.log('query: ', query.toString());
     const result = await query;
     return result;
+  },
+  fetchLikesByType: async function(userUuid, postId, recipeId, like) {
+    if (like != null) {
+      LIKE_VALUE_SCHEMA.parse(like);
+    }
+    const user = await db('users').select('id').where({uuid: userUuid});
+    const users = await this._fetchUserListByPostLike(user[0].id, postId, recipeId, like);
+    const stat = await this._fetchPostStatsByType(postId, recipeId, like);
+    return { users, stat };
+  },
+  _fetchUserListByPostLike: async function(userId, postId, recipeId, like) {
+    let query = db('post_likes').select([db.raw('users.firstname || users.lastname AS name')])
+      .leftJoin('users', 'users.id', 'post_likes.user_id')
+      .where('post_likes.post_id', postId)
+      .andWhere(function() {
+        recipeId == null 
+          ? this.whereNull('post_likes.recipe_id') // related to post
+          : this.where('post_likes.recipe_id', recipeId) // related to post's recipes
+      });
+    if (like != null) {
+      query = query.andWhere('post_likes.type', like);
+    }
+    console.log('query:', query.toString());
+    return await query;
+  },
+  _fetchPostStatsByType: async function(postId, recipeId, like) {
+    let selectFields = null;
+    if (like == null) {
+      selectFields = db.raw(`psc.like + psc.love + psc.care + psc.laugh + psc.sad + psc.surprise + psc.angry as total`);
+    }
+    else {
+      selectFields = db.raw(`"${LIKE_VAL_TO_COL[like-1]}"`);
+    }
+    let query = db('post_stats_count as psc').select(selectFields)
+      .where('post_id', postId)
+      .andWhere('recipe_id', recipeId)
+    console.log('query: ', query.toString());
+    return await query;
+  },
+  _fetchPostStatsComment: async function(postId, recipeId) {
+    let query = db('post_stats_count').select('comments')
+      .where('post_id', postId)
+      .andWhere('recipe_id', recipeId)
+    console.log('query: ', query.toString());
+    return await query;
+  },
+  _fetchPostStatsShare: async function(postId, recipeId) {
+    let query = db('post_stats_count').select('shares')
+      .where('post_id', postId)
+      .andWhere('recipe_id', recipeId)
+    console.log('query: ', query.toString());
+    return await query;
   },
   /**
    * Create new post and recipes_post entries
@@ -246,10 +304,12 @@ module.exports = {
       // Update post
       let editPost = {
         id: postId,
+        user_id: user[0].id,
         message: post.message,
         updated_on: db.fn.now()
       };
       let updatedPost = await this._updatePost(trx, editPost);
+      console.log('updatedPost=', updatedPost);
 
       // Update existing recipes_post
       let updateRecipesPost = post.recipes.filter(rp => rp.post_id != undefined && rp.deleted == undefined);
@@ -301,11 +361,11 @@ module.exports = {
       throw e;
     }
   },
-  _updatePost: async function(trx, {id, message}, returnFields = '*') {
+  _updatePost: async function(trx, post, returnFields = '*') {
     try {
       let updatedPost = await trx('posts')
-      .update({message})
-      .where({id})
+      .update({message: post.message})
+      .where({id: post.id, user_id: post.user_id})
       .returning(returnFields);
       return updatedPost[0];
     }

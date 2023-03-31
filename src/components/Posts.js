@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useQueryClient } from 'react-query';
 import { AppStateContext, AppDispatchContext } from '../appContext.js';
 import { useStore } from './Toaster';
 import Post from './Post/Post';
@@ -13,9 +12,7 @@ const Posts = ({ onEditPost, byUser }) => {
   const { toast } = useStore();
   const { user, pageOffset } = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);
-  const useUserPostsResult = useUserPosts(user?.uuid, user?.token, pageOffset);
-  const { data: posts, error, isFetching, isLoading } = useUserPostsResult;
-  const queryClient = useQueryClient();
+  const { data: posts, error, isFetching, isLoading } = useUserPosts(user?.uuid, user?.token, pageOffset);
   const size = 20;
   const postCount = 300;
 
@@ -35,21 +32,6 @@ const Posts = ({ onEditPost, byUser }) => {
   //
   // TODO: Make it so not all posts rerender when a single post is liked
   //
-  const onLikeError = (e) => {
-    toast('Something happened while liking the post. Please try again later.');
-  };
-
-  const onUnlikeError = (e) => {
-    toast('Something happened while unliking the post. Please try again later.');
-  };
-
-  const handleUpdateLike = async (payload) => {
-    await doUpdateLike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], null, onLikeError);
-  };
-
-  const handleUpdateUnlike = async (payload) => {
-    await doUpdateUnlike(payload, queryClient, ['user-posts', user?.uuid, user?.token, pageOffset], null, onUnlikeError);
-  };
 
   return (
     <Row xs={1} className='posts-list gy-4'>
@@ -66,7 +48,7 @@ const Posts = ({ onEditPost, byUser }) => {
       </>)}
       {posts && posts.map(post => (
         <Col className='justify-content-md-center' key={post.id}>
-          <Post user={user} post={post} onEditPost={onEditPost} onLike={handleUpdateLike} onUnlike={handleUpdateUnlike} />
+          <Post user={user} post={post} onEditPost={onEditPost} />
         </Col>
       ))}
     </Row>

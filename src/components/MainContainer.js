@@ -1,11 +1,11 @@
-import { useContext } from 'react';
+import { useContext, forwardRef } from 'react';
 import { Container, ToastContainer, Toast } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { Toaster } from './Toaster';
 
-const MainContainer = ({ user, children }) => {
+const MainContainer = forwardRef(({ user, children }, ref) => {
   return (
     <>
     <Container fluid='sd'>
@@ -15,8 +15,9 @@ const MainContainer = ({ user, children }) => {
       <Toaster />
       <Footer />
     </Container>
+    <div ref={ref} className='post-fullscreen-container'></div>
     </>
   );
-};
+});
 
 export default MainContainer;
