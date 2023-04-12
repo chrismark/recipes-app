@@ -202,7 +202,7 @@ a.star-rating-disabled,a.star-rating.star-rating-disabled:hover, a.star-rating-d
 a.star-rating:hover:not(.star-rating-disabled), a.star-rating-hover {
   color: gold;
 }
-.post-action:hover {
+.post-action:hover, :not(.tab-title-selected) > .tab-title:hover {
   background:rgb(224, 224, 224);
 }
 .post-stat:hover {
@@ -217,6 +217,13 @@ a.star-rating:hover:not(.star-rating-disabled), a.star-rating-hover {
 .post-options-toggle {
   border-radius: 50rem;
   padding: .3rem .5rem .5rem .5rem;
+}
+.post-stats-modal-user > a {
+  text-decoration: none;
+}
+.post-stats-modal-user > a:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .border-light-gray {

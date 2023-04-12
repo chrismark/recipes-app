@@ -5,7 +5,6 @@ import { useStore } from './Toaster';
 import Post from './Post/Post';
 import PostPlaceholder from './Post/PostPlaceholder';
 import { useUserPosts } from './postStore';
-import { doUpdateLike, doUpdateUnlike } from './postLib';
 
 const Posts = ({ onEditPost, byUser }) => {
   console.log('Posts rerender');

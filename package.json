@@ -15,6 +15,7 @@
     "express": "^4.17.3",
     "express-jwt-authz": "^2.4.1",
     "formik": "^2.2.9",
+    "human-number": "^2.0.1",
     "javascript-time-ago": "^2.5.7",
     "jsonwebtoken": "^8.5.1",
     "knex": "^1.0.7",

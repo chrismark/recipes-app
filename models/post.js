@@ -123,17 +123,27 @@ module.exports = {
     const result = await query;
     return result;
   },
-  fetchLikesByType: async function(userUuid, postId, recipeId, like) {
+  fetchLikesByType: async function(postId, recipeId, like, complete = false, usersOnly = false) {
+    console.log('fetchLikesByType complete=', complete);
     if (like != null) {
       LIKE_VALUE_SCHEMA.parse(like);
     }
-    const user = await db('users').select('id').where({uuid: userUuid});
-    const users = await this._fetchUserListByPostLike(user[0].id, postId, recipeId, like);
-    const stat = await this._fetchPostStatsByType(postId, recipeId, like);
-    return { users, stat };
+    const users = await this._fetchUserListByPostLike(postId, recipeId, like, complete);
+    if (usersOnly) {
+      return { users };
+    }
+    const stats = await this._fetchPostStatsByType(postId, recipeId, like, complete);
+    return { users, stats };
   },
-  _fetchUserListByPostLike: async function(userId, postId, recipeId, like) {
-    let query = db('post_likes').select([db.raw('users.firstname || users.lastname AS name')])
+  _fetchUserListByPostLike: async function(postId, recipeId, like, complete) {
+    let selectFields = null;
+    if (complete) {
+      selectFields = [db.raw('users.firstname || \' \' || users.lastname AS name'), 'post_likes.type'];
+    }
+    else {
+      selectFields = db.raw('users.firstname || \' \' || users.lastname AS name');
+    }
+    let query = db('post_likes').select(selectFields)
       .leftJoin('users', 'users.id', 'post_likes.user_id')
       .where('post_likes.post_id', postId)
       .andWhere(function() {
@@ -147,10 +157,15 @@ module.exports = {
     console.log('query:', query.toString());
     return await query;
   },
-  _fetchPostStatsByType: async function(postId, recipeId, like) {
+  _fetchPostStatsByType: async function(postId, recipeId, like, complete) {
     let selectFields = null;
-    if (like == null) {
-      selectFields = db.raw(`psc.like + psc.love + psc.care + psc.laugh + psc.sad + psc.surprise + psc.angry as total`);
+    if (complete) {
+      selectFields = [
+        'psc.like', 'psc.love', 'psc.care', 'psc.laugh', 'psc.sad', 'psc.surprise', 'psc.angry'
+      ];
+    }
+    else if (like == null) {
+      selectFields = db.raw('psc.like + psc.love + psc.care + psc.laugh + psc.sad + psc.surprise + psc.angry as total');
     }
     else {
       selectFields = db.raw(`"${LIKE_VAL_TO_COL[like-1]}"`);
@@ -159,7 +174,8 @@ module.exports = {
       .where('post_id', postId)
       .andWhere('recipe_id', recipeId)
     console.log('query: ', query.toString());
-    return await query;
+    const result = await query;
+    return result[0];
   },
   _fetchPostStatsComment: async function(postId, recipeId) {
     let query = db('post_stats_count').select('comments')

@@ -222,45 +222,45 @@ const CreateEditPost = forwardRef(({}, ref) => {
 
   return (<>
   <Row className='justify-content-md-center'>
-            <Col className='mb-5 mt-0'>
-    <CreatePostModalLauncher
-      text='What food are you craving right now?'
-      onClick={() => { 
-          setShowCreateEditPostModal(true);
-      }}
-      />
-    <CreateEditPostModal 
-      show={showCreateEditPostModal} 
-      postId={postId} 
-      postMessage={postMessage}
-      onCreateSubmit={onCreatePostSubmit} 
-      onUpdateSubmit={onUpdatePostSubmit} 
-      onAddARecipe={onAddARecipe} 
-      onEditCaption={onAddRecipeCaption}
-      onClose={onCreateEditPostClose} 
-      setPostMessage={setPostMessage}
-      selectedRecipes={selectedRecipes}
-      setSelectedRecipes={setSelectedRecipes}
-      clearSelectedRecipes={clearSelectedRecipes} 
-      isSubmitting={createPostMutation.isLoading || updatePostMutation.isLoading}
-      />
-    <SelectRecipeModal 
-      postId={postId} 
-      user={user} 
-      show={showSelectRecipeModal} 
-      onSelect={onSelectRecipeSubmit} 
-      onClose={onSelectRecipeBack} 
-      selectedRecipes={selectedRecipes} 
-      setSelectedRecipes={setSelectedRecipes} 
-      />
-    <AddRecipeCaptionModal
-      postId={postId} 
-      show={showAddRecipeCaptionModal}
-      onDone={onAddRecipeCaptionDone}
-      onClose={onAddRecipeCaptionBack}
-      selectedRecipes={selectedRecipes}
-      setSelectedRecipes={setSelectedRecipes}
-      />
+    <Col className='mb-5 mt-0'>
+      <CreatePostModalLauncher
+        text='What food are you craving right now?'
+        onClick={() => { 
+            setShowCreateEditPostModal(true);
+        }}
+        />
+      <CreateEditPostModal 
+        show={showCreateEditPostModal} 
+        postId={postId} 
+        postMessage={postMessage}
+        onCreateSubmit={onCreatePostSubmit} 
+        onUpdateSubmit={onUpdatePostSubmit} 
+        onAddARecipe={onAddARecipe} 
+        onEditCaption={onAddRecipeCaption}
+        onClose={onCreateEditPostClose} 
+        setPostMessage={setPostMessage}
+        selectedRecipes={selectedRecipes}
+        setSelectedRecipes={setSelectedRecipes}
+        clearSelectedRecipes={clearSelectedRecipes} 
+        isSubmitting={createPostMutation.isLoading || updatePostMutation.isLoading}
+        />
+      <SelectRecipeModal 
+        postId={postId} 
+        user={user} 
+        show={showSelectRecipeModal} 
+        onSelect={onSelectRecipeSubmit} 
+        onClose={onSelectRecipeBack} 
+        selectedRecipes={selectedRecipes} 
+        setSelectedRecipes={setSelectedRecipes} 
+        />
+      <AddRecipeCaptionModal
+        postId={postId} 
+        show={showAddRecipeCaptionModal}
+        onDone={onAddRecipeCaptionDone}
+        onClose={onAddRecipeCaptionBack}
+        selectedRecipes={selectedRecipes}
+        setSelectedRecipes={setSelectedRecipes}
+        />
     </Col>
   </Row>
   </>);

@@ -1,4 +1,4 @@
-import PostStats from './PostStats';
+import { PostStats } from './PostStats';
 import PostActions from './PostActions';
 import PostComments from './PostComments';
 

@@ -224,8 +224,9 @@ router.patch('/:user_uuid/posts/:post_id/recipes/:recipe_id/unlike', checkPerms(
  */
 router.get('/:user_uuid/posts/:post_id/likes', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
+    console.log('req.query: ', req.query);
     console.log('req.params: ', req.params);
-    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), null, null);
+    const post = await Post.fetchLikesByType(parseInt(req.params.post_id), null, null, req.query.hasOwnProperty('complete'), req.query.hasOwnProperty('usersOnly'));
     res.status(200).json(post);
   }
   catch (e) {
@@ -244,7 +245,7 @@ router.get('/:user_uuid/posts/:post_id/likes', checkPerms(PermsConfig.FetchUserW
 router.get('/:user_uuid/posts/:post_id/likes/:like', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
-    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), null, parseInt(req.params.like));
+    const post = await Post.fetchLikesByType(parseInt(req.params.post_id), null, parseInt(req.params.like), req.query.hasOwnProperty('complete'), req.query.hasOwnProperty('usersOnly'));
     res.status(200).json(post);
   }
   catch (e) {
@@ -262,8 +263,9 @@ router.get('/:user_uuid/posts/:post_id/likes/:like', checkPerms(PermsConfig.Fetc
  */
 router.get('/:user_uuid/posts/:post_id/recipes/:recipe_id/likes', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
+    console.log('req.query: ', req.query);
     console.log('req.params: ', req.params);
-    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), null);
+    const post = await Post.fetchLikesByType(parseInt(req.params.post_id), parseInt(req.params.recipe_id), null, req.query.hasOwnProperty('complete'), req.query.hasOwnProperty('usersOnly'));
     res.status(200).json(post);
   }
   catch (e) {
@@ -282,7 +284,7 @@ router.get('/:user_uuid/posts/:post_id/recipes/:recipe_id/likes', checkPerms(Per
 router.get('/:user_uuid/posts/:post_id/recipes/:recipe_id/likes/:like', checkPerms(PermsConfig.FetchUserWhoLikedPost), async function(req, res) {
   try {
     console.log('req.params: ', req.params);
-    const post = await Post.fetchLikesByType(req.params.user_uuid, parseInt(req.params.post_id), parseInt(req.params.recipe_id), parseInt(req.params.like));
+    const post = await Post.fetchLikesByType(parseInt(req.params.post_id), parseInt(req.params.recipe_id), parseInt(req.params.like), req.query.hasOwnProperty('complete'), req.query.hasOwnProperty('usersOnly'));
     res.status(200).json(post);
   }
   catch (e) {
