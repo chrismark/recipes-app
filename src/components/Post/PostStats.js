@@ -170,20 +170,17 @@ const PostStatsModalTabs = ({ width, selectedType, data, keyInfixId, onClick }) 
           }
           // accumulate width so we know when to start hiding header-tabs
           totalWidth += headerTabs[i].offsetWidth;
-          console.log('totalWidth', totalWidth);
           if (i == 0) { 
             // exclude 'All' tab
             continue; 
           }
           if (totalWidth >= width) {
             // hide header-tab that goes over our specified width
-            console.log('Hiding header tab ', headerTabs[i].classList.value);
             headerTabs[i].classList.add('d-none');
           }
           else {
             // hide dropdown tabs shown in the header
             // since wrapperChildren has All tab at index 0, we subtract 1 to get to matching dropdown tab
-            console.log('Hiding dropdown tab ', dropdownTabs[i-1].classList.value);
             dropdownTabs[i-1].classList.add('d-none');
           }
         }
