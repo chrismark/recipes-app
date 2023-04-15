@@ -146,6 +146,7 @@ const PostStatsModalTabs = ({ width, selectedType, data, keyInfixId, onClick }) 
   const stats = useMemo(() => {
     return data.stats;
   }, [data]);
+  const initialized = useRef(false);
 
   useEffect(() => {
     const wrapper = document.getElementById('post-stats-modal-content-wrapper');
@@ -160,30 +161,49 @@ const PostStatsModalTabs = ({ width, selectedType, data, keyInfixId, onClick }) 
       let totalWidth = 0;
       for (let i = 0; i < headerTabs.length; i++) {
         if (headerTabs[i]) {
+          if (initialized.current) {
+            // un-hide tabs so that when we this gets rerun it will function correctly
+            headerTabs[i].classList.remove('d-none');
+            if (dropdownTabs[i-1]) {
+              dropdownTabs[i-1].classList.remove('d-none');
+            }  
+          }
           // accumulate width so we know when to start hiding header-tabs
           totalWidth += headerTabs[i].offsetWidth;
+          console.log('totalWidth', totalWidth);
           if (i == 0) { 
-            // exclude All tab
+            // exclude 'All' tab
             continue; 
           }
           if (totalWidth >= width) {
             // hide header-tab that goes over our specified width
-            headerTabs[i].classList.toggle('d-none');
+            console.log('Hiding header tab ', headerTabs[i].classList.value);
+            headerTabs[i].classList.add('d-none');
           }
           else {
             // hide dropdown tabs shown in the header
             // since wrapperChildren has All tab at index 0, we subtract 1 to get to matching dropdown tab
-            dropdownTabs[i-1].classList.toggle('d-none');
+            console.log('Hiding dropdown tab ', dropdownTabs[i-1].classList.value);
+            dropdownTabs[i-1].classList.add('d-none');
           }
+        }
+      }
+      if (initialized.current) {
+        const dropdown = document.getElementById('post-stats-modal-dropdown');
+        if (dropdown) {
+          dropdown.classList.add('d-none');
         }
       }
     }
     else {
       // hide the More dropdown trigger
       const dropdownWrapper = document.getElementById('post-stats-modal-dropdown-wrapper');
-      dropdownWrapper.classList.toggle('d-none');
+      dropdownWrapper.classList.add('d-none');
     }
-  }, []);
+    if (!initialized.current) {
+      initialized.current = true;
+    }
+  }, [selectedType]);
 
   if (stats == undefined) {
     return '';
@@ -196,19 +216,31 @@ const PostStatsModalTabs = ({ width, selectedType, data, keyInfixId, onClick }) 
     }
   };
 
+  const allClickHandler = () => {
+    onClick(null);
+  };
+
+  const emoteClickHandler = (type) => {
+    const dropdown = document.getElementById('post-stats-modal-dropdown');
+    if (dropdown) {
+      dropdown.classList.remove('d-none');
+    }
+    onClick(type);
+  };
+
   const compStats = Object.keys(stats).filter(k => stats[k] > 0).sort((a,b) => stats[b] - stats[a]);
 
   return (
   <div id='post-stats-modal-content-wrapper' style={{position: 'absolute'}} className='d-flex flex-row flex-nowrap'>
-    {compStats.length > 1 && <TabTitleText addedClassName='post-stats-modal-header-tab' isSelected={selectedType == null} onClick={() => onClick(null)}>All</TabTitleText>}
+    {compStats.length > 1 && <TabTitleText addedClassName='post-stats-modal-header-tab' isSelected={selectedType == null} onClick={allClickHandler}>All</TabTitleText>}
     {compStats.map(k =>
       <TabTitleIcon 
         addedClassName={'post-stats-modal-header-tab post-stats-modal-header-' + k + '-tab'}
         key={'tab-title-icon-' + keyInfixId + '-' + k} 
         isSelected={compStats.length == 1 ? true : (selectedType == LikeTypes[k].value)} 
         type={k} 
-        count={humanNumber(stats[k], n=> toFixed(n  * (1 + (Math.random() * 999)),0))} 
-        onClick={onClick} />
+        count={humanNumber(stats[k], n=> toFixed(n,0))} 
+        onClick={emoteClickHandler} />
     )}
     <div id='post-stats-modal-dropdown-wrapper' style={{position: 'relative', background: 'white'}}>
       <TabTitleText addedClassName='post-stats-modal-dropdown-tab' minWidth='5em' onClick={toggleDropdown}>More</TabTitleText>
@@ -216,11 +248,12 @@ const PostStatsModalTabs = ({ width, selectedType, data, keyInfixId, onClick }) 
       {compStats && compStats.map(k =>
         <TabTitleIcon 
           addedClassName={'post-stats-modal-dropdown-tab post-stats-modal-dropdown-' + k + '-tab'}
+          isSelected={compStats.length == 1 ? true : (selectedType == LikeTypes[k].value)} 
           minWidth='5em' 
           key={'tab-title-icon-' + keyInfixId + '-' + k} 
           type={k} 
-          count={humanNumber(stats[k], n=> toFixed(n  * (1 + (Math.random() * 999)),0))} 
-          onClick={onClick} />
+          count={humanNumber(stats[k], n=> toFixed(n,0))} 
+          onClick={emoteClickHandler} />
       )}
       </div>
     </div>
@@ -231,7 +264,7 @@ const TabTitleText = ({ children, addedClassName, minWidth, isSelected, onClick 
   const selected = isSelected ? 'tab-title-selected border-bottom border-2 border-primary ' : '';
   return (<div className={selected + 'pb-1 post-stats-modal-tab ' + addedClassName}>
     <div 
-      style={{minWidth: minWidth||'3rem', minHeight: '1rem'}} 
+      style={{minWidth: minWidth||'3.5rem', minHeight: '1rem'}} 
       className='tab-title user-select-none d-flex align-items-center justify-content-center cursor-pointer justify-content-middle rounded p-2 fw-bolder text-muted' 
       onClick={onClick}>
       {children}
@@ -246,30 +279,27 @@ const TabTitleIcon = ({ addedClassName, type, count, onClick, minWidth, isSelect
   const Tag = LikeTypes[type].tag;
 
   const onClickHandler = () => {
-    console.log('TabTitleIcon value=', LikeTypes[type].value);
     onClick(LikeTypes[type].value);
   };
 
   return <TabTitleText addedClassName={addedClassName} minWidth={minWidth} onClick={onClickHandler} isSelected={isSelected}>
     <Tag style={{postition: 'relative', minWidth: '1.1rem'}} className={'me-1 post-action-icon cursor-pointer fs-5 post-action-' + type} />
-    <span className='fw-bold'>{count < 1000 ? count : humanNumber(count, n=>parseFloat(n).toFixed(1))}</span>
+    <span className='fw-bold'>{count < 1000 ? count : humanNumber(count, n=>toFixed(parseFloat(n),0))}</span>
   </TabTitleText>;
 };
 
 const PostStatsModalContent = ({ initialData, isFetching, post, source, initialType, onClose }) => {
-  console.log('PostStatsModalContent render', initialType);
   const [type, setType] = useState(initialType);
   const WIDTH = 325;
 
   const onClick = (type) => {
-    console.log('select type=', type);
     setType(type);
   };
 
   return (<>
   <Modal.Body className='ps-3 pt-1 pb-1 pe-3' style={{overflowY: 'auto', minHeight: '500px'}}>
     <div className='d-flex flex-row justify-content-between'>
-      <div className='flex-grow-1 overflow-hidden border-1 border-end' style={{maxWidth: WIDTH + 'px'}}>
+      <div className='flex-grow-1 overflow-hidden' style={{maxWidth: WIDTH + 'px'}}>
         {!isFetching && initialData && <PostStatsModalTabs width={WIDTH} selectedType={type} data={initialData} keyInfixId={post.id} onClick={onClick} />}
       </div>
       <div className='justify-content-between ml-auto' style={{zIndex: 9999}}>
